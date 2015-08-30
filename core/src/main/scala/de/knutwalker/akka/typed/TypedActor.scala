@@ -28,12 +28,19 @@ trait TypedActor extends Actor with Product with Serializable {
   final def typedBecome(f: Message => Unit) =
     context become mkReceive(f)
 
+  final def typedPartialBecome(f: PartialFunction[Message, Unit]) =
+    context become mkPartialReceive(f)
+
   final def receive: Receive = mkReceive(receiveMsg)
 
   def receiveMsg(msg: Message): Unit
 
   private def mkReceive(f: Message => Unit): Receive = LoggingReceive {
     case x ⇒ f(x.asInstanceOf[Message])
+  }
+
+  private def mkPartialReceive(f: PartialFunction[Message, Unit]): Receive = LoggingReceive {
+    case x if f.isDefinedAt(x.asInstanceOf[Message]) ⇒ f(x.asInstanceOf[Message])
   }
 }
 object TypedActor {
