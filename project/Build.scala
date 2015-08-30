@@ -14,7 +14,6 @@ object Build extends AutoPlugin {
                githubProject := Github("knutwalker", "typed-actors"),
                  description := "Compile time wrapper for more type safe actors",
                 scalaVersion := "2.11.7",
-          crossScalaVersions := scalaVersion.value :: "2.10.5" :: Nil,
          libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.3.12" % "provided",
                  javaVersion := JavaVersion.Java17,
              autoAPIMappings := true,
