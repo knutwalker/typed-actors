@@ -26,10 +26,6 @@ object Typed {
   def apply[T <: TypedActor](implicit gen: Generic[T], ct: ClassTag[T]) =
     new MkProps[T#Message, T, gen.Repr]()(gen, ct)
 
-  final class MkPropsOf[T <: Actor, L](implicit val gen: Generic.Aux[T, L], ct: ClassTag[T]) {
-    def of[A] = new MkProps[A, T, gen.Repr]()(gen, ct)
-  }
-
   final class MkProps[A, T <: Actor, L](implicit gen: Generic.Aux[T, L], ct: ClassTag[T]) extends ProductArgs {
 
     def propsProduct(args: L): Props[A] =
