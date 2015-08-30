@@ -2,7 +2,7 @@
 
 ```
 libraryDependencies ++= List(
-  "de.knutwalker" %% "typed-actors" % "1.0.0"
+  "de.knutwalker" %% "typed-actors" % "1.0.1"
 )
 ```
 
