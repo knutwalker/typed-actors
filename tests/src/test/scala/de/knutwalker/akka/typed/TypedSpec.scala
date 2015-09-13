@@ -58,6 +58,7 @@ object TypedSpec extends Specification with AfterAll {
 
     "have the same runtime representation as regular actors" >> {
       ref must beAnInstanceOf[akka.actor.ActorRef]
+      ref.untyped must beTheSameAs (ref.asInstanceOf[akka.actor.ActorRef])
     }
   }
 

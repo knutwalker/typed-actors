@@ -25,6 +25,7 @@ package object typed {
 
   type UntypedActorRef = akka.actor.ActorRef
   type UntypedProps = akka.actor.Props
+  val UntypedProps = akka.actor.Props
 
   type ActorRef[A] = Tagged[UntypedActorRef, A]
   type Props[A] = Tagged[UntypedProps, A]
@@ -101,12 +102,24 @@ package object typed {
     def unsafeTell(msg: Any)(implicit sender: UntypedActorRef = Actor.noSender): Unit =
       untyped ! msg
 
-    private def untyped: UntypedActorRef =
+    def untyped: UntypedActorRef =
       untag(ref)
   }
 
+  implicit final class UntypedPropsOps(val untyped: UntypedProps) extends AnyVal {
+
+    def typed[A]: Props[A] =
+      tag(untyped)
+  }
+
+  implicit final class UntypedActorRefOps(val untyped: UntypedActorRef) extends AnyVal {
+
+    def typed[A]: ActorRef[A] =
+      tag(untyped)
+  }
+
   private type Tagged[A, T] = {
-    type Tag = T
+    type Message = T
     type Self = A
   }
 
