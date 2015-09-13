@@ -51,6 +51,9 @@ package object typed {
   def PropsFor[T <: TypedActor](clazz: Class[T], args: Any*): Props[T#Message] =
     Props[T#Message, T](clazz, args: _*)
 
+  def PropsOf[A]: PropsBuilder[A] =
+    new PropsBuilder[A]
+
   def ActorOf[A](p: Props[A], name: String)(implicit factory: ActorRefFactory): ActorRef[A] =
     tag(factory.actorOf(untag(p), name))
 
