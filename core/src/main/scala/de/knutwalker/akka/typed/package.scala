@@ -16,7 +16,8 @@
 
 package de.knutwalker.akka
 
-import _root_.akka.actor.{ Actor, ActorContext, ActorPath, ActorRefFactory }
+import _root_.akka.actor.{ Actor, ActorContext, ActorPath, ActorRefFactory, Deploy }
+import _root_.akka.routing.RouterConfig
 
 import reflect.ClassTag
 
@@ -45,6 +46,37 @@ package object typed {
 
   def ActorOf[A](p: Props[A])(implicit factory: ActorRefFactory): ActorRef[A] =
     tag(factory.actorOf(untag(p)))
+
+
+  implicit final class PropsOps[A](val props: Props[A]) extends AnyVal {
+
+    def dispatcher: String =
+      untyped.dispatcher
+
+    def mailbox: String =
+      untyped.mailbox
+
+    def routerConfig: RouterConfig =
+      untyped.routerConfig
+
+    def withDispatcher(d: String): Props[A] =
+      tag(untyped.withDispatcher(d))
+
+    def withMailbox(m: String): Props[A] =
+      tag(untyped.withMailbox(m))
+
+    def withRouter(r: RouterConfig): Props[A] =
+      tag(untyped.withRouter(r))
+
+    def withDeploy(d: Deploy): Props[A] =
+      tag(untyped.withDeploy(d))
+
+    def actorClass(): Class[_ <: Actor] =
+      untyped.actorClass()
+
+    def untyped: UntypedProps =
+      untag(props)
+  }
 
   implicit final class ActorRefOps[A](val ref: ActorRef[A]) extends AnyVal {
 
