@@ -19,7 +19,7 @@ package de.knutwalker.akka
 import _root_.akka.actor.{ Actor, ActorContext, ActorPath, ActorRefFactory, Deploy }
 import _root_.akka.routing.RouterConfig
 
-import reflect.ClassTag
+import scala.reflect.ClassTag
 
 package object typed {
 
@@ -40,6 +40,15 @@ package object typed {
 
   def Props[A](p: UntypedProps): Props[A] =
     tag(p)
+
+  def PropsFor[T <: TypedActor : ClassTag]: Props[T#Message] =
+    Props[T#Message, T]
+
+  def PropsFor[T <: TypedActor : ClassTag](creator: ⇒ T): Props[T#Message] =
+    Props[T#Message, T](creator)
+
+  def PropsFor[T <: TypedActor](clazz: Class[T], args: Any*): Props[T#Message] =
+    Props[T#Message, T](clazz, args: _*)
 
   def ActorOf[A](p: Props[A], name: String)(implicit factory: ActorRefFactory): ActorRef[A] =
     tag(factory.actorOf(untag(p), name))
