@@ -1,0 +1,8 @@
+title: Typed Actors
+description: compile-time typechecked akka actors
+baseurl: "/typed-actors"
+url: "https://knutwalker.github.io/"
+markdown: kramdown
+highlighter: pygments
+kramdown:
+  input: GFM

@@ -1,0 +1,44 @@
+//
+// Generals styles for material design light elements
+//
+
+// Page container
+
+.page-content{
+  max-width: 1200px;
+  margin: 0 auto;
+
+  &.page-section {
+    margin-top: 25px;
+    border-radius: 2px;
+    padding: 80px 56px;
+    margin-bottom: 80px;
+  }
+}
+
+// Cards styles
+
+.mdl-card {
+  min-height: 160px;
+}
+
+.mdl-card__title {
+  color: #000;
+  height: 64px;
+  background: transparent;
+
+  a {
+    text-decoration: none;
+    font-weight: inherit;
+  }
+}
+
+.mdl-card__menu {
+  color: #fff;
+}
+
+.post-button{
+  position: absolute;
+  right: 15px;
+  bottom: 25px;
+}

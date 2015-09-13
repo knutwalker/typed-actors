@@ -1,0 +1,12 @@
+- name: Code
+  url: https://github.com/knutwalker/typed-actors
+- name: Travis
+  url: https://travis-ci.org/knutwalker/typed-actors
+- name: Gitter
+  url: https://gitter.im/knutwalker/typed-actors
+- name: knutwalker
+  url: https://twitter.com/knutwalker
+  icon: twitter
+- name: knutwalker
+  url: https://github.com/knutwalker
+  icon: github

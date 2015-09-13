@@ -1,0 +1,24 @@
+---
+---
+
+//
+// Main sass file, to import all styles
+//
+
+@charset "utf-8";
+
+$spacing-unit:     30px;
+$text-color:       #111;
+$background-color: #fdfdfd;
+$brand-color:      #bada55;
+$grey-color:       #828282;
+$grey-color-light: lighten($grey-color, 40%);
+$grey-color-dark:  darken($grey-color, 25%);
+
+
+// Import partials from `sass_dir` (defaults to `_sass`)
+@import
+        "base",
+        "layout",
+        "post"
+;
