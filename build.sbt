@@ -10,6 +10,8 @@ lazy val tests = project dependsOn (core, creator) settings (
     "org.specs2" %% "specs2-core"          % "3.6.4" % "test",
     "org.specs2" %% "specs2-matcher-extra" % "3.6.4" % "test"))
 
-lazy val parent = project in file(".") dependsOn creator aggregate (core, creator, tests) settings dontRelease
+lazy val examples = project dependsOn (core, creator) settings dontRelease
+
+lazy val parent = project in file(".") dependsOn creator aggregate (core, creator, tests, examples) settings dontRelease
 
 addCommandAlias("travis", ";clean;coverage;test;coverageReport;coverageAggregate")
