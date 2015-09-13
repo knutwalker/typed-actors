@@ -21,6 +21,37 @@ import _root_.shapeless.{ Generic, ProductArgs }
 
 import scala.reflect.ClassTag
 
+/**
+ * A shapeless-powered, typed variant of the actor/props creation.
+ * This is an alternative over constructors, that use the `Class[A], Any*`
+ * overload to create actors.
+ *
+ * You must use [[TypedActor]]s and these actors must be `case class`es for
+ * this to work.
+ *
+ * Example:
+ * {{{
+ * case class ExampleActor(foo: Option[String]) extends TypedActor.Of[String] {
+ *   def typedReceive: TypedReceive = ???
+ * }
+ *
+ * // runtime error (IllegalArgumentException: no matching constructor found):
+ * val runtimeError: ActorRef[String] =
+ *   ActorOf(PropsOf[String](classOf[ExampleActor1], "wrong type"))
+ *
+ * // compiletime error:
+ * //   found   : String("wrong type") :: HNil
+ * //   required: Option[String] :: HNil
+ * val compiletimeError: ActorRef[String] =
+ *   Typed[ExampleActor2].create("wrong type")
+ * }}}
+ *
+ * === Usage ===
+ *
+ * Use apply with the `TypedActor` as the type parameter and then call either
+ * `create` or `props` with the appropriate constructor parameters to create
+ * either an [[ActorRef]] or a [[Props]].
+ */
 object Typed {
 
   def apply[T <: TypedActor](implicit gen: Generic[T], ct: ClassTag[T]) =

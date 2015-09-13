@@ -16,18 +16,66 @@
 
 package de.knutwalker.akka.typed
 
-import akka.actor.Actor
+import _root_.akka.actor.Actor
 
 import scala.reflect.ClassTag
 
+/**
+ * Type-curried creation of `Props[A]` to aid the type inference.
+ *
+ * @see [[de.knutwalker.akka.typed.PropsOf]]
+ * @tparam A the message type this actor is receiving
+ */
 final class PropsBuilder[A] private[typed] {
 
+  /**
+   * Creates a new typed Props that uses the default constructor of the given
+   * actor type to create new instances of this actor.
+   *
+   * Wrapper for `akka.actor.Props[T]`.
+   *
+   * @tparam T the actor type
+   * @return a typed Props to create `ActorRef[A]`s for this actor
+   */
   def apply[T <: Actor : ClassTag]: Props[A] =
     Props[A, T]
 
+  /**
+   * Creates a new typed Props that uses the given creator function to create
+   * instances of this actor.
+   *
+   * CAVEAT: Required mailbox type cannot be detected when using anonymous
+   * mixin composition when creating the instance. For example, the following
+   * will not detect the need for `DequeBasedMessageQueueSemantics` as defined
+   * in `Stash`:
+   *
+   * {{{
+   * 'Props(new Actor with Stash { ... })
+   * }}}
+   *
+   * Instead you must create a named class that mixin the trait, e.g.
+   * `class MyActor extends Actor with Stash`.
+   *
+   * Wrapper for `akka.actor.Props[T](=> T)`.
+   *
+   * @param creator the thunk that create the new instance of this actor
+   * @tparam T the actor type
+   * @return a typed Props to create `ActorRef[A]`s for this actor
+   */
   def apply[T <: Actor : ClassTag](creator: ⇒ T): Props[A] =
     Props[A, T](creator)
 
+  /**
+   * Creates a new typed Props that uses the given class and constructor
+   * arguments to create instances of this actor.
+   *
+   * Wrapper for `akka.actor.Props[T](Class[T], Any*)`.
+   *
+   * @param clazz the class of this actor
+   * @param args the constructor argumentes of this actor
+   * @tparam T the actor type
+   * @return a typed Props to create `ActorRef[A]`s for this actor
+   */
   def apply[T <: Actor](clazz: Class[T], args: Any*): Props[A] =
     Props[A, T](clazz, args: _*)
 }
