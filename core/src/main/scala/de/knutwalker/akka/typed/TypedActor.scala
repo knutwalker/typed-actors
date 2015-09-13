@@ -20,7 +20,7 @@ import akka.actor.Actor
 import akka.event.LoggingReceive
 import de.knutwalker.akka.typed.TypedActor.TypedReceiver
 
-trait TypedActor extends Actor with Product with Serializable {
+trait TypedActor extends Actor {
   type Message
   type TypedReceive = PartialFunction[Message, Unit]
 
