@@ -1,0 +1,144 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>akka - typed-actors 1.1.1-SNAPSHOT - de.knutwalker.akka</title>
+          <meta name="description" content="akka - typed - actors 1.1.1 - SNAPSHOT - de.knutwalker.akka" />
+          <meta name="keywords" content="akka typed actors 1.1.1 SNAPSHOT de.knutwalker.akka" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      <script type="text/javascript" src="../../../lib/modernizr.custom.js"></script><script type="text/javascript" src="../../../lib/diagrams.js" id="diagrams-js"></script>
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'de.knutwalker.akka.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../../lib/package_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="de">de</a>.<a href="../package.html" class="extype" name="de.knutwalker">knutwalker</a></p>
+        <h1>akka</h1><span class="permalink">
+      <a href="../../../index.html#de.knutwalker.akka.package" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">akka</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="de.knutwalker.akka.typed" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="typed"></a>
+      <a id="typed:typed"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="typed/package.html"><span class="name">typed</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#de.knutwalker.akka.package@typed" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Compile-time wrapper for akka.actor.ActorRef to allow for same degree of
+type-safety on actors without requiring too much changes to the underlying
+system.</p><div class="fullcomment"><div class="comment cmt"><p>Compile-time wrapper for akka.actor.ActorRef to allow for same degree of
+type-safety on actors without requiring too much changes to the underlying
+system.</p><p>Example:</p><pre><span class="kw">import</span> akka.actor._
+<span class="kw">import</span> de.knutwalker.akka.typed._
+
+<span class="kw">case</span> <span class="kw">class</span> Ping(replyTo: ActorRef[Pong])
+<span class="kw">case</span> <span class="kw">class</span> Pong(replyTo: ActorRef[Ping])
+
+<span class="kw">implicit</span> <span class="kw">val</span> system = ActorSystem()
+
+<span class="kw">val</span> ping: ActorRef[Ping] = ActorOf(PropsOf[Ping](<span class="kw">new</span> Actor {
+  <span class="kw">def</span> receive: Receive = {
+    <span class="kw">case</span> Ping(replyTo) ⇒ replyTo ! Pong(self.typed)
+  }
+}))
+<span class="kw">val</span> pong: ActorRef[Pong] = ActorOf(PropsOf[Pong](<span class="kw">new</span> Actor {
+  <span class="kw">def</span> receive: Receive = {
+    <span class="kw">case</span> Pong(replyTo) ⇒ replyTo ! Ping(self.typed)
+  }
+}))
+
+ping ! Ping(pong)
+
+
+system.shutdown()</pre></div></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

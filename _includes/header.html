@@ -1,0 +1,48 @@
+<header class="mdl-layout__header">
+
+  <div class="mdl-layout__header-row">
+    <a href="{{ "/" | prepend: site.baseurl }}" class="mdl-navigation__link mdl-layout-title">{{ site.title }}</a>
+    <div class="mdl-layout-spacer"></div>
+    <nav class="mdl-navigation mdl-layout--large-screen-only">
+      {% unless page.is_index %}
+      <a class="mdl-navigation__link" href="{{ "/" | prepend: site.baseurl }}">{{ site.title }}</a>
+      {% endunless %}
+      {% assign pages  = site.pages | sort: "index" %}
+      {% for page in pages %}
+      {% if page.index %}
+      <a class="mdl-navigation__link" href="{{ page.link | prepend: site.baseurl }}">{{ page.title }}</a>
+      {% endif %}
+      {% endfor %}
+    </nav>
+
+    <button class="mdl-button mdl-js-button mdl-button--icon" id="menu-lower-left">
+      <i class="material-icons">more_vert</i>
+    </button>
+
+    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu-lower-left">
+      {% for option in site.data.more_vert %}
+      <li>
+        <a rel="nofollow" href="{{ option.url }}" class="mdl-menu__item">
+        {% if option.icon %}
+        <i class="fa fa-{{ option.icon }}"></i>
+        {% endif %}
+        {{ option.name }}
+      </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</header>
+
+{% unless page.is_index %}
+<div class="mdl-layout__drawer">
+  <span class="mdl-layout-title">Tutorial</span>
+  <nav class="mdl-navigation">
+    {% for page in site.pages %}
+    {% if page.tut %}
+    <a class="mdl-navigation__link" href="{{ page.url | prepend: site.baseurl }}">{{ page.title }}</a>
+    {% endif %}
+    {% endfor %}
+  </nav>
+</div>
+{% endunless %}
