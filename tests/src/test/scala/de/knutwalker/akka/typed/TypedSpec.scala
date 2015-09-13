@@ -36,7 +36,7 @@ object TypedSpec extends Specification with AfterAll {
   val inboxRef = inbox.getRef()
 
   case class MyActor(name: String) extends TypedActor.Of[TestMessage] {
-    def receiveMsg: TypedReceive = {
+    def typedReceive: TypedReceive = {
       case Foo(m1) ⇒ inboxRef ! Foo(s"$name: $m1")
       case Bar     ⇒ inboxRef ! Bar
     }

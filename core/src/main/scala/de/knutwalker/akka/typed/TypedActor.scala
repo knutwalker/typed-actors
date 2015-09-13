@@ -34,10 +34,13 @@ trait TypedActor extends Actor with Product with Serializable {
     PartialFunction(f)
 
   final def receive: Receive =
-    mkReceive(receiveMsg)
+    mkReceive(typedReceive)
 
-  def receiveMsg: TypedReceive
+  @deprecated("use typedReceive", "1.2.0")
+  def receiveMsg: TypedReceive =
+    typedReceive
 
+  def typedReceive: TypedReceive
 
   private def mkReceive(f: TypedReceive): Receive =
     LoggingReceive(new TypedReceiver(f))
