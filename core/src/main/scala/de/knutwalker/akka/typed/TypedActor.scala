@@ -18,6 +18,7 @@ package de.knutwalker.akka.typed
 
 import akka.actor.Actor
 import akka.event.LoggingReceive
+import de.knutwalker.akka.typed.TypedActor.TypedReceiver
 
 trait TypedActor extends Actor with Product with Serializable {
   type Message
@@ -37,11 +38,21 @@ trait TypedActor extends Actor with Product with Serializable {
 
   def receiveMsg: TypedReceive
 
-  private def mkReceive(f: TypedReceive): Receive = LoggingReceive {
-    case x if f.isDefinedAt(x.asInstanceOf[Message]) ⇒ f(x.asInstanceOf[Message])
-  }
 
+  private def mkReceive(f: TypedReceive): Receive =
+    LoggingReceive(new TypedReceiver(f))
 }
 object TypedActor {
   trait Of[A] extends TypedActor {type Message = A}
+
+  private class TypedReceiver[A](f: PartialFunction[A, Unit]) extends PartialFunction[Any, Unit] {
+    def isDefinedAt(x: Any): Boolean = try {
+      f.isDefinedAt(x.asInstanceOf[A])
+    } catch {
+      case _: ClassCastException ⇒ false
+    }
+
+    def apply(x: Any): Unit =
+      f(x.asInstanceOf[A])
+  }
 }
