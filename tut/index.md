@@ -50,7 +50,7 @@ scala> val props = Props[MyMessage, MyActor]
 props: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref = ActorOf(props, name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#820649220]
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#-599623381]
 
 scala> ref ! Foo("bar")
 received a Foo: bar
@@ -68,7 +68,7 @@ scala> ref ! SomeOtherMessage
              ^
 ```
 
-Next up, learn how to interact with the less safer parts of Akka:
+Next up, learn how to interact with the less safer parts of Akka.
 
 #### [&raquo; Unsafe Usage](unsafe.html)
 
