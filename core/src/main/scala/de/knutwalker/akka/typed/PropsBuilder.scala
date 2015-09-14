@@ -24,9 +24,12 @@ import scala.reflect.ClassTag
  * Type-curried creation of `Props[A]` to aid the type inference.
  *
  * @see [[de.knutwalker.akka.typed.PropsOf]]
+ * @param ignore dummy parameter as requirement for AnyVal.
+ *               Option[Nothing] has one inhabitant, None.
+ *               Unit is not possible, since it is a AnyVal type itself.
  * @tparam A the message type this actor is receiving
  */
-final class PropsBuilder[A] private[typed] {
+final class PropsBuilder[A](val ignore: Option[Nothing]) extends AnyVal {
 
   /**
    * Creates a new typed Props that uses the default constructor of the given

@@ -7,7 +7,7 @@
       {% unless page.is_index %}
       <a class="mdl-navigation__link" href="{{ "/" | prepend: site.baseurl }}">{{ site.title }}</a>
       {% endunless %}
-      {% assign pages  = site.pages | sort: "index" %}
+      {% assign pages = site.pages | sort: "index" %}
       {% for page in pages %}
       {% if page.index %}
       <a class="mdl-navigation__link" href="{{ page.link | prepend: site.baseurl }}">{{ page.title }}</a>
@@ -38,7 +38,8 @@
 <div class="mdl-layout__drawer">
   <span class="mdl-layout-title">Tutorial</span>
   <nav class="mdl-navigation">
-    {% for page in site.pages %}
+    {% assign pages = site.pages | sort: "tut" %}
+    {% for page in pages %}
     {% if page.tut %}
     <a class="mdl-navigation__link" href="{{ page.url | prepend: site.baseurl }}">{{ page.title }}</a>
     {% endif %}

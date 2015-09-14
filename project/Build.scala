@@ -1,7 +1,10 @@
+import com.typesafe.sbt.SbtGit.GitKeys
+import com.typesafe.sbt.git.NullLogger
 import sbt._
 import sbt.Keys._
 import de.knutwalker.sbt._
 import de.knutwalker.sbt.KSbtKeys._
+import sbtrelease.Version
 
 object Build extends AutoPlugin {
   override def trigger = allRequirements
@@ -39,42 +42,79 @@ object Build extends AutoPlugin {
     }.toMap
 
   def generateModules(state: State, dir: File, cacheDir: File, modules: Seq[ClasspathDep[ProjectRef]]): Seq[(File, String)] = {
-    val file = new GenerateModulesTask(state, dir, cacheDir, modules.map(_.project)).apply()
-    Seq(file → file.getName)
+    val files = new GenerateModulesTask(state, dir, cacheDir, modules.map(_.project)).apply()
+    files.map(x ⇒ (x, x.getName))
   }
 
-  private class GenerateModulesTask( state: State, dir: File, cacheDir: File, modules: Seq[ProjectRef]) {
+  private class GenerateModulesTask(state: State, dir: File, cacheDir: File, modules: Seq[ProjectRef]) {
+    val tempModulesFile = cacheDir / "gen-modules" / "modules.yml"
+    val tempVersionFile = cacheDir / "gen-modules" / "version.yml"
+    val modulesFile = dir / "modules.yml"
+    val versionFile = dir / "version.yml"
 
-    val tempFile = cacheDir / "gen-modules" / "modules.yml"
-    val targetFile = dir / "modules.yml"
-
-    def apply(): File = {
-      mkTemp()
-      cachedCopyFile(FileInfo.hash(tempFile))
-      targetFile
+    def apply(): Seq[File] = {
+      mkFiles()
+      List(
+        cachedCopyOf(tempVersionFile, versionFile),
+        cachedCopyOf(tempModulesFile, modulesFile)
+      )
     }
 
-    def mkTemp() = {
-      val lines = mkLines
-      IO.writeLines(tempFile, lines)
+    def mkFiles() = {
+      val extracted = Project.extract(state)
+      val latestVersion = getLatestVersion(extracted)
+      val lines = mkLines(extracted, latestVersion)
+      IO.writeLines(tempModulesFile, lines)
+      IO.writeLines(tempVersionFile, s"version: $latestVersion" :: Nil)
     }
 
-    val cachedCopyFile =
-      Tracked.inputChanged(cacheDir / "gen-modules" / "cached-inputs") { (inChanged, input: HashFileInfo) =>
-        if (inChanged || !targetFile.exists) {
-          IO.copyFile(tempFile, targetFile, preserveLastModified = true)
+    def cachedCopyOf(from: File, to: File): File = {
+      val cacheFile = cacheDir / "gen-modules" / "cached-inputs" / from.getName
+      val check = Tracked.inputChanged(cacheFile) {(hasChanged, input: HashFileInfo) ⇒
+        if (hasChanged || !to.exists()) {
+          IO.copyFile(from, to, preserveLastModified = true)
         }
       }
+      check(FileInfo.hash(from))
+      to
+    }
 
-    def mkLines = {
-      val extracted = Project.extract(state)
+    def getLatestVersion(extracted: Extracted): String = {
+      val baseDir = extracted.get(baseDirectory)
+      val currentVersion = extracted.get(version)
+      val (_, runner) = extracted.runTask(GitKeys.gitRunner, state)
+      val tagDashEl = runner("tag", "-l")(baseDir, NullLogger)
+      val tags = tagDashEl.trim.split("\\s+").toSeq.map(_.replaceFirst("^v", ""))
+      val sortedTags = tags.flatMap(Version(_)).sorted.map(_.string)
+      sortedTags.lastOption.getOrElse(currentVersion)
+    }
+
+    def mkLines(extracted: Extracted, latestVersion: String) =
       modules.flatMap { proj ⇒
         Seq(
           s"- organization: ${extracted.get(organization in proj)}",
           s"  name: ${extracted.get(name in proj)}",
-          s"  version: ${extracted.get(version in proj)}"
+          s"  version: $latestVersion"
         )
       }
-    }
+  }
+
+  implicit val versionOrdering = new Ordering[Version] {
+    def compare(x: Version, y: Version): Int =
+      x.major compare y.major match {
+        case 0 ⇒ x.minor.getOrElse(0) compare y.minor.getOrElse(0) match {
+          case 0 ⇒ x.bugfix.getOrElse(0) compare y.bugfix.getOrElse(0) match {
+            case 0 ⇒ (x.qualifier, y.qualifier) match {
+              case (None, None) ⇒ 0
+              case (Some(_), Some(_)) ⇒ 0
+              case (None, _) ⇒ 1
+              case (_, None) ⇒ -1
+            }
+            case a ⇒ a
+          }
+          case a ⇒ a
+        }
+        case a ⇒ a
+      }
   }
 }

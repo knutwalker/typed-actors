@@ -24,6 +24,7 @@ lazy val docs = project dependsOn (core, creator) settings (
   site.settings,
   ghpages.settings,
   tutSettings,
+  tutSourceDirectory := sourceDirectory.value / "tut",
   unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(core, creator),
   site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "api"),
   site.addMappingsToSiteDir(tut, "tut"),

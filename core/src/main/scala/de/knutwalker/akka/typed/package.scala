@@ -190,7 +190,7 @@ package object typed {
    * @return a class that created typed Props using one of the above methods
    */
   def PropsOf[A]: PropsBuilder[A] =
-    new PropsBuilder[A]
+    new PropsBuilder[A](None)
 
   /**
    * Creates a new typed actor with the given name as a child of the
