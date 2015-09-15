@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Basic Usage
-tut: true
+tut: 01
 ---
 
 To use **Typed Actors**, import the following:
@@ -19,12 +19,15 @@ import akka.actor._
 import de.knutwalker.akka.typed._
 ```
 
+#### Actor Definition
+
 Using Typed Actors is, at first, similar to regular actors.
 It is always a good idea to define your message protocol.
 
 ```scala
 sealed trait MyMessage
-case class Foo(bar: String) extends MyMessage
+case class Foo(foo: String) extends MyMessage
+case class Bar(bar: String) extends MyMessage
 
 case object SomeOtherMessage
 ```
@@ -32,13 +35,15 @@ case object SomeOtherMessage
 With that, define a regular actor.
 
 ```scala
-scala> class MyActor extends Actor {
-     |   def receive = {
-     |     case Foo(bar) => println(s"received a Foo: $bar")
-     |   }
-     | }
-defined class MyActor
+class MyActor extends Actor {
+  def receive = {
+    case Foo(foo) => println(s"received a Foo: $foo")
+    case Bar(bar) => println(s"received a Bar: $bar")
+  }
+}
 ```
+
+#### Actor Creation
 
 Now, use `Props` and `ActorOf`. These are now the ones from `de.knutwalker.akka.typed`, not from `akka.actor`.
 
@@ -50,17 +55,24 @@ scala> val props = Props[MyMessage, MyActor]
 props: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref = ActorOf(props, name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#-599623381]
-
-scala> ref ! Foo("bar")
-received a Foo: bar
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#-549544337]
 ```
 
-If you try to send a message from a different protocol, you will get a compile error. Benefit!
+This will give you an `ActorRef[MyMessage]`. You can use `!` to send messages, as usual.
+
+```scala
+scala> ref ! Foo("foo")
+received a Foo: foo
+
+scala> ref ! Bar("bar")
+received a Bar: bar
+```
+
+If you try to send a message from a different protocol, you will get a compile error. Hooray, benefit!
 
 ```scala
 scala> ref ! SomeOtherMessage
-<console>:29: error: type mismatch;
+<console>:31: error: type mismatch;
  found   : SomeOtherMessage.type
  required: ref.Message
     (which expands to)  MyMessage
@@ -68,9 +80,22 @@ scala> ref ! SomeOtherMessage
              ^
 ```
 
+There are three possible ways to create a `Props`, mirroring the constructors from `akka.actor.Props`.
+
+```scala
+scala> val props = Props[MyMessage, MyActor]
+props: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
+
+scala> val props = Props[MyMessage, MyActor](new MyActor)
+props: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class akka.actor.TypedCreatorFunctionConsumer,List(class MyActor, <function0>))
+
+scala> val props = Props[MyMessage, MyActor](classOf[MyActor])
+props: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
+```
+
 Next up, learn how to interact with the less safer parts of Akka.
 
-#### [&raquo; Unsafe Usage](unsafe.html)
+##### [&raquo; Unsafe Usage](unsafe.html)
 
 
 
