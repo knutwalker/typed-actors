@@ -4,7 +4,7 @@ title: Building Props
 tut: 04
 ---
 
-With the [&laquo; Typed Actor](tyoed-actor.html) in place, we can now look at more ways to define a `Props`. 
+With the [&laquo; Typed Actor](typed-actor.html) in place, we can now look at more ways to define a `Props`. 
 
 
 
