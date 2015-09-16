@@ -18,23 +18,19 @@ package de.knutwalker.akka.typed
 
 import _root_.akka.actor.Actor
 import _root_.akka.event.LoggingReceive
-import de.knutwalker.akka.typed.TypedActor.TypedReceiver
+import akka.actor.Actor.Receive
+import de.knutwalker.akka.typed.TypedActor.{ Downcast, TypedReceiver }
+
+import scala.reflect.ClassTag
 
 /**
  * TypedActor base trait that should be extended by to create a typed Actor.
  * This actor is designed to only receive one type of message in its lifetime.
  * Typically, this is some ADT/sealed trait that defines the protocol for this actor.
  *
- * The message type is defined by the abstract type member `Message`.
- * The object [[TypedActor$]] defines a helper trait to provide the message type
- * via a type paramter instead of a type member. These two are equivalent:
+ * The message type is defined by extending [[TypedActor.Of]]:
  *
  * {{{
- *   class ExampleActor extends TypeActor {
- *     type Message = ExampleProtocol
- *     // ...
- *   }
- *
  *   class ExampleActor extends TypeActor.Of[ExampleProtocol] {
  *     // ...
  *   }
@@ -59,11 +55,14 @@ import de.knutwalker.akka.typed.TypedActor.TypedReceiver
  *   }
  * }}}
  *
+ * If you must go back to untyped land, use the [[TypedActor#Untyped]] wrapper.
+ *
  * @see [[akka.actor.Actor]] for more about Actors in general.
  */
-trait TypedActor extends Actor {
+sealed trait TypedActor extends Actor {
   type Message
   type TypedReceive = PartialFunction[Message, Unit]
+  implicit def _ct: ClassTag[Message]
 
   /** Typed variant of [[self]]. */
   final val typedSelf: ActorRef[Message] =
@@ -79,8 +78,7 @@ trait TypedActor extends Actor {
    *
    * {{{
    *   // error: match may not be exhaustive. It would fail on the following inputs: None
-   *   class ExampleActor extends TypedActor {
-   *     type Message = Option[String]
+   *   class ExampleActor extends TypedActor.Of[Option[String]] {
    *     def typedReceive: TypedReceive = Total {
    *       case Some("foo") ⇒
    *     }
@@ -88,7 +86,22 @@ trait TypedActor extends Actor {
    * }}}
    */
   final def Total(f: Message ⇒ Unit): TypedReceive =
-    PartialFunction(f)
+    new Downcast[Message](_ct.runtimeClass.asInstanceOf[Class[Message]])(f)
+
+  /**
+   * Wraps an untyped receiver and returns it as a [[TypedReceive]].
+   * Use this to match for messages that are outside of your protocol, e.g. [[akka.actor.Terminated]].
+   *
+   * {{{
+   *   class ExampleActor extends TypedActor.Of[ExampleMessage] {
+   *     def typedReceive: TypedReceive = Untyped {
+   *       case Terminated(ref) => println(s"$$ref terminated")
+   *     }
+   *   }
+   * }}}
+   */
+  final def Untyped(f: Receive): TypedReceive =
+    f // .asInstanceOf[TypedReceive]
 
   /**
    * `TypedActor`s delegate to [[typedReceive]].
@@ -116,14 +129,11 @@ trait TypedActor extends Actor {
 }
 object TypedActor {
   /**
-   * A convenience trait to provide the message type via type parameters.
+   * Abstract class to extend from in order to get a [[TypedActor]].
+   * If you want to have the message type provided as a type parameter,
+   * you have to add a context bound for [[scala.reflect.ClassTag]].
    *
-   * * {{{
-   *   class ExampleActor extends TypeActor {
-   *     type Message = ExampleProtocol
-   *     // ...
-   *   }
-   *
+   * {{{
    *   class ExampleActor extends TypeActor.Of[ExampleProtocol] {
    *     // ...
    *   }
@@ -131,16 +141,26 @@ object TypedActor {
    *
    * @tparam A the message type this actor is receiving
    */
-  trait Of[A] extends TypedActor {final type Message = A}
+  abstract class Of[A](implicit val _ct: ClassTag[A]) extends TypedActor {
+    final type Message = A
+  }
 
-  private class TypedReceiver[A](f: PartialFunction[A, Unit]) extends PartialFunction[Any, Unit] {
+  private class Downcast[A](cls: Class[A])(f: A ⇒ Unit) extends Receive {
+    def isDefinedAt(x: Any): Boolean = cls.isInstance(x)
+    def apply(v1: Any): Unit = f(cls.cast(v1))
+  }
+
+  private class TypedReceiver[A](f: PartialFunction[A, Unit]) extends Receive {
+    private[this] val receive: Receive =
+      f.asInstanceOf[Receive]
+
     def isDefinedAt(x: Any): Boolean = try {
-      f.isDefinedAt(x.asInstanceOf[A])
+      receive.isDefinedAt(x)
     } catch {
       case _: ClassCastException ⇒ false
     }
 
     def apply(x: Any): Unit =
-      f(x.asInstanceOf[A])
+      receive(x)
   }
 }

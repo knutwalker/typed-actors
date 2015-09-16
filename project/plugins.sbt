@@ -1,3 +1,4 @@
+libraryDependencies += "org.slf4j" % "slf4j-nop" % "1.7.10"
 resolvers += Resolver.url(
   "tut-plugin",
   url("http://dl.bintray.com/content/tpolecat/sbt-plugin-releases"))(

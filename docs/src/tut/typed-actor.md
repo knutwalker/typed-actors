@@ -24,11 +24,11 @@ akka.actor.debug.receive=off
 Having a typed reference to an actor is one thing, but how can we improve type-safety within the actor itself?
 **Typed Actors** offers a `trait` called `TypedActor` which you can extend from instead of `Actor`.
 `TypedActor` itself extends `Actor` but contains an abstract type member and typed receive method
-instead of just an untyped receive method. In order to use the `TypedActor`, you have to provide both.
+instead of just an untyped receive method.
+In order to use the `TypedActor`, you have to extend `TypedActor.Of[_]` and provide your message type via type parameter (you cannot extend directly from `TypedActor`).
 
 ```tut
-class MyActor extends TypedActor {
-  type Message = MyMessage
+class MyActor extends TypedActor.Of[MyMessage] {
   def typedReceive = {
     case Foo(foo) => println(s"received a Foo: $foo")
     case Bar(bar) => println(s"received a Bar: $bar")
@@ -50,20 +50,6 @@ class MyActor extends TypedActor {
 }
 ```
 
-#### Message as type parameter
-
-The message type can also be provided as a type parameter on `TypedActor.Of[_]`.
-
-```tut
-class MyActor extends TypedActor.Of[MyMessage] {
-  def typedReceive = {
-    case Foo(foo) => println(s"received a Foo: $foo")
-  }
-}
-val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor-2")
-ref ! Foo("foo")
-```
-
 
 #### Divergence
 
@@ -81,8 +67,7 @@ akka.actor.debug.receive=on
 ```
 
 ```tut
-class MyOtherActor extends TypedActor {
-  type Message = MyMessage
+class MyOtherActor extends TypedActor.Of[MyMessage] {
   def typedReceive = {
     case Foo(foo) => println(s"received a Foo: $foo")  
     case Bar(bar) => context become LoggingReceive {
@@ -126,6 +111,23 @@ class MyOtherActor extends TypedActor.Of[MyMessage] {
   }
 }
 ```
+
+#### Going back to untyped land
+
+Sometimes you have to receive messages that are outside of your protocol. A typical case is `Terminated`, but other modules and patterns have those messages as well.
+You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go.  
+
+
+```tut
+class MyOtherActor extends TypedActor.Of[MyMessage] {
+  def typedReceive = Untyped {
+    case Terminated(ref) => println(s"$ref terminated")
+    case Foo(foo) => println(s"received a Foo: $foo")
+  }
+}
+```
+
+With `Untyped`, you won't get any compiler support, it is meant as an escape hatch; If you find yourself using `Untyped` all over the place, consider just using a regular `Actor` instead.
 
 Next, learn more ways to create `Props`.
 
