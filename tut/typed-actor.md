@@ -25,7 +25,7 @@ scala> class MyActor extends TypedActor {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-779327412]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#1724139829]
 
 scala> ref ! Foo("foo")
 
@@ -70,12 +70,12 @@ scala> class MyActor extends TypedActor.Of[MyMessage] {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor-2")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor-2#274792389]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor-2#-503655419]
 
 scala> ref ! Foo("foo")
 [DEBUG] received handled message Foo(foo)
-received a Foo: foo
 ```
+received a Foo: foo
 
 
 #### Divergence
@@ -95,19 +95,19 @@ scala> class MyOtherActor extends TypedActor {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#1700786990]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-1020490913]
 
 scala> otherRef ! Foo("foo")
-received a Foo: foo
 [DEBUG] received handled message Foo(foo)
+received a Foo: foo
 
 scala> otherRef ! Bar("bar")
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
-[DEBUG] received unhandled message Foo(baz)
 
 scala> otherRef.untyped ! SomeOtherMessage
+[DEBUG] received unhandled message Foo(baz)
 [DEBUG] received handled message SomeOtherMessage
 ```
 
