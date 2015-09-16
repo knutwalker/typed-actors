@@ -2,6 +2,7 @@ import sbt._, Keys._
 import com.typesafe.sbt.SbtSite.SiteKeys._
 import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 import sbtunidoc.Plugin.UnidocKeys.{ unidoc, unidocProjectFilter }
+import Build.autoImport.genModules // screw you, IntelliJ
 
 lazy val core = project settings (name := "typed-actors")
 
@@ -26,6 +27,7 @@ lazy val docs = project dependsOn (core, creator) settings (
   unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(core, creator),
   site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "api"),
   site.addMappingsToSiteDir(tut, "tut"),
+  site.addMappingsToSiteDir(genModules, "_data"),
   ghpagesNoJekyll := false,
   scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
     "-doc-source-url", scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
