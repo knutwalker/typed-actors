@@ -42,31 +42,31 @@ scala> Typed[MyActor].props("Bernd")
 res0: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class akka.actor.TypedCreatorFunctionConsumer,List(class MyActor, <function0>))
 
 scala> Typed[MyActor].create("Bernd")
-res1: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#1820337199]
+res1: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#241947424]
 
 scala> ActorOf(Typed[MyActor].props("Bernd"), "typed-bernd")
-res2: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/typed-bernd#-577084231]
+res2: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/typed-bernd#530951997]
 ```
 
 Wrong invocations are greeted with a compile error instead of a runtime error!
 
 ```scala
 scala> Typed[MyActor].create()
-<console>:27: error: type mismatch;
+<console>:26: error: type mismatch;
  found   : shapeless.HNil
  required: shapeless.::[String,shapeless.HNil]
        Typed[MyActor].create()
                             ^
 
 scala> Typed[MyActor].create("Bernd", "Ralf")
-<console>:27: error: type mismatch;
+<console>:26: error: type mismatch;
  found   : shapeless.::[String("Bernd"),shapeless.::[String("Ralf"),shapeless.HNil]]
  required: shapeless.::[String,shapeless.HNil]
        Typed[MyActor].create("Bernd", "Ralf")
                             ^
 
 scala> Typed[MyActor].create(42)
-<console>:27: error: type mismatch;
+<console>:26: error: type mismatch;
  found   : shapeless.::[Int(42),shapeless.HNil]
  required: shapeless.::[String,shapeless.HNil]
        Typed[MyActor].create(42)

@@ -55,7 +55,7 @@ scala> val props = Props[MyMessage, MyActor]
 props: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref = ActorOf(props, name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#809704260]
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#-301413573]
 ```
 
 This will give you an `ActorRef[MyMessage]`. You can use `!` to send messages, as usual.

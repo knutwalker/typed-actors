@@ -25,20 +25,14 @@ scala> class MyActor extends TypedActor {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#2040148136]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#442526609]
 
 scala> ref ! Foo("foo")
+received a Foo: foo
 
 scala> ref ! Bar("bar")
-[DEBUG] received handled message Foo(foo)
-received a Foo: foo
 received a Bar: bar
-[DEBUG] received handled message Bar(bar)
 ```
-
-
-
-
 
 If you match on messages from a different type, you will get a compile error.
 
@@ -49,7 +43,7 @@ scala> class MyActor extends TypedActor {
      |     case SomeOtherMessage => println("received some other message")
      |   }
      | }
-<console>:24: error: pattern type is incompatible with expected type;
+<console>:23: error: pattern type is incompatible with expected type;
  found   : SomeOtherMessage.type
  required: MyActor.this.Message
     (which expands to)  MyMessage
@@ -70,9 +64,10 @@ scala> class MyActor extends TypedActor.Of[MyMessage] {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor-2")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor-2#-1625670599]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor-2#151560866]
 
 scala> ref ! Foo("foo")
+received a Foo: foo
 ```
 
 
@@ -80,28 +75,29 @@ scala> ref ! Foo("foo")
 
 Similar to the untyped actor, `context.become` is not hidden and can still lead to diverging actors.
 
+
+
+
 ```scala
 scala> class MyOtherActor extends TypedActor {
      |   type Message = MyMessage
      |   def typedReceive = {
      |     case Foo(foo) => println(s"received a Foo: $foo")  
      |     case Bar(bar) => context become LoggingReceive {
-received a Foo: foo
-[DEBUG] received handled message Foo(foo)
-     |       case SomeOtherMessage =>
+     |       case SomeOtherMessage => println("received some other message")
      |     }
      |   }
      | }
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#1894798758]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#1713182539]
 
 scala> otherRef ! Foo("foo")
-[DEBUG] received handled message Foo(foo)
-received a Foo: foo
 
 scala> otherRef ! Bar("bar")
+received a Foo: foo
+[DEBUG] received handled message Foo(foo)
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -109,6 +105,7 @@ scala> otherRef ! Foo("baz")
 
 scala> otherRef.untyped ! SomeOtherMessage
 [DEBUG] received handled message SomeOtherMessage
+received some other message
 ```
 
 #### More Typing
@@ -124,15 +121,15 @@ scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
      |   def typedReceive = {
      |     case Foo(foo) => println(s"received a Foo: $foo")  
      |     case Bar(bar) => typedBecome {
-     |       case SomeOtherMessage =>
+     |       case SomeOtherMessage => println("received some other message")
      |     }
      |   }
      | }
-<console>:29: error: pattern type is incompatible with expected type;
+<console>:31: error: pattern type is incompatible with expected type;
  found   : SomeOtherMessage.type
  required: MyOtherActor.this.Message
     (which expands to)  MyMessage
-             case SomeOtherMessage =>
+             case SomeOtherMessage => println("received some other message")
                   ^
 ```
 
@@ -144,7 +141,7 @@ scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
      |     case Foo(foo) => println(s"received a Foo: $foo")
      |   }
      | }
-<console>:23: warning: match may not be exhaustive.
+<console>:25: warning: match may not be exhaustive.
 It would fail on the following input: Bar(_)
          def typedReceive = Total {
                                   ^

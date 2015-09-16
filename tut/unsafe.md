@@ -11,7 +11,7 @@ We will reuse the definitions and actors from the [&laquo; Basic Usage](index.ht
 
 ```scala
 scala> val typedRef = ActorOf[MyMessage](props, name = "my-actor")
-typedRef: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#2005768092]
+typedRef: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#2145435150]
 ```
 
 #### Autoreceive Messages
@@ -30,7 +30,7 @@ You can easily turn your typed actor into an untyped one bu using `untyped`.
 
 ```scala
 scala> val untypedRef = typedRef.untyped
-untypedRef: de.knutwalker.akka.typed.package.UntypedActorRef = Actor[akka://foo/user/my-actor#2005768092]
+untypedRef: de.knutwalker.akka.typed.package.UntypedActorRef = Actor[akka://foo/user/my-actor#2145435150]
 ```
 
 For convenience, `akka.actor.ActorRef` is type aliased as `de.knutwalker.akka.typed.UntypedActorRef`.
@@ -38,14 +38,14 @@ Similarly, you can turn any untyped ref into a typed one using `typed`.
 
 ```scala
 scala> val typedAgain = untypedRef.typed[MyMessage]
-typedAgain: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#2005768092]
+typedAgain: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#2145435150]
 ```
 
 As scala tends to infer `Nothing` as the most specific bottom type, you want to make sure to always provide a useful type.
 
 ```scala
 scala> untypedRef.typed
-res1: de.knutwalker.akka.typed.package.ActorRef[Nothing] = Actor[akka://foo/user/my-actor#2005768092]
+res1: de.knutwalker.akka.typed.package.ActorRef[Nothing] = Actor[akka://foo/user/my-actor#2145435150]
 ```
 
 #### Compiletime only
@@ -71,20 +71,20 @@ scala> class MyOtherActor extends Actor {
      |   def receive = LoggingReceive {
      |     case Foo(foo) => println(s"received a Foo: $foo")
      |     case Bar(bar) => context become LoggingReceive {
-     |       case SomeOtherMessage =>
+     |       case SomeOtherMessage => println("received some other message")
      |     }
      |   }
      | }
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#339428783]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#193693641]
 
 scala> otherRef ! Foo("foo")
 [DEBUG] received handled message Foo(foo)
-received a Foo: foo
 
 scala> otherRef ! Bar("bar")
+received a Foo: foo
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -92,6 +92,7 @@ scala> otherRef ! Foo("baz")
 
 scala> otherRef.untyped ! SomeOtherMessage
 [DEBUG] received handled message SomeOtherMessage
+received some other message
 ```
 
 Making sure, that this cannot happen is outside of the scope of **Typed Actors**.
