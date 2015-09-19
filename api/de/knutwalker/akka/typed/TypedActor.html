@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>TypedActor - typed-actors 1.1.1-SNAPSHOT - de.knutwalker.akka.typed.TypedActor</title>
-          <meta name="description" content="TypedActor - typed - actors 1.1.1 - SNAPSHOT - de.knutwalker.akka.typed.TypedActor" />
-          <meta name="keywords" content="TypedActor typed actors 1.1.1 SNAPSHOT de.knutwalker.akka.typed.TypedActor" />
+          <title>TypedActor - typed-actors 1.2.0 - de.knutwalker.akka.typed.TypedActor</title>
+          <meta name="description" content="TypedActor - typed - actors 1.2.0 - de.knutwalker.akka.typed.TypedActor" />
+          <meta name="keywords" content="TypedActor typed actors 1.2.0 de.knutwalker.akka.typed.TypedActor" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -43,7 +43,7 @@
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">sealed </span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
@@ -53,14 +53,7 @@
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>TypedActor base trait that should be extended by to create a typed Actor.
 This actor is designed to only receive one type of message in its lifetime.
-Typically, this is some ADT/sealed trait that defines the protocol for this actor.</p><p>The message type is defined by the abstract type member <code>Message</code>.
-The object <a href="TypedActor$.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor$</a> defines a helper trait to provide the message type
-via a type paramter instead of a type member. These two are equivalent:</p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypeActor {
-  <span class="kw">type</span> Message = ExampleProtocol
-  <span class="cmt">// ...</span>
-}
-
-<span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypeActor.Of[ExampleProtocol] {
+Typically, this is some ADT/sealed trait that defines the protocol for this actor.</p><p>The message type is defined by extending <a href="TypedActor$$Of.html" class="extype" name="de.knutwalker.akka.typed.TypedActor.Of">TypedActor.Of</a>:</p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypeActor.Of[ExampleProtocol] {
   <span class="cmt">// ...</span>
 }</pre><p>The <code>TypedActor</code> is just a regular actor, but if offers some methods that help
 you stay within the defined typed contract.
@@ -75,7 +68,8 @@ You can get exhausitveness checking for your receive block if you use
   <span class="kw">def</span> typedReceive: TypedReceive = Total {
     <span class="kw">case</span> <span class="std">Some</span>(<span class="lit">"foo"</span>) ⇒
   }
-}</pre></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/knutwalker/typed-actors//tree/master/core/src/main/scala/de/knutwalker/akka/typed/TypedActor.scala" target="_blank">TypedActor.scala</a></dd><dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor" class="extype" target="_top">akka.actor.Actor</a> for more about Actors in general.</p></span></dd></dl><div class="toggleContainer block">
+}</pre><p>If you must go back to untyped land, use the <a href="#Untyped(f:TypedActor.this.Receive):TypedActor.this.TypedReceive" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#Untyped">TypedActor#Untyped</a> wrapper.
+</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/knutwalker/typed-actors//tree/master/core/src/main/scala/de/knutwalker/akka/typed/TypedActor.scala" target="_blank">TypedActor.scala</a></dd><dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor" class="extype" target="_top">akka.actor.Actor</a> for more about Actors in general.</p></span></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
@@ -84,7 +78,7 @@ You can get exhausitveness checking for your receive block if you use
           </div><div class="toggleContainer block diagram-container" id="inheritance-diagram-container">
                 <span class="toggle diagram-link">Type Hierarchy</span>
                 <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#diagrams" target="_blank" class="diagram-help">Learn more about scaladoc diagrams</a>
-                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 150.00 155.00" height="155pt" width="150pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 151)" class="graph" id="graph0"><polygon points="-4,4 -4,-151 146,-151 146,4 -4,4" stroke="none" fill="white"></polygon><g class="cluster" id="clust1"></g><g class="cluster" id="clust2"></g><!-- node0 --><g class="node this trait" id="graph1_0"><g id="a_this trait|graph1_0"><a xlink:title="de.knutwalker.akka.typed.TypedActor (this trait)" xlink:href="#inheritance-diagram"><polygon points="118,-86 24,-86 24,-61 118,-61 118,-86" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../lib/trait_diagram.png" y="-80.5" x="34" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-70.7495" x="54.8203" text-anchor="start">TypedActor</text></a></g></g><!-- node1 --><g class="node trait" id="graph1_1"><g id="a_trait|graph1_1"><a xlink:title="de.knutwalker.akka.typed.TypedActor.Of" xlink:href="TypedActor$$Of.html#inheritance-diagram"><polygon points="104,-25 38,-25 38,-0 104,-0 104,-25" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../lib/trait_diagram.png" y="-19.5" x="48" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-9.74951" x="68.7192" text-anchor="start">Of[A]</text></a></g></g><!-- node0&#45;&gt;node1 --><g class="edge inheritance" id="graph1_0_1"><g id="a_inheritance|graph1_0_1"><a xlink:title="Of[A] is a subtype of TypedActor"><path d="M71,-55.6874C71,-45.9173 71,-33.8534 71,-25.1323" stroke="#d4d4d4" fill="none"></path><polygon points="69.2501,-55.8435 71,-60.8435 72.7501,-55.8435 69.2501,-55.8435" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node2 --><g class="node trait" id="graph1_2"><g id="a_trait|graph1_2"><a xlink:title="akka.actor.Actor"><polygon points="104.5,-147 37.5,-147 37.5,-122 104.5,-122 104.5,-147" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../lib/trait_diagram.png" y="-141.5" x="48" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-131.75" x="68.9409" text-anchor="start">Actor</text></a></g></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><g id="a_inheritance|graph1_2_0"><a xlink:title="TypedActor is a subtype of Actor"><path d="M71,-116.687C71,-106.917 71,-94.8534 71,-86.1323" stroke="#d4d4d4" fill="none"></path><polygon points="69.2501,-116.843 71,-121.843 72.7501,-116.844 69.2501,-116.843" stroke="#d4d4d4" fill="none"></polygon></a></g></g></g></svg></div>
+                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 150.00 155.00" height="155pt" width="150pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 151)" class="graph" id="graph0"><polygon points="-4,4 -4,-151 146,-151 146,4 -4,4" stroke="none" fill="white"></polygon><g class="cluster" id="clust1"></g><g class="cluster" id="clust2"></g><!-- node0 --><g class="node this trait" id="graph1_0"><g id="a_this trait|graph1_0"><a xlink:title="de.knutwalker.akka.typed.TypedActor (this trait)" xlink:href="#inheritance-diagram"><polygon points="118,-86 24,-86 24,-61 118,-61 118,-86" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../lib/trait_diagram.png" y="-80.5" x="34" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-70.7495" x="54.8203" text-anchor="start">TypedActor</text></a></g></g><!-- node1 --><g class="node class" id="graph1_1"><g id="a_class|graph1_1"><a xlink:title="de.knutwalker.akka.typed.TypedActor.Of" xlink:href="TypedActor$$Of.html#inheritance-diagram"><polygon points="104,-25 38,-25 38,-0 104,-0 104,-25" stroke="#115f3b" fill="#0a955b"></polygon><image xlink:href="../../../../lib/class_diagram.png" y="-19.5" x="48" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-9.74951" x="68.7192" text-anchor="start">Of[A]</text></a></g></g><!-- node0&#45;&gt;node1 --><g class="edge inheritance" id="graph1_0_1"><g id="a_inheritance|graph1_0_1"><a xlink:title="Of[A] is a subtype of TypedActor"><path d="M71,-55.6874C71,-45.9173 71,-33.8534 71,-25.1323" stroke="#d4d4d4" fill="none"></path><polygon points="69.2501,-55.8435 71,-60.8435 72.7501,-55.8435 69.2501,-55.8435" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node2 --><g class="node trait" id="graph1_2"><g id="a_trait|graph1_2"><a xlink:title="akka.actor.Actor"><polygon points="104.5,-147 37.5,-147 37.5,-122 104.5,-122 104.5,-147" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../lib/trait_diagram.png" y="-141.5" x="48" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-131.75" x="68.9409" text-anchor="start">Actor</text></a></g></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><g id="a_inheritance|graph1_2_0"><a xlink:title="TypedActor is a subtype of Actor"><path d="M71,-116.687C71,-106.917 71,-94.8534 71,-86.1323" stroke="#d4d4d4" fill="none"></path><polygon points="69.2501,-116.843 71,-121.843 72.7501,-116.844 69.2501,-116.843" stroke="#d4d4d4" fill="none"></polygon></a></g></g></g></svg></div>
               </div></div>
         
 
@@ -179,7 +173,24 @@ You can get exhausitveness checking for your receive block if you use
 
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
-              <ol><li name="de.knutwalker.akka.typed.TypedActor#typedReceive" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+              <ol><li name="de.knutwalker.akka.typed.TypedActor#_ct" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="_ct:scala.reflect.ClassTag[TypedActor.this.Message]"></a>
+      <a id="_ct:ClassTag[Message]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">_ct</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<a href="#Message" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.Message">Message</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor@_ct:scala.reflect.ClassTag[TypedActor.this.Message]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="de.knutwalker.akka.typed.TypedActor#typedReceive" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="typedReceive:TypedActor.this.TypedReceive"></a>
       <a id="typedReceive:TypedReceive"></a>
       <h4 class="signature">
@@ -272,10 +283,31 @@ is typed in its first parameter.
     </span>
       <p class="shortcomment cmt">Wraps a total receiver function and returns it as a <a href="#TypedReceive=PartialFunction[TypedActor.this.Message,Unit]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.TypedReceive">TypedReceive</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Wraps a total receiver function and returns it as a <a href="#TypedReceive=PartialFunction[TypedActor.this.Message,Unit]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.TypedReceive">TypedReceive</a>.
 Use this to get exhaustiveness checking for your receive block.</p><pre><span class="cmt">// error: match may not be exhaustive. It would fail on the following inputs: None</span>
-<span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypedActor {
-  <span class="kw">type</span> Message = <span class="std">Option</span>[<span class="std">String</span>]
+<span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypedActor.Of[<span class="std">Option</span>[<span class="std">String</span>]] {
   <span class="kw">def</span> typedReceive: TypedReceive = Total {
     <span class="kw">case</span> <span class="std">Some</span>(<span class="lit">"foo"</span>) ⇒
+  }
+}</pre></div></div>
+    </li><li name="de.knutwalker.akka.typed.TypedActor#Untyped" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Untyped(f:TypedActor.this.Receive):TypedActor.this.TypedReceive"></a>
+      <a id="Untyped(Receive):TypedReceive"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Untyped</span><span class="params">(<span name="f">f: <a href="#Receive=akka.actor.Actor.Receive" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.Receive">Receive</a></span>)</span><span class="result">: <a href="#TypedReceive=PartialFunction[TypedActor.this.Message,Unit]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.TypedReceive">TypedReceive</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor@Untyped(f:TypedActor.this.Receive):TypedActor.this.TypedReceive" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Wraps an untyped receiver and returns it as a <a href="#TypedReceive=PartialFunction[TypedActor.this.Message,Unit]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.TypedReceive">TypedReceive</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Wraps an untyped receiver and returns it as a <a href="#TypedReceive=PartialFunction[TypedActor.this.Message,Unit]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.TypedReceive">TypedReceive</a>.
+Use this to match for messages that are outside of your protocol, e.g. <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Terminated" class="extype" target="_top">akka.actor.Terminated</a>.</p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypedActor.Of[ExampleMessage] {
+  <span class="kw">def</span> typedReceive: TypedReceive = Untyped {
+    <span class="kw">case</span> Terminated(ref) <span class="kw">=&gt;</span> println(s<span class="lit">"$$ref terminated"</span>)
   }
 }</pre></div></div>
     </li><li name="akka.actor.Actor#aroundPostRestart" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">

@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>typed - typed-actors 1.1.1-SNAPSHOT - de.knutwalker.akka.typed</title>
-          <meta name="description" content="typed - typed - actors 1.1.1 - SNAPSHOT - de.knutwalker.akka.typed" />
-          <meta name="keywords" content="typed typed actors 1.1.1 SNAPSHOT de.knutwalker.akka.typed" />
+          <title>typed - typed-actors 1.2.0 - de.knutwalker.akka.typed</title>
+          <meta name="description" content="typed - typed - actors 1.2.0 - de.knutwalker.akka.typed" />
+          <meta name="keywords" content="typed typed actors 1.2.0 de.knutwalker.akka.typed" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -203,7 +203,7 @@ system.shutdown()</pre></div><dl class="attributes block"> <dt>Source</dt><dd><a
       <a id="TypedActor:TypedActor"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">sealed </span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
@@ -216,14 +216,7 @@ system.shutdown()</pre></div><dl class="attributes block"> <dt>Source</dt><dd><a
     </span>
       <p class="shortcomment cmt">TypedActor base trait that should be extended by to create a typed Actor.</p><div class="fullcomment"><div class="comment cmt"><p>TypedActor base trait that should be extended by to create a typed Actor.
 This actor is designed to only receive one type of message in its lifetime.
-Typically, this is some ADT/sealed trait that defines the protocol for this actor.</p><p>The message type is defined by the abstract type member <code>Message</code>.
-The object <a href="TypedActor$.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor$</a> defines a helper trait to provide the message type
-via a type paramter instead of a type member. These two are equivalent:</p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypeActor {
-  <span class="kw">type</span> Message = ExampleProtocol
-  <span class="cmt">// ...</span>
-}
-
-<span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypeActor.Of[ExampleProtocol] {
+Typically, this is some ADT/sealed trait that defines the protocol for this actor.</p><p>The message type is defined by extending <a href="TypedActor$$Of.html" class="extype" name="de.knutwalker.akka.typed.TypedActor.Of">TypedActor.Of</a>:</p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypeActor.Of[ExampleProtocol] {
   <span class="cmt">// ...</span>
 }</pre><p>The <code>TypedActor</code> is just a regular actor, but if offers some methods that help
 you stay within the defined typed contract.
@@ -238,7 +231,8 @@ You can get exhausitveness checking for your receive block if you use
   <span class="kw">def</span> typedReceive: TypedReceive = Total {
     <span class="kw">case</span> <span class="std">Some</span>(<span class="lit">"foo"</span>) ⇒
   }
-}</pre></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor" class="extype" target="_top">akka.actor.Actor</a> for more about Actors in general.</p></span></dd></dl></div>
+}</pre><p>If you must go back to untyped land, use the <a href="TypedActor.html#Untyped(f:TypedActor.this.Receive):TypedActor.this.TypedReceive" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#Untyped">TypedActor#Untyped</a> wrapper.
+</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor" class="extype" target="_top">akka.actor.Actor</a> for more about Actors in general.</p></span></dd></dl></div>
     </li><li name="de.knutwalker.akka.typed.UntypedActorRef" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="UntypedActorRef=akka.actor.ActorRef"></a>
       <a id="UntypedActorRef:UntypedActorRef"></a>
@@ -550,7 +544,7 @@ PropsOf[MyMessage](<span class="kw">new</span> MyActor): Props[MyMessage]</pre><
     </span>
       <p class="shortcomment cmt">A shapeless-powered, typed variant of the actor/props creation.</p><div class="fullcomment"><div class="comment cmt"><p>A shapeless-powered, typed variant of the actor/props creation.
 This is an alternative over constructors, that use the <code>Class[A], Any*</code>
-overload to create actors.</p><p>You must use <a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a>s and these actors must be <code>case class</code>es for
+overload to create actors.</p><p>You must use <code>TypedActor</code>s and these actors must be <code>case class</code>es for
 this to work.</p><p>Example:</p><pre><span class="kw">case</span> <span class="kw">class</span> ExampleActor(foo: <span class="std">Option</span>[<span class="std">String</span>]) <span class="kw">extends</span> TypedActor.Of[<span class="std">String</span>] {
   <span class="kw">def</span> typedReceive: TypedReceive = ???
 }

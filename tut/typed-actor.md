@@ -12,11 +12,11 @@ We will reuse the definitions and actors from the [&laquo; Unsafe Usage](unsafe.
 Having a typed reference to an actor is one thing, but how can we improve type-safety within the actor itself?
 **Typed Actors** offers a `trait` called `TypedActor` which you can extend from instead of `Actor`.
 `TypedActor` itself extends `Actor` but contains an abstract type member and typed receive method
-instead of just an untyped receive method. In order to use the `TypedActor`, you have to provide both.
+instead of just an untyped receive method.
+In order to use the `TypedActor`, you have to extend `TypedActor.Of[_]` and provide your message type via type parameter (you cannot extend directly from `TypedActor`).
 
 ```scala
-scala> class MyActor extends TypedActor {
-     |   type Message = MyMessage
+scala> class MyActor extends TypedActor.Of[MyMessage] {
      |   def typedReceive = {
      |     case Foo(foo) => println(s"received a Foo: $foo")
      |     case Bar(bar) => println(s"received a Bar: $bar")
@@ -25,7 +25,7 @@ scala> class MyActor extends TypedActor {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-1188530737]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#1761026046]
 
 scala> ref ! Foo("foo")
 received a Foo: foo
@@ -43,31 +43,15 @@ scala> class MyActor extends TypedActor {
      |     case SomeOtherMessage => println("received some other message")
      |   }
      | }
+<console>:20: error: illegal inheritance from sealed trait TypedActor
+       class MyActor extends TypedActor {
+                             ^
 <console>:23: error: pattern type is incompatible with expected type;
  found   : SomeOtherMessage.type
  required: MyActor.this.Message
     (which expands to)  MyMessage
            case SomeOtherMessage => println("received some other message")
                 ^
-```
-
-#### Message as type parameter
-
-The message type can also be provided as a type parameter on `TypedActor.Of[_]`.
-
-```scala
-scala> class MyActor extends TypedActor.Of[MyMessage] {
-     |   def typedReceive = {
-     |     case Foo(foo) => println(s"received a Foo: $foo")
-     |   }
-     | }
-defined class MyActor
-
-scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor-2")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor-2#584844660]
-
-scala> ref ! Foo("foo")
-received a Foo: foo
 ```
 
 
@@ -79,8 +63,7 @@ Similar to the untyped actor, `context.become` is not hidden and can still lead 
 
 
 ```scala
-scala> class MyOtherActor extends TypedActor {
-     |   type Message = MyMessage
+scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
      |   def typedReceive = {
      |     case Foo(foo) => println(s"received a Foo: $foo")  
      |     case Bar(bar) => context become LoggingReceive {
@@ -91,13 +74,13 @@ scala> class MyOtherActor extends TypedActor {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-476956124]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-1767977319]
 
 scala> otherRef ! Foo("foo")
 
 scala> otherRef ! Bar("bar")
-received a Foo: foo
 [DEBUG] received handled message Foo(foo)
+received a Foo: foo
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -147,6 +130,24 @@ It would fail on the following input: Bar(_)
                                   ^
 defined class MyOtherActor
 ```
+
+#### Going back to untyped land
+
+Sometimes you have to receive messages that are outside of your protocol. A typical case is `Terminated`, but other modules and patterns have those messages as well.
+You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go.  
+
+
+```scala
+scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
+     |   def typedReceive = Untyped {
+     |     case Terminated(ref) => println(s"$ref terminated")
+     |     case Foo(foo) => println(s"received a Foo: $foo")
+     |   }
+     | }
+defined class MyOtherActor
+```
+
+With `Untyped`, you won't get any compiler support, it is meant as an escape hatch; If you find yourself using `Untyped` all over the place, consider just using a regular `Actor` instead.
 
 Next, learn more ways to create `Props`.
 

@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>TypedActor - typed-actors 1.1.1-SNAPSHOT - de.knutwalker.akka.typed.TypedActor</title>
-          <meta name="description" content="TypedActor - typed - actors 1.1.1 - SNAPSHOT - de.knutwalker.akka.typed.TypedActor" />
-          <meta name="keywords" content="TypedActor typed actors 1.1.1 SNAPSHOT de.knutwalker.akka.typed.TypedActor" />
+          <title>TypedActor - typed-actors 1.2.0 - de.knutwalker.akka.typed.TypedActor</title>
+          <meta name="description" content="TypedActor - typed - actors 1.2.0 - de.knutwalker.akka.typed.TypedActor" />
+          <meta name="keywords" content="TypedActor typed actors 1.2.0 de.knutwalker.akka.typed.TypedActor" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -97,8 +97,8 @@
       <a id="Of[A]:Of[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
         <a href="TypedActor$$Of.html"><span class="name">Of</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a></span>
@@ -108,12 +108,9 @@
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">A convenience trait to provide the message type via type parameters.</p><div class="fullcomment"><div class="comment cmt"><p>A convenience trait to provide the message type via type parameters.</p><p>* </p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypeActor {
-  <span class="kw">type</span> Message = ExampleProtocol
-  <span class="cmt">// ...</span>
-}
-
-<span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypeActor.Of[ExampleProtocol] {
+      <p class="shortcomment cmt">Abstract class to extend from in order to get a <a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Abstract class to extend from in order to get a <a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a>.
+If you want to have the message type provided as a type parameter,
+you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">scala.reflect.ClassTag</a>.</p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypeActor.Of[ExampleProtocol] {
   <span class="cmt">// ...</span>
 }</pre></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the message type this actor is receiving</p></dd></dl></div>
     </li></ol>
