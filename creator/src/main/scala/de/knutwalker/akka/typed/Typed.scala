@@ -26,7 +26,7 @@ import scala.reflect.ClassTag
  * This is an alternative over constructors, that use the `Class[A], Any*`
  * overload to create actors.
  *
- * You must use [[TypedActor]]s and these actors must be `case class`es for
+ * You must use `TypedActor`s and these actors must be `case class`es for
  * this to work.
  *
  * Example:

@@ -4,6 +4,8 @@ import sbt._
 import sbt.Keys._
 import de.knutwalker.sbt._
 import de.knutwalker.sbt.KSbtKeys._
+import sbtrelease.ReleasePlugin.autoImport._
+import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.Version
 
 object Build extends AutoPlugin {
@@ -32,7 +34,22 @@ object Build extends AutoPlugin {
              pomExtra := pomExtra.value ++
                <properties>
                  <info.apiURL>http://{githubProject.value.org}.github.io/{githubProject.value.repo}/api/{version.value}/</info.apiURL>
-               </properties>
+               </properties>,
+    releaseProcess := List[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      publishSignedArtifacts,
+      releaseToCentral,
+      pushGithubPages,
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    )
   )
 
   def mapAkkaJar(cp: Seq[Attributed[File]], crossVersion: String): Map[File, URL] =
@@ -117,4 +134,19 @@ object Build extends AutoPlugin {
         case a ⇒ a
       }
   }
+
+  private lazy val publishSignedArtifacts = ReleaseStep(
+    action = Command.process("publishSigned", _),
+    enableCrossBuild = true
+  )
+
+  private lazy val releaseToCentral = ReleaseStep(
+    action = Command.process("sonatypeReleaseAll", _),
+    enableCrossBuild = true
+  )
+
+  private lazy val pushGithubPages = ReleaseStep(
+    action = Command.process("docs/ghpagesPushSite", _),
+    enableCrossBuild = false
+  )
 }
