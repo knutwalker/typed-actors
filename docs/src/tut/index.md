@@ -53,7 +53,19 @@ val props = Props[MyMessage, MyActor]
 val ref = ActorOf(props, name = "my-actor")
 ```
 
-This will give you an `ActorRef[MyMessage]`. You can use `!` to send messages, as usual.
+This will give you an `ActorRef[MyMessage]`.
+
+There are three possible ways to create a `Props`, mirroring the constructors from `akka.actor.Props`.
+
+```tut
+val props = Props[MyMessage, MyActor]
+val props = Props[MyMessage, MyActor](new MyActor)
+val props = Props[MyMessage, MyActor](classOf[MyActor])
+```
+
+#### Sending messages
+
+Sending messages to a typed actor is the same as sending messages to an untyped on, you use `!`.
 
 ```tut
 ref ! Foo("foo")
@@ -66,12 +78,37 @@ If you try to send a message from a different protocol, you will get a compile e
 ref ! SomeOtherMessage
 ```
 
-There are three possible ways to create a `Props`, mirroring the constructors from `akka.actor.Props`.
+#### Ask pattern
+
+Typed actors support the ask pattern, `?`, without imports and the returned Future is properly typed.
+In order to achieve this, instead of sending an already instantiaded type, you send a function that, given the properly typed sender, will return the message.
+This is usually achieved with a separate parameter list on a case class (message), typically called `replyTo`.
+
+```tut:silent
+case class MyResponse(payload: String)
+case class MyMessage(payload: String)(val replyTo: ActorRef[MyResponse])
+```
+
+If you define your messages this way, you can left out the last parameter list and will get the required function.
+To respond, use `message.replyTo` instead of `sender()` to get the properly typed sender. Although, to be fair, `sender()` will be the same actor, it's just the untyped version.
+Finally, `?` requires an `implicit Timeout`, just like the regular, untyped ask.
+
+```tut:silent
+import scala.concurrent.duration._
+import akka.util.Timeout
+
+class MyActor extends Actor {
+  def receive = {
+    case m@MyMessage(payload) => m.replyTo ! MyResponse(payload)
+  }
+}
+implicit val timeout: Timeout = 1.second
+```
 
 ```tut
-val props = Props[MyMessage, MyActor]
-val props = Props[MyMessage, MyActor](new MyActor)
-val props = Props[MyMessage, MyActor](classOf[MyActor])
+val ref = ActorOf(Props[MyMessage, MyActor])
+val future = ref ? MyMessage("foo")
+val response = scala.concurrent.Await.result(future, 1.second)
 ```
 
 Next up, learn how to interact with the less safer parts of Akka.

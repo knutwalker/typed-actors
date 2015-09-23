@@ -18,7 +18,10 @@ package de.knutwalker.akka
 
 import _root_.akka.actor.{ Actor, ActorContext, ActorPath, ActorRefFactory, Deploy }
 import _root_.akka.routing.RouterConfig
+import akka.typedactors.AskSupport
+import akka.util.Timeout
 
+import scala.concurrent.Future
 import scala.reflect.ClassTag
 
 /**
@@ -282,6 +285,27 @@ package object typed {
      */
     def !(msg: A)(implicit sender: UntypedActorRef = Actor.noSender): Unit =
       untyped ! msg
+
+    /**
+     * Ask a typed question asynchronously.
+     * This signature enforces the `replyTo` pattern for keeping type safety.
+     *
+     * Instead of sending a message of `Any` and replying to an untyped `sender()`,
+     * you supply a function that, given a typed sender, will return the message.
+     * This is typically done with a second parameter list of a case class.
+     *
+     * {{{
+     * case class MyMessage(payload: String)(val replyTo: ActorRef[MyResponse])
+     *
+     * class MyActor extends Actor {
+     *   def receive = {
+     *     case m@MyMessage(payload) => m.replyTo ! MyResponse(payload)
+     *   }
+     * }
+     * }}}
+     */
+    def ?[B](f: ActorRef[B] ⇒ A)(implicit timeout: Timeout, ctA: ClassTag[A], sender: UntypedActorRef = Actor.noSender): Future[B] =
+      AskSupport.ask[A, B](ref, f, timeout, ctA, sender)
 
     /** @see [[akka.actor.ActorRef#path]] */
     def path: ActorPath =
