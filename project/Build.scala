@@ -16,8 +16,12 @@ object Build extends AutoPlugin {
 
   object autoImport {
     lazy val genModules = taskKey[Seq[(File, String)]]("generate module files for guide")
+    lazy val makeReadme = taskKey[Option[File]]("generate readme file from tutorial.")
+    lazy val buildReadmeContent = taskKey[Seq[(File, String)]]("Generate content for the readme file.")
+    lazy val readmeFile = settingKey[File]("The readme file to build.")
+    lazy val readmeCommitMessage = settingKey[String]("The message to commit the readme file with.")
   }
-  import autoImport.genModules
+  import autoImport._
 
   override lazy val projectSettings = List(
          organization := "de.knutwalker",
@@ -31,6 +35,7 @@ object Build extends AutoPlugin {
       autoAPIMappings := true,
          apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value),
            genModules := generateModules(state.value, sourceManaged.value, streams.value.cacheDirectory, thisProject.value.dependencies),
+           makeReadme := mkReadme(state.value, buildReadmeContent.?.value.getOrElse(Nil), readmeFile.?.value, readmeFile.?.value),
              pomExtra := pomExtra.value ++
                <properties>
                  <info.apiURL>http://{githubProject.value.org}.github.io/{githubProject.value.repo}/api/{version.value}/</info.apiURL>
@@ -46,6 +51,7 @@ object Build extends AutoPlugin {
       publishSignedArtifacts,
       releaseToCentral,
       pushGithubPages,
+      commitReadme,
       setNextVersion,
       commitNextVersion,
       pushChanges
@@ -61,6 +67,56 @@ object Build extends AutoPlugin {
   def generateModules(state: State, dir: File, cacheDir: File, modules: Seq[ClasspathDep[ProjectRef]]): Seq[(File, String)] = {
     val files = new GenerateModulesTask(state, dir, cacheDir, modules.map(_.project)).apply()
     files.map(x ⇒ (x, x.getName))
+  }
+
+  def mkReadme(state: State, srcs: Seq[(File,String)], tpl: Option[File], out: Option[File]): Option[File] = {
+    tpl.filter(_.exists()).flatMap { template ⇒
+      out.flatMap {outputFile ⇒
+        val sources = srcs.map(_._1)
+        val extracted = Project.extract(state)
+        val (_, latestVersion) = getLatestVersion(state, extracted)
+        val tutLine = raw"tut: (\d+)".r
+        val titleLine = raw"title: (.+)".r
+        val directLink = raw".*\([^/]+.html\).*".r
+        val files = sources.flatMap {f ⇒
+          val lines = IO.readLines(f)
+          val (front, content) = lines.dropWhile(_ == "---").span(_ != "---")
+          for {
+            index ← front.collectFirst {case tutLine(idx) ⇒ idx.toInt}
+            title ← front.collectFirst {case titleLine(t) ⇒ t}
+          } yield {
+            val actualContent = content.drop(1).withFilter {
+              case directLink() ⇒ false
+              case _            ⇒ true
+            }.map {line ⇒
+              line.replaceAll(raw"\{\{ site\.data\.version\.version \}\}", latestVersion)
+            }
+            (index, title, actualContent)
+          }
+        }
+        val lines = files.sortBy(_._1).flatMap(line ⇒ "" :: "## " + line._2 :: "" :: line._3)
+        Some(lines).filter(_.nonEmpty).map { ls ⇒
+          val targetLines = IO.readLines(template)
+          val (head, middle) = targetLines.span(_ != "<!--- TUT:START -->")
+          val (_, tail) = middle.span(_ != "<!--- TUT:END -->")
+          IO.writeLines(outputFile, head)
+          IO.writeLines(outputFile, middle.take(1), append = true)
+          IO.writeLines(outputFile, ls, append = true)
+          IO.writeLines(outputFile, tail, append = true)
+          outputFile
+        }
+      }
+    }
+  }
+
+  def getLatestVersion(state: State, extracted: Extracted): (State, String) = {
+    val baseDir = extracted.get(baseDirectory)
+    val currentVersion = extracted.get(version)
+    val (nextState, runner) = extracted.runTask(GitKeys.gitRunner, state)
+    val tagDashEl = runner("tag", "-l")(baseDir, NullLogger)
+    val tags = tagDashEl.trim.split("\\s+").toSeq.map(_.replaceFirst("^v", ""))
+    val sortedTags = tags.flatMap(Version(_)).sorted.map(_.string)
+    (nextState, sortedTags.lastOption.getOrElse(currentVersion))
   }
 
   private class GenerateModulesTask(state: State, dir: File, cacheDir: File, modules: Seq[ProjectRef]) {
@@ -79,7 +135,7 @@ object Build extends AutoPlugin {
 
     def mkFiles() = {
       val extracted = Project.extract(state)
-      val latestVersion = getLatestVersion(extracted)
+      val (_, latestVersion) = getLatestVersion(state, extracted)
       val lines = mkLines(extracted, latestVersion)
       IO.writeLines(tempModulesFile, lines)
       IO.writeLines(tempVersionFile, s"version: $latestVersion" :: Nil)
@@ -94,16 +150,6 @@ object Build extends AutoPlugin {
       }
       check(FileInfo.hash(from))
       to
-    }
-
-    def getLatestVersion(extracted: Extracted): String = {
-      val baseDir = extracted.get(baseDirectory)
-      val currentVersion = extracted.get(version)
-      val (_, runner) = extracted.runTask(GitKeys.gitRunner, state)
-      val tagDashEl = runner("tag", "-l")(baseDir, NullLogger)
-      val tags = tagDashEl.trim.split("\\s+").toSeq.map(_.replaceFirst("^v", ""))
-      val sortedTags = tags.flatMap(Version(_)).sorted.map(_.string)
-      sortedTags.lastOption.getOrElse(currentVersion)
     }
 
     def mkLines(extracted: Extracted, latestVersion: String) =
@@ -149,4 +195,27 @@ object Build extends AutoPlugin {
     action = Command.process("docs/ghpagesPushSite", _),
     enableCrossBuild = false
   )
+
+  private lazy val commitReadme = ReleaseStep(
+    action = commitFiles,
+    enableCrossBuild = false
+  )
+
+  private lazy val commitFiles = (st: State) ⇒ {
+    val extracted = Project.extract(st)
+    extracted.get(releaseVcs).fold(st) {vcs ⇒
+      val (nextState, file) = extracted.runTask(makeReadme, st)
+      file.flatMap {f ⇒
+        IO.relativize(vcs.baseDir, f)
+      }.map { f ⇒
+        vcs.add(f) !! nextState.log
+        vcs.status.!!.trim
+      }.filter(_.nonEmpty)
+      .foreach { _ ⇒
+        val msg = extracted.get(readmeCommitMessage)
+        vcs.commit(msg) ! nextState.log
+      }
+      nextState
+    }
+  }
 }

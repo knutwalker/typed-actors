@@ -2,7 +2,7 @@ import sbt._, Keys._
 import com.typesafe.sbt.SbtSite.SiteKeys._
 import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 import sbtunidoc.Plugin.UnidocKeys.{ unidoc, unidocProjectFilter }
-import Build.autoImport.genModules // screw you, IntelliJ
+import Build.autoImport._ // screw you, IntelliJ
 
 lazy val core = project settings (name := "typed-actors")
 
@@ -25,6 +25,9 @@ lazy val docs = project dependsOn (core, creator) settings (
   ghpages.settings,
   tutSettings,
   tutSourceDirectory := sourceDirectory.value / "tut",
+  buildReadmeContent := tut.value,
+  readmeFile := baseDirectory.value / ".." / "README.md",
+  readmeCommitMessage := "Update README",
   unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(core, creator),
   site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "api"),
   site.addMappingsToSiteDir(tut, "tut"),
