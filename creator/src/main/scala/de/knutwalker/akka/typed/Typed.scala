@@ -60,7 +60,7 @@ object Typed {
   final class MkProps[A, T <: Actor, L](implicit gen: Generic.Aux[T, L], ct: ClassTag[T]) extends ProductArgs {
 
     def propsProduct(args: L): Props[A] =
-      Props[A](akka.actor.Props[T](gen.from(args)))
+      Props[A](UntypedProps[T](gen.from(args)))
 
     def createProduct(args: L)(implicit ref: ActorRefFactory): ActorRef[A] =
       ActorOf(propsProduct(args))
