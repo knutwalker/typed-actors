@@ -102,9 +102,26 @@ object TypedActorSpec extends Specification with AfterAll {
       ref.untyped ! Nil
       expectUnhandled(Nil, ref)
     }
+
+    "have a quick apply method for total functions" >> {
+      val ref = ActorOf(TypedActor[MyFoo] {
+        case Foo => inbox.getRef() ! "received a foo"
+        case Bar => inbox.getRef() ! "received a bar"
+      })
+
+      ref ! Foo
+      expectMsg("received a foo")
+
+      ref ! Bar
+      expectMsg("received a bar")
+
+      ref.untyped ! Qux
+      expectUnhandled(Qux, ref)
+
+      ref.untyped ! Nil
+      expectUnhandled(Nil, ref)
+    }
   }
-
-
 
   def expectUnhandled(message: Any, ref: ActorRef[_]) =
     inbox.receive(Duration(10, TimeUnit.MILLISECONDS)) === UnhandledMessage(message, system.deadLetters, ref.untyped)

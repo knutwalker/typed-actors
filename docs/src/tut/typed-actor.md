@@ -112,6 +112,16 @@ class MyOtherActor extends TypedActor.Of[MyMessage] {
 }
 ```
 
+The companion object `TypedActor` has an `apply` method that wraps a total function in an actor and returns a prop for this actor.
+
+```tut
+val ref = ActorOf(TypedActor[MyMessage] {
+  case Foo(foo) => println(s"received a Foo: $foo")
+  case Bar(bar) => println(s"received a Bar: $bar")
+})
+```
+
+
 #### Going back to untyped land
 
 Sometimes you have to receive messages that are outside of your protocol. A typical case is `Terminated`, but other modules and patterns have those messages as well.

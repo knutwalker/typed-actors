@@ -8,7 +8,8 @@ Tools to support binary compatibility might be introduced in the future.
 
 
 ## [Unreleased][unreleased]
-
+### Added
+- `TypedActor.apply` to quickly create an actor from a total function
 
 
 ## [1.2.0][1.2.0] - 2015-09-19

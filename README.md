@@ -341,6 +341,17 @@ It would fail on the following input: Bar(_)
 defined class MyOtherActor
 ```
 
+The companion object `TypedActor` has an `apply` method that wraps a total function in an actor and returns a prop for this actor.
+
+```scala
+scala> val ref = ActorOf(TypedActor[MyMessage] {
+     |   case Foo(foo) => println(s"received a Foo: $foo")
+     |   case Bar(bar) => println(s"received a Bar: $bar")
+     | })
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#1726060598]
+```
+
+
 #### Going back to untyped land
 
 Sometimes you have to receive messages that are outside of your protocol. A typical case is `Terminated`, but other modules and patterns have those messages as well.

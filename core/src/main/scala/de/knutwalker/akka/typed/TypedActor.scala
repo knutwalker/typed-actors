@@ -145,6 +145,16 @@ object TypedActor {
     final type Message = A
   }
 
+  /**
+   * Creates a new typed actor from a total function, forfeiting the
+   * functionality of changing behavior.
+   *
+   * @param f the actors behavior
+   * @tparam A the message type
+   */
+  def apply[A: ClassTag](f: A ⇒ Unit): Props[A] =
+    PropsFor(new TypedActor.Of[A] {def typedReceive = Total(f)})
+
   private class Downcast[A](cls: Class[A])(f: A ⇒ Unit) extends Receive {
     def isDefinedAt(x: Any): Boolean = cls.isInstance(x)
     def apply(v1: Any): Unit = f(cls.cast(v1))
