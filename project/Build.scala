@@ -12,7 +12,7 @@ object Build extends AutoPlugin {
   override def trigger = allRequirements
   override def requires = KSbtPlugin
 
-  val akkaVersion = "2.3.12"
+  val akkaVersion = "2.3.14"
 
   object autoImport {
     lazy val genModules = taskKey[Seq[(File, String)]]("generate module files for guide")
