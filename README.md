@@ -1,5 +1,5 @@
-[![Travis CI](https://img.shields.io/travis/knutwalker/typed-actors/master.svg)](https://travis-ci.org/knutwalker/typed-actors)
-[![Coverage Status](https://img.shields.io/coveralls/knutwalker/typed-actors/master.svg)](https://coveralls.io/r/knutwalker/typed-actors)
+[![Travis CI](https://img.shields.io/travis/knutwalker/typed-actors/develop.svg)](https://travis-ci.org/knutwalker/typed-actors)
+[![Coverage Status](https://img.shields.io/coveralls/knutwalker/typed-actors/develop.svg)](https://coveralls.io/r/knutwalker/typed-actors)
 [![Maven](https://img.shields.io/maven-central/v/de.knutwalker/typed-actors_2.11.svg?label=latest)](http://search.maven.org/#search|ga|1|g%3A%22de.knutwalker%22%20AND%20a%3Atyped-actors*_2.11)
 [![Gitter](https://img.shields.io/badge/gitter-Join_Chat-1dce73.svg)](https://gitter.im/knutwalker/typed-actors)
 [![Apache License](https://img.shields.io/badge/license-APACHE_2-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
