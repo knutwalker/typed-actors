@@ -23,6 +23,7 @@ import org.specs2.matcher.TypecheckMatchers._
 import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
 
+import scala.annotation.tailrec
 import scala.concurrent.duration._
 
 object TypedSpec extends Specification with AfterAll {
@@ -32,8 +33,16 @@ object TypedSpec extends Specification with AfterAll {
   case object Bar extends TestMessage
 
   implicit val system = ActorSystem("test")
-  val inbox    = Inbox.create(system)
+  val inbox    = createInbox(system)
   val inboxRef = inbox.getRef()
+
+  // https://github.com/akka/akka/issues/15409
+  @tailrec
+  def createInbox(sys: ActorSystem): Inbox = {
+    try Inbox.create(system) catch {
+      case cee: ClassCastException ⇒ createInbox(sys)
+    }
+  }
 
   case class MyActor(name: String) extends TypedActor.Of[TestMessage] {
     def typedReceive: TypedReceive = {
