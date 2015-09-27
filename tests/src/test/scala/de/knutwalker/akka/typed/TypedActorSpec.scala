@@ -20,6 +20,7 @@ import akka.actor.{ UnhandledMessage, DeadLetter, Inbox, ActorSystem }
 import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
 
+import scala.annotation.tailrec
 import scala.concurrent.duration.Duration
 
 import java.util.concurrent.TimeUnit
@@ -33,8 +34,16 @@ object TypedActorSpec extends Specification with AfterAll {
   case object Qux
 
   implicit val system = ActorSystem("foo")
-  val inbox = Inbox.create(system)
+  val inbox = createInbox(system)
   system.eventStream.subscribe(inbox.getRef(), classOf[UnhandledMessage])
+
+  // https://github.com/akka/akka/issues/15409
+  @tailrec
+  def createInbox(sys: ActorSystem): Inbox = {
+    try Inbox.create(system) catch {
+      case cee: ClassCastException ⇒ createInbox(sys)
+    }
+  }
 
   "The TypedActor" should {
     "have typed partial receive" >> {
