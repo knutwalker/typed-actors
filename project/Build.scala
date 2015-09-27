@@ -6,7 +6,7 @@ import de.knutwalker.sbt._
 import de.knutwalker.sbt.KSbtKeys._
 import sbtrelease.ReleasePlugin.autoImport._
 import sbtrelease.ReleaseStateTransformations._
-import sbtrelease.Version
+import sbtrelease.{ Vcs, Version }
 
 object Build extends AutoPlugin {
   override def trigger = allRequirements
@@ -17,6 +17,7 @@ object Build extends AutoPlugin {
   object autoImport {
     lazy val genModules = taskKey[Seq[(File, String)]]("generate module files for guide")
     lazy val makeReadme = taskKey[Option[File]]("generate readme file from tutorial.")
+    lazy val commitReadme = taskKey[Option[File]]("Commits the readme file.")
     lazy val buildReadmeContent = taskKey[Seq[(File, String)]]("Generate content for the readme file.")
     lazy val readmeFile = settingKey[File]("The readme file to build.")
     lazy val readmeCommitMessage = settingKey[String]("The message to commit the readme file with.")
@@ -36,6 +37,7 @@ object Build extends AutoPlugin {
          apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value),
            genModules := generateModules(state.value, sourceManaged.value, streams.value.cacheDirectory, thisProject.value.dependencies),
            makeReadme := mkReadme(state.value, buildReadmeContent.?.value.getOrElse(Nil), readmeFile.?.value, readmeFile.?.value),
+         commitReadme := addAndCommitReadme(state.value, makeReadme.value, readmeCommitMessage.?.value, releaseVcs.value),
              pomExtra := pomExtra.value ++
                <properties>
                  <info.apiURL>http://{githubProject.value.org}.github.io/{githubProject.value.repo}/api/{version.value}/</info.apiURL>
@@ -51,7 +53,7 @@ object Build extends AutoPlugin {
       publishSignedArtifacts,
       releaseToCentral,
       pushGithubPages,
-      commitReadme,
+      commitTheReadme,
       setNextVersion,
       commitNextVersion,
       pushChanges
@@ -106,6 +108,25 @@ object Build extends AutoPlugin {
           outputFile
         }
       }
+    }
+  }
+
+  def addAndCommitReadme(state: State, readme: Option[File], message: Option[String], maybeVcs: Option[Vcs]): Option[File] = for {
+    vcs ← maybeVcs
+    file ← readme
+    msg ← message
+    relative ← IO.relativize(vcs.baseDir, file)
+    ff ← tryCommit(msg, vcs, file, relative, state.log)
+  } yield ff
+
+  def tryCommit(message: String, vcs: Vcs, file: File, relative: String, log: Logger): Option[File] = {
+    vcs.add(relative) !! log
+    val status = vcs.status.!!.trim
+    if (status.nonEmpty) {
+      vcs.commit(message) ! log
+      Some(file)
+    } else {
+      None
     }
   }
 
@@ -196,26 +217,8 @@ object Build extends AutoPlugin {
     enableCrossBuild = false
   )
 
-  private lazy val commitReadme = ReleaseStep(
-    action = commitFiles,
+  private lazy val commitTheReadme = ReleaseStep(
+    action = Command.process("docs/commitReadme", _),
     enableCrossBuild = false
   )
-
-  private lazy val commitFiles = (st: State) ⇒ {
-    val extracted = Project.extract(st)
-    extracted.get(releaseVcs).fold(st) {vcs ⇒
-      val (nextState, file) = extracted.runTask(makeReadme, st)
-      file.flatMap {f ⇒
-        IO.relativize(vcs.baseDir, f)
-      }.map { f ⇒
-        vcs.add(f) !! nextState.log
-        vcs.status.!!.trim
-      }.filter(_.nonEmpty)
-      .foreach { _ ⇒
-        val msg = extracted.get(readmeCommitMessage)
-        vcs.commit(msg) ! nextState.log
-      }
-      nextState
-    }
-  }
 }
