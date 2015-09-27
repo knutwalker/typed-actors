@@ -25,7 +25,7 @@ scala> class MyActor extends TypedActor.Of[MyMessage] {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#1761026046]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#354954417]
 
 scala> ref ! Foo("foo")
 received a Foo: foo
@@ -74,7 +74,7 @@ scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-1767977319]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-963138999]
 
 scala> otherRef ! Foo("foo")
 
@@ -130,6 +130,17 @@ It would fail on the following input: Bar(_)
                                   ^
 defined class MyOtherActor
 ```
+
+The companion object `TypedActor` has an `apply` method that wraps a total function in an actor and returns a prop for this actor.
+
+```scala
+scala> val ref = ActorOf(TypedActor[MyMessage] {
+     |   case Foo(foo) => println(s"received a Foo: $foo")
+     |   case Bar(bar) => println(s"received a Bar: $bar")
+     | })
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-1183023470]
+```
+
 
 #### Going back to untyped land
 

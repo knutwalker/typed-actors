@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>Of - typed-actors 1.2.0 - de.knutwalker.akka.typed.TypedActor.Of</title>
-          <meta name="description" content="Of - typed - actors 1.2.0 - de.knutwalker.akka.typed.TypedActor.Of" />
-          <meta name="keywords" content="Of typed actors 1.2.0 de.knutwalker.akka.typed.TypedActor.Of" />
+          <title>Of - typed-actors 1.3.0 - de.knutwalker.akka.typed.TypedActor.Of</title>
+          <meta name="description" content="Of - typed - actors 1.3.0 - de.knutwalker.akka.typed.TypedActor.Of" />
+          <meta name="keywords" content="Of typed actors 1.3.0 de.knutwalker.akka.typed.TypedActor.Of" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -55,7 +55,7 @@ you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.
   <span class="cmt">// ...</span>
 }</pre></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the message type this actor is receiving</p></dd></dl><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/knutwalker/typed-actors//tree/master/core/src/main/scala/de/knutwalker/akka/typed/TypedActor.scala" target="_blank">TypedActor.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a>, <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a>, <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block diagram-container" id="inheritance-diagram-container">
                 <span class="toggle diagram-link">Type Hierarchy</span>
                 <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#diagrams" target="_blank" class="diagram-help">Learn more about scaladoc diagrams</a>
@@ -190,7 +190,7 @@ you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Defines the actors behavior.</p><div class="fullcomment"><div class="comment cmt"><p>Defines the actors behavior. Unlike <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor@receive:akka.actor.Actor.Receive" class="extype" target="_top">akka.actor.Actor#receive</a>, this one
+      <p class="shortcomment cmt">Defines the actors behavior.</p><div class="fullcomment"><div class="comment cmt"><p>Defines the actors behavior. Unlike <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Actor@receive:akka.actor.Actor.Receive" class="extype" target="_top">akka.actor.Actor#receive</a>, this one
 is typed in its first parameter.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a></dd></dl></div>
     </li></ol>
@@ -289,7 +289,7 @@ Use this to get exhaustiveness checking for your receive block.</p><pre><span cl
       </a>
     </span>
       <p class="shortcomment cmt">Wraps an untyped receiver and returns it as a <a href="TypedActor.html#TypedReceive=PartialFunction[TypedActor.this.Message,Unit]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.TypedReceive">TypedReceive</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Wraps an untyped receiver and returns it as a <a href="TypedActor.html#TypedReceive=PartialFunction[TypedActor.this.Message,Unit]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.TypedReceive">TypedReceive</a>.
-Use this to match for messages that are outside of your protocol, e.g. <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Terminated" class="extype" target="_top">akka.actor.Terminated</a>.</p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypedActor.Of[ExampleMessage] {
+Use this to match for messages that are outside of your protocol, e.g. <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Terminated" class="extype" target="_top">akka.actor.Terminated</a>.</p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypedActor.Of[ExampleMessage] {
   <span class="kw">def</span> typedReceive: TypedReceive = Untyped {
     <span class="kw">case</span> Terminated(ref) <span class="kw">=&gt;</span> println(s<span class="lit">"$$ref terminated"</span>)
   }
@@ -327,7 +327,7 @@ Use this to match for messages that are outside of your protocol, e.g. <a href="
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../akka.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../akka/package.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
     </li><li name="akka.actor.Actor#aroundPostStop" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="aroundPostStop():Unit"></a>
       <a id="aroundPostStop():Unit"></a>
@@ -344,7 +344,7 @@ Use this to match for messages that are outside of your protocol, e.g. <a href="
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../akka.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../akka/package.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
     </li><li name="akka.actor.Actor#aroundPreRestart" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="aroundPreRestart(reason:&lt;?&gt;,message:&lt;?&gt;):Unit"></a>
       <a id="aroundPreRestart(Throwable,Option[Any]):Unit"></a>
@@ -361,7 +361,7 @@ Use this to match for messages that are outside of your protocol, e.g. <a href="
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../akka.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../akka/package.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
     </li><li name="akka.actor.Actor#aroundPreStart" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="aroundPreStart():Unit"></a>
       <a id="aroundPreStart():Unit"></a>
@@ -378,7 +378,7 @@ Use this to match for messages that are outside of your protocol, e.g. <a href="
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../akka.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../akka/package.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
     </li><li name="akka.actor.Actor#aroundReceive" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="aroundReceive(receive:&lt;?&gt;,msg:&lt;?&gt;):Unit"></a>
       <a id="aroundReceive(akka.actor.Actor.Receive,Any):Unit"></a>
@@ -395,7 +395,7 @@ Use this to match for messages that are outside of your protocol, e.g. <a href="
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../akka.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../akka/package.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -445,7 +445,7 @@ Use this to match for messages that are outside of your protocol, e.g. <a href="
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">context</span><span class="result">: <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorContext" class="extype" target="_top">ActorContext</a></span>
+        <span class="name">context</span><span class="result">: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorContext" class="extype" target="_top">ActorContext</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$$Of@context:akka.actor.ActorContext" title="Permalink" target="_top">
@@ -720,7 +720,7 @@ Use this to match for messages that are outside of your protocol, e.g. <a href="
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt"><code>TypedActor</code>s delegate to <a href="TypedActor.html#typedReceive:TypedActor.this.TypedReceive" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#typedReceive">typedReceive</a>.</p><div class="fullcomment"><div class="comment cmt"><p><code>TypedActor</code>s delegate to <a href="TypedActor.html#typedReceive:TypedActor.this.TypedReceive" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#typedReceive">typedReceive</a>.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a> → Actor</dd><dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor@receive:akka.actor.Actor.Receive" class="extype" target="_top">akka.actor.Actor#receive</a></p></span></dd></dl></div>
+      <p class="shortcomment cmt"><code>TypedActor</code>s delegate to <a href="TypedActor.html#typedReceive:TypedActor.this.TypedReceive" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#typedReceive">typedReceive</a>.</p><div class="fullcomment"><div class="comment cmt"><p><code>TypedActor</code>s delegate to <a href="TypedActor.html#typedReceive:TypedActor.this.TypedReceive" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#typedReceive">typedReceive</a>.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a> → Actor</dd><dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Actor@receive:akka.actor.Actor.Receive" class="extype" target="_top">akka.actor.Actor#receive</a></p></span></dd></dl></div>
     </li><li name="akka.actor.Actor#self" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="self:akka.actor.ActorRef"></a>
       <a id="self:akka.actor.ActorRef"></a>
@@ -730,7 +730,7 @@ Use this to match for messages that are outside of your protocol, e.g. <a href="
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">self</span><span class="result">: <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRef" class="extype" target="_top">akka.actor.ActorRef</a></span>
+        <span class="name">self</span><span class="result">: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRef" class="extype" target="_top">akka.actor.ActorRef</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$$Of@self:akka.actor.ActorRef" title="Permalink" target="_top">
@@ -747,7 +747,7 @@ Use this to match for messages that are outside of your protocol, e.g. <a href="
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">sender</span><span class="params">()</span><span class="result">: <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRef" class="extype" target="_top">akka.actor.ActorRef</a></span>
+        <span class="name">sender</span><span class="params">()</span><span class="result">: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRef" class="extype" target="_top">akka.actor.ActorRef</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$$Of@sender():akka.actor.ActorRef" title="Permalink" target="_top">
@@ -764,7 +764,7 @@ Use this to match for messages that are outside of your protocol, e.g. <a href="
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">supervisorStrategy</span><span class="result">: <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.SupervisorStrategy" class="extype" target="_top">SupervisorStrategy</a></span>
+        <span class="name">supervisorStrategy</span><span class="result">: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.SupervisorStrategy" class="extype" target="_top">SupervisorStrategy</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$$Of@supervisorStrategy:akka.actor.SupervisorStrategy" title="Permalink" target="_top">
@@ -949,7 +949,7 @@ Use this to match for messages that are outside of your protocol, e.g. <a href="
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Defines the actors behavior.</p><div class="fullcomment"><div class="comment cmt"><p>Defines the actors behavior. Unlike <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor@receive:akka.actor.Actor.Receive" class="extype" target="_top">akka.actor.Actor#receive</a>, this one
+      <p class="shortcomment cmt">Defines the actors behavior.</p><div class="fullcomment"><div class="comment cmt"><p>Defines the actors behavior. Unlike <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Actor@receive:akka.actor.Actor.Receive" class="extype" target="_top">akka.actor.Actor#receive</a>, this one
 is typed in its first parameter.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a></dd><dt>Annotations</dt><dd>
                 <span class="name">@deprecated</span>
@@ -963,7 +963,7 @@ is typed in its first parameter.
         <div class="parent" name="de.knutwalker.akka.typed.TypedActor">
               <h3>Inherited from <a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a></h3>
             </div><div class="parent" name="akka.actor.Actor">
-              <h3>Inherited from <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a></h3>
+              <h3>Inherited from <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

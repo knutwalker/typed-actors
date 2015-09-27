@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>ActorRefOps - typed-actors 1.2.0 - de.knutwalker.akka.typed.ActorRefOps</title>
-          <meta name="description" content="ActorRefOps - typed - actors 1.2.0 - de.knutwalker.akka.typed.ActorRefOps" />
-          <meta name="keywords" content="ActorRefOps typed actors 1.2.0 de.knutwalker.akka.typed.ActorRefOps" />
+          <title>ActorRefOps - typed-actors 1.3.0 - de.knutwalker.akka.typed.ActorRefOps</title>
+          <meta name="description" content="ActorRefOps - typed - actors 1.3.0 - de.knutwalker.akka.typed.ActorRefOps" />
+          <meta name="keywords" content="ActorRefOps typed actors 1.3.0 de.knutwalker.akka.typed.ActorRefOps" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -127,7 +127,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $bang" class="name">!</span><span class="params">(<span name="msg">msg: <span class="extype" name="de.knutwalker.akka.typed.ActorRefOps.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="sender">sender: <a href="package.html#UntypedActorRef=akka.actor.ActorRef" class="extmbr" name="de.knutwalker.akka.typed.UntypedActorRef">UntypedActorRef</a> = <span class="symbol">Actor.noSender</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span title="gt4s: $bang" class="name">!</span><span class="params">(<span name="msg">msg: <span class="extype" name="de.knutwalker.akka.typed.ActorRefOps.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="sender">sender: <a href="package.html#UntypedActorRef=akka.actor.ActorRef" class="extmbr" name="de.knutwalker.akka.typed.UntypedActorRef">UntypedActorRef</a> = <span class="symbol"><span class="name"><a href="../../../../akka/package.html">Actor.noSender</a></span></span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.package$$ActorRefOps@!(msg:A)(implicitsender:de.knutwalker.akka.typed.package.UntypedActorRef):Unit" title="Permalink" target="_top">
@@ -135,7 +135,7 @@
       </a>
     </span>
       <p class="shortcomment cmt">Sends a typed message asynchronously.</p><div class="fullcomment"><div class="comment cmt"><p>Sends a typed message asynchronously.
-</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRef@tell(msg:&lt;?&gt;,sender:&lt;?&gt;):Unit" class="extype" target="_top">akka.actor.ActorRef#tell</a></p></span></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRef@tell(msg:Any,sender:akka.actor.ActorRef):Unit" class="extype" target="_top">akka.actor.ActorRef#tell</a></p></span></dd></dl></div>
     </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
@@ -187,6 +187,32 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="de.knutwalker.akka.typed.ActorRefOps#?" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="?[B](f:de.knutwalker.akka.typed.package.ActorRef[B]=&gt;A)(implicittimeout:akka.util.Timeout,implicitctA:scala.reflect.ClassTag[A],implicitsender:de.knutwalker.akka.typed.package.UntypedActorRef):scala.concurrent.Future[B]"></a>
+      <a id="?[B]((ActorRef[B])⇒A)(Timeout,ClassTag[A],UntypedActorRef):Future[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $qmark" class="name">?</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="f">f: (<a href="package.html#ActorRef[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedActorRef,A]" class="extmbr" name="de.knutwalker.akka.typed.ActorRef">ActorRef</a>[<span class="extype" name="de.knutwalker.akka.typed.ActorRefOps.?.B">B</span>]) ⇒ <span class="extype" name="de.knutwalker.akka.typed.ActorRefOps.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.util.Timeout" class="extype" target="_top">Timeout</a></span>, <span name="ctA">ctA: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="de.knutwalker.akka.typed.ActorRefOps.A">A</span>]</span>, <span name="sender">sender: <a href="package.html#UntypedActorRef=akka.actor.ActorRef" class="extmbr" name="de.knutwalker.akka.typed.UntypedActorRef">UntypedActorRef</a> = <span class="symbol"><span class="name"><a href="../../../../akka/package.html">Actor.noSender</a></span></span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.concurrent.Future" class="extype" target="_top">Future</a>[<span class="extype" name="de.knutwalker.akka.typed.ActorRefOps.?.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.package$$ActorRefOps@?[B](f:de.knutwalker.akka.typed.package.ActorRef[B]=&gt;A)(implicittimeout:akka.util.Timeout,implicitctA:scala.reflect.ClassTag[A],implicitsender:de.knutwalker.akka.typed.package.UntypedActorRef):scala.concurrent.Future[B]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Ask a typed question asynchronously.</p><div class="fullcomment"><div class="comment cmt"><p>Ask a typed question asynchronously.
+This signature enforces the <code>replyTo</code> pattern for keeping type safety.</p><p>Instead of sending a message of <code>Any</code> and replying to an untyped <code>sender()</code>,
+you supply a function that, given a typed sender, will return the message.
+This is typically done with a second parameter list of a case class.</p><pre><span class="kw">case</span> <span class="kw">class</span> MyMessage(payload: <span class="std">String</span>)(<span class="kw">val</span> replyTo: ActorRef[MyResponse])
+
+<span class="kw">class</span> MyActor <span class="kw">extends</span> Actor {
+  <span class="kw">def</span> receive = {
+    <span class="kw">case</span> m@MyMessage(payload) <span class="kw">=&gt;</span> m.replyTo ! MyResponse(payload)
+  }
+}</pre></div></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -213,14 +239,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forward</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="de.knutwalker.akka.typed.ActorRefOps.A">A</span></span>]</span><span class="params">(<span name="msg">msg: <span class="extype" name="de.knutwalker.akka.typed.ActorRefOps.forward.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="context">context: <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorContext" class="extype" target="_top">ActorContext</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">forward</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="de.knutwalker.akka.typed.ActorRefOps.A">A</span></span>]</span><span class="params">(<span name="msg">msg: <span class="extype" name="de.knutwalker.akka.typed.ActorRefOps.forward.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="context">context: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorContext" class="extype" target="_top">ActorContext</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.package$$ActorRefOps@forward[B&gt;:A](msg:B)(implicitcontext:akka.actor.ActorContext):Unit" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRef@forward(message:Any)(implicitcontext:akka.actor.ActorContext):Unit" class="extype" target="_top">akka.actor.ActorRef#forward</a></p></span></dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRef@forward(message:Any)(implicitcontext:akka.actor.ActorContext):Unit" class="extype" target="_top">akka.actor.ActorRef#forward</a></p></span></dd></dl></div>
     </li><li name="scala.AnyVal#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_&lt;:AnyVal]"></a>
       <a id="getClass():Class[_&lt;:AnyVal]"></a>
@@ -264,14 +290,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">path</span><span class="result">: <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorPath" class="extype" target="_top">ActorPath</a></span>
+        <span class="name">path</span><span class="result">: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorPath" class="extype" target="_top">ActorPath</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.package$$ActorRefOps@path:akka.actor.ActorPath" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRef@path:akka.actor.ActorPath" class="extype" target="_top">akka.actor.ActorRef#path</a></p></span></dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRef@path:akka.actor.ActorPath" class="extype" target="_top">akka.actor.ActorRef#path</a></p></span></dd></dl></div>
     </li><li name="de.knutwalker.akka.typed.ActorRefOps#ref" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ref:de.knutwalker.akka.typed.package.ActorRef[A]"></a>
       <a id="ref:ActorRef[A]"></a>
@@ -315,16 +341,16 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">unsafeTell</span><span class="params">(<span name="msg">msg: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="sender">sender: <a href="package.html#UntypedActorRef=akka.actor.ActorRef" class="extmbr" name="de.knutwalker.akka.typed.UntypedActorRef">UntypedActorRef</a> = <span class="symbol">Actor.noSender</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">unsafeTell</span><span class="params">(<span name="msg">msg: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="sender">sender: <a href="package.html#UntypedActorRef=akka.actor.ActorRef" class="extmbr" name="de.knutwalker.akka.typed.UntypedActorRef">UntypedActorRef</a> = <span class="symbol"><span class="name"><a href="../../../../akka/package.html">Actor.noSender</a></span></span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.package$$ActorRefOps@unsafeTell(msg:Any)(implicitsender:de.knutwalker.akka.typed.package.UntypedActorRef):Unit" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Sends any message asynchronously, e.g.</p><div class="fullcomment"><div class="comment cmt"><p>Sends any message asynchronously, e.g. <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.PoisonPill" class="extype" target="_top">akka.actor.PoisonPill</a>.
+      <p class="shortcomment cmt">Sends any message asynchronously, e.g.</p><div class="fullcomment"><div class="comment cmt"><p>Sends any message asynchronously, e.g. <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.PoisonPill" class="extype" target="_top">akka.actor.PoisonPill</a>.
 This is the same as using tell on a untyped actor.
-</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRef@tell(msg:&lt;?&gt;,sender:&lt;?&gt;):Unit" class="extype" target="_top">akka.actor.ActorRef#tell</a></p></span></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRef@tell(msg:Any,sender:akka.actor.ActorRef):Unit" class="extype" target="_top">akka.actor.ActorRef#tell</a></p></span></dd></dl></div>
     </li><li name="de.knutwalker.akka.typed.ActorRefOps#untyped" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="untyped:de.knutwalker.akka.typed.package.UntypedActorRef"></a>
       <a id="untyped:UntypedActorRef"></a>
@@ -341,7 +367,7 @@ This is the same as using tell on a untyped actor.
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Returns this typed ActorRef as an untyped <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRef" class="extype" target="_top">akka.actor.ActorRef</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Returns this typed ActorRef as an untyped <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRef" class="extype" target="_top">akka.actor.ActorRef</a>.
+      <p class="shortcomment cmt">Returns this typed ActorRef as an untyped <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRef" class="extype" target="_top">akka.actor.ActorRef</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Returns this typed ActorRef as an untyped <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRef" class="extype" target="_top">akka.actor.ActorRef</a>.
 The returned instance is <code>eq</code> to <code>this</code>.
 </p></div></div>
     </li></ol>

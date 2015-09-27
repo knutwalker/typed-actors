@@ -1,22 +1,22 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>TypedActor - typed-actors 1.3.0 - de.knutwalker.akka.typed.TypedActor</title>
-          <meta name="description" content="TypedActor - typed - actors 1.3.0 - de.knutwalker.akka.typed.TypedActor" />
-          <meta name="keywords" content="TypedActor typed actors 1.3.0 de.knutwalker.akka.typed.TypedActor" />
+          <title>AskSupport - typed-actors 1.3.0 - akka.typedactors.AskSupport</title>
+          <meta name="description" content="AskSupport - typed - actors 1.3.0 - akka.typedactors.AskSupport" />
+          <meta name="keywords" content="AskSupport typed actors 1.3.0 akka.typedactors.AskSupport" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
-      <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
-      <script type="text/javascript" src="../../../../lib/modernizr.custom.js"></script><script type="text/javascript" src="../../../../lib/diagrams.js" id="diagrams-js"></script>
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      <script type="text/javascript" src="../../lib/modernizr.custom.js"></script><script type="text/javascript" src="../../lib/diagrams.js" id="diagrams-js"></script>
       <script type="text/javascript">
          if(top === self) {
-            var url = '../../../../index.html';
-            var hash = 'de.knutwalker.akka.typed.TypedActor$';
+            var url = '../../index.html';
+            var hash = 'akka.typedactors.AskSupport$';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -28,15 +28,13 @@
         </head>
         <body class="value">
       <div id="definition">
-        <a href="TypedActor.html" title="See companion trait"><img alt="Object/Trait" src="../../../../lib/object_to_trait_big.png" /></a>
-        <p id="owner"><a href="../../../package.html" class="extype" name="de">de</a>.<a href="../../package.html" class="extype" name="de.knutwalker">knutwalker</a>.<a href="../package.html" class="extype" name="de.knutwalker.akka">akka</a>.<a href="package.html" class="extype" name="de.knutwalker.akka.typed">typed</a></p>
-        <h1><a href="TypedActor.html" title="See companion trait">TypedActor</a></h1><h3><span class="morelinks"><div>
-            Related Docs:
-            <a href="TypedActor.html" title="See companion trait">trait TypedActor</a>
-            | <a href="package.html" class="extype" name="de.knutwalker.akka.typed">package typed</a>
+        <img alt="Object" src="../../lib/object_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="akka">akka</a>.<a href="package.html" class="extype" name="akka.typedactors">typedactors</a></p>
+        <h1>AskSupport</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="package.html" class="extype" name="akka.typedactors">package typedactors</a>
           </div></span></h3><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       </div>
@@ -47,11 +45,13 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">TypedActor</span>
+        <span class="name">AskSupport</span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/knutwalker/typed-actors//tree/master/core/src/main/scala/de/knutwalker/akka/typed/TypedActor.scala" target="_blank">TypedActor.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Support the ask pattern.
+This must live in the <code>akka.typedactors</code> package since it requires usage
+of <code>private[akka]</code> methods/classes.</p><p>This is considered a PRIVATE API.</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/knutwalker/typed-actors//tree/master/core/src/main/scala/akka/typedactors/AskSupport.scala" target="_blank">AskSupport.scala</a></dd><dt>See also</dt><dd><span class="cmt"><p><a href="../../de/knutwalker/akka/typed/package$$ActorRefOps.html#?[B](f:de.knutwalker.akka.typed.package.ActorRef[B]=&gt;A)(implicittimeout:akka.util.Timeout,implicitctA:scala.reflect.ClassTag[A],implicitsender:de.knutwalker.akka.typed.package.UntypedActorRef):scala.concurrent.Future[B]" class="extmbr" name="de.knutwalker.akka.typed.ActorRefOps#?">de.knutwalker.akka.typed.ActorRefOps.?</a></p></span></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -71,7 +71,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="de.knutwalker.akka.typed.TypedActor"><span>TypedActor</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="akka.typedactors.AskSupport"><span>AskSupport</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -90,31 +90,7 @@
         <div id="allMembers">
         
 
-        <div id="types" class="types members">
-              <h3>Type Members</h3>
-              <ol><li name="de.knutwalker.akka.typed.TypedActor.Of" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="Of[A]extendsTypedActor"></a>
-      <a id="Of[A]:Of[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="TypedActor$$Of.html"><span class="name">Of</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@Of[A]extendsTypedActor" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Abstract class to extend from in order to get a <a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Abstract class to extend from in order to get a <a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a>.
-If you want to have the message type provided as a type parameter,
-you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">scala.reflect.ClassTag</a>.</p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypeActor.Of[ExampleProtocol] {
-  <span class="cmt">// ...</span>
-}</pre></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the message type this actor is receiving</p></dd></dl></div>
-    </li></ol>
-            </div>
+        
 
         
 
@@ -132,8 +108,8 @@ you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@!=(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -149,8 +125,8 @@ you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@##():Int" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@##():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -166,31 +142,11 @@ you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@==(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="de.knutwalker.akka.typed.TypedActor#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply[A](f:A=&gt;Unit)(implicitevidence$1:scala.reflect.ClassTag[A]):de.knutwalker.akka.typed.Props[A]"></a>
-      <a id="apply[A]((A)⇒Unit)(ClassTag[A]):Props[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="de.knutwalker.akka.typed.TypedActor.apply.A">A</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="de.knutwalker.akka.typed.TypedActor.apply.A">A</span>]</span>)</span><span class="result">: <a href="package.html#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a>[<span class="extype" name="de.knutwalker.akka.typed.TypedActor.apply.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@apply[A](f:A=&gt;Unit)(implicitevidence$1:scala.reflect.ClassTag[A]):de.knutwalker.akka.typed.Props[A]" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Creates a new typed actor from a total function, forfeiting the
-functionality of changing behavior.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new typed actor from a total function, forfeiting the
-functionality of changing behavior.
-</p></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the message type</p></dd><dt class="param">f</dt><dd class="cmt"><p>the actors behavior</p></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -203,11 +159,28 @@ functionality of changing behavior.
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@asInstanceOf[T0]:T0" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="akka.typedactors.AskSupport#ask" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ask[A,B](ref:de.knutwalker.akka.typed.ActorRef[A],f:de.knutwalker.akka.typed.ActorRef[B]=&gt;A,timeout:akka.util.Timeout,ctA:scala.reflect.ClassTag[A],sender:de.knutwalker.akka.typed.UntypedActorRef):scala.concurrent.Future[B]"></a>
+      <a id="ask[A,B](ActorRef[A],(ActorRef[B])⇒A,Timeout,ClassTag[A],UntypedActorRef):Future[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ask</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="ref">ref: <a href="../../de/knutwalker/akka/typed/package.html#ActorRef[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedActorRef,A]" class="extmbr" name="de.knutwalker.akka.typed.ActorRef">ActorRef</a>[<span class="extype" name="akka.typedactors.AskSupport.ask.A">A</span>]</span>, <span name="f">f: (<a href="../../de/knutwalker/akka/typed/package.html#ActorRef[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedActorRef,A]" class="extmbr" name="de.knutwalker.akka.typed.ActorRef">ActorRef</a>[<span class="extype" name="akka.typedactors.AskSupport.ask.B">B</span>]) ⇒ <span class="extype" name="akka.typedactors.AskSupport.ask.A">A</span></span>, <span name="timeout">timeout: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.util.Timeout" class="extype" target="_top">Timeout</a></span>, <span name="ctA">ctA: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="akka.typedactors.AskSupport.ask.A">A</span>]</span>, <span name="sender">sender: <a href="../../de/knutwalker/akka/typed/package.html#UntypedActorRef=akka.actor.ActorRef" class="extmbr" name="de.knutwalker.akka.typed.UntypedActorRef">UntypedActorRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.concurrent.Future" class="extype" target="_top">Future</a>[<span class="extype" name="akka.typedactors.AskSupport.ask.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#akka.typedactors.AskSupport$@ask[A,B](ref:de.knutwalker.akka.typed.ActorRef[A],f:de.knutwalker.akka.typed.ActorRef[B]=&gt;A,timeout:akka.util.Timeout,ctA:scala.reflect.ClassTag[A],sender:de.knutwalker.akka.typed.UntypedActorRef):scala.concurrent.Future[B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -220,11 +193,11 @@ functionality of changing behavior.
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@clone():Object" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@clone():Object" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
@@ -243,8 +216,8 @@ functionality of changing behavior.
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -260,8 +233,8 @@ functionality of changing behavior.
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@equals(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -277,11 +250,11 @@ functionality of changing behavior.
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@finalize():Unit" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -300,8 +273,8 @@ functionality of changing behavior.
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@getClass():Class[_]" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -317,8 +290,8 @@ functionality of changing behavior.
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@hashCode():Int" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -334,8 +307,8 @@ functionality of changing behavior.
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
@@ -351,8 +324,8 @@ functionality of changing behavior.
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -368,8 +341,8 @@ functionality of changing behavior.
         <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@notify():Unit" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@notify():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -385,8 +358,8 @@ functionality of changing behavior.
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@notifyAll():Unit" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -402,8 +375,8 @@ functionality of changing behavior.
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -419,8 +392,8 @@ functionality of changing behavior.
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@toString():String" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@toString():String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -436,8 +409,8 @@ functionality of changing behavior.
         <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@wait():Unit" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@wait():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -459,8 +432,8 @@ functionality of changing behavior.
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -482,8 +455,8 @@ functionality of changing behavior.
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@wait(x$1:Long):Unit" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      <a href="../../index.html#akka.typedactors.AskSupport$@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>

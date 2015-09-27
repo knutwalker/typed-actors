@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>typed - typed-actors 1.2.0 - de.knutwalker.akka.typed</title>
-          <meta name="description" content="typed - typed - actors 1.2.0 - de.knutwalker.akka.typed" />
-          <meta name="keywords" content="typed typed actors 1.2.0 de.knutwalker.akka.typed" />
+          <title>typed - typed-actors 1.3.0 - de.knutwalker.akka.typed</title>
+          <meta name="description" content="typed - typed - actors 1.3.0 - de.knutwalker.akka.typed" />
+          <meta name="keywords" content="typed typed actors 1.3.0 de.knutwalker.akka.typed" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -207,7 +207,7 @@ system.shutdown()</pre></div><dl class="attributes block"> <dt>Source</dt><dd><a
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="TypedActor.html"><span class="name">TypedActor</span></a><span class="result"> extends <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a></span>
+        <a href="TypedActor.html"><span class="name">TypedActor</span></a><span class="result"> extends <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.package@TypedActorextendsActor" title="Permalink" target="_top">
@@ -220,7 +220,7 @@ Typically, this is some ADT/sealed trait that defines the protocol for this acto
   <span class="cmt">// ...</span>
 }</pre><p>The <code>TypedActor</code> is just a regular actor, but if offers some methods that help
 you stay within the defined typed contract.
-<a href="TypedActor.html#typedSelf:de.knutwalker.akka.typed.ActorRef[TypedActor.this.Message]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#typedSelf">TypedActor#typedSelf</a> is the alternative to <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor@self:akka.actor.ActorRef" class="extype" target="_top">akka.actor.Actor.self</a>
+<a href="TypedActor.html#typedSelf:de.knutwalker.akka.typed.ActorRef[TypedActor.this.Message]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#typedSelf">TypedActor#typedSelf</a> is the alternative to <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Actor@self:akka.actor.ActorRef" class="extype" target="_top">akka.actor.Actor.self</a>
 to get the typed ActorRef for this actor.
 <a href="TypedActor.html#typedBecome(f:TypedActor.this.TypedReceive):Unit" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#typedBecome">TypedActor#typedBecome</a> is the alternative to <code>context.become</code> to check
 the receiving type while changing behavior.
@@ -232,7 +232,7 @@ You can get exhausitveness checking for your receive block if you use
     <span class="kw">case</span> <span class="std">Some</span>(<span class="lit">"foo"</span>) ⇒
   }
 }</pre><p>If you must go back to untyped land, use the <a href="TypedActor.html#Untyped(f:TypedActor.this.Receive):TypedActor.this.TypedReceive" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#Untyped">TypedActor#Untyped</a> wrapper.
-</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor" class="extype" target="_top">akka.actor.Actor</a> for more about Actors in general.</p></span></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Actor" class="extype" target="_top">akka.actor.Actor</a> for more about Actors in general.</p></span></dd></dl></div>
     </li><li name="de.knutwalker.akka.typed.UntypedActorRef" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="UntypedActorRef=akka.actor.ActorRef"></a>
       <a id="UntypedActorRef:UntypedActorRef"></a>
@@ -242,7 +242,7 @@ You can get exhausitveness checking for your receive block if you use
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">UntypedActorRef</span><span class="result"> = <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRef" class="extype" target="_top">akka.actor.ActorRef</a></span>
+        <span class="name">UntypedActorRef</span><span class="result"> = <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRef" class="extype" target="_top">akka.actor.ActorRef</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.package@UntypedActorRef=akka.actor.ActorRef" title="Permalink" target="_top">
@@ -276,7 +276,7 @@ You can get exhausitveness checking for your receive block if you use
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">UntypedProps</span><span class="result"> = <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Props" class="extype" target="_top">akka.actor.Props</a></span>
+        <span class="name">UntypedProps</span><span class="result"> = <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Props" class="extype" target="_top">akka.actor.Props</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.package@UntypedProps=akka.actor.Props" title="Permalink" target="_top">
@@ -317,7 +317,7 @@ You can get exhausitveness checking for your receive block if you use
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ActorOf</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="p">p: <a href="#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a>[<span class="extype" name="de.knutwalker.akka.typed.ActorOf.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="factory">factory: <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRefFactory" class="extype" target="_top">ActorRefFactory</a></span>)</span><span class="result">: <a href="#ActorRef[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedActorRef,A]" class="extmbr" name="de.knutwalker.akka.typed.ActorRef">ActorRef</a>[<span class="extype" name="de.knutwalker.akka.typed.ActorOf.A">A</span>]</span>
+        <span class="name">ActorOf</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="p">p: <a href="#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a>[<span class="extype" name="de.knutwalker.akka.typed.ActorOf.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="factory">factory: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRefFactory" class="extype" target="_top">ActorRefFactory</a></span>)</span><span class="result">: <a href="#ActorRef[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedActorRef,A]" class="extmbr" name="de.knutwalker.akka.typed.ActorRef">ActorRef</a>[<span class="extype" name="de.knutwalker.akka.typed.ActorOf.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.package@ActorOf[A](p:de.knutwalker.akka.typed.package.Props[A])(implicitfactory:akka.actor.ActorRefFactory):de.knutwalker.akka.typed.package.ActorRef[A]" title="Permalink" target="_top">
@@ -325,11 +325,11 @@ You can get exhausitveness checking for your receive block if you use
       </a>
     </span>
       <p class="shortcomment cmt">Creates a new typed actor as a child of the implicit
-<a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRefFactory" class="extype" target="_top">akka.actor.ActorRefFactory</a> and give it an automatically generated name.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new typed actor as a child of the implicit
-<a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRefFactory" class="extype" target="_top">akka.actor.ActorRefFactory</a> and give it an automatically generated name.
+<a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRefFactory" class="extype" target="_top">akka.actor.ActorRefFactory</a> and give it an automatically generated name.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new typed actor as a child of the implicit
+<a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRefFactory" class="extype" target="_top">akka.actor.ActorRefFactory</a> and give it an automatically generated name.
 </p></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the message type this actor is receiving</p></dd><dt class="param">p</dt><dd class="cmt"><p>see <a href="#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a> for details on how to obtain a <code>Props</code> object</p></dd><dt class="param">factory</dt><dd class="cmt"><p>the factory to create the actor. Within an actor itself,
                this is its <code>context</code>. For a toplevel actor, you need to
-               put the <code>ActorSystem</code> into the implicit scope.</p></dd><dt>returns</dt><dd class="cmt"><p>the typed ActorRef[A] for this actor</p></dd></dl><dl class="attributes block"> <dt>Exceptions thrown</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.ConfigurationException" class="extype" target="_top"><code>akka.ConfigurationException</code></a> if deployment, dispatcher or
+               put the <code>ActorSystem</code> into the implicit scope.</p></dd><dt>returns</dt><dd class="cmt"><p>the typed ActorRef[A] for this actor</p></dd></dl><dl class="attributes block"> <dt>Exceptions thrown</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.ConfigurationException" class="extype" target="_top"><code>akka.ConfigurationException</code></a> if deployment, dispatcher or
                                     mailbox configuration is wrong</p></span></dd></dl></div>
     </li><li name="de.knutwalker.akka.typed#ActorOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ActorOf[A](p:de.knutwalker.akka.typed.package.Props[A],name:String)(implicitfactory:akka.actor.ActorRefFactory):de.knutwalker.akka.typed.package.ActorRef[A]"></a>
@@ -340,7 +340,7 @@ You can get exhausitveness checking for your receive block if you use
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ActorOf</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="p">p: <a href="#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a>[<span class="extype" name="de.knutwalker.akka.typed.ActorOf.A">A</span>]</span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="factory">factory: <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRefFactory" class="extype" target="_top">ActorRefFactory</a></span>)</span><span class="result">: <a href="#ActorRef[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedActorRef,A]" class="extmbr" name="de.knutwalker.akka.typed.ActorRef">ActorRef</a>[<span class="extype" name="de.knutwalker.akka.typed.ActorOf.A">A</span>]</span>
+        <span class="name">ActorOf</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="p">p: <a href="#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a>[<span class="extype" name="de.knutwalker.akka.typed.ActorOf.A">A</span>]</span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="factory">factory: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRefFactory" class="extype" target="_top">ActorRefFactory</a></span>)</span><span class="result">: <a href="#ActorRef[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedActorRef,A]" class="extmbr" name="de.knutwalker.akka.typed.ActorRef">ActorRef</a>[<span class="extype" name="de.knutwalker.akka.typed.ActorOf.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.package@ActorOf[A](p:de.knutwalker.akka.typed.package.Props[A],name:String)(implicitfactory:akka.actor.ActorRefFactory):de.knutwalker.akka.typed.package.ActorRef[A]" title="Permalink" target="_top">
@@ -348,15 +348,15 @@ You can get exhausitveness checking for your receive block if you use
       </a>
     </span>
       <p class="shortcomment cmt">Creates a new typed actor with the given name as a child of the
-implicit <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRefFactory" class="extype" target="_top">akka.actor.ActorRefFactory</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new typed actor with the given name as a child of the
-implicit <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.ActorRefFactory" class="extype" target="_top">akka.actor.ActorRefFactory</a>.
+implicit <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRefFactory" class="extype" target="_top">akka.actor.ActorRefFactory</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new typed actor with the given name as a child of the
+implicit <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.ActorRefFactory" class="extype" target="_top">akka.actor.ActorRefFactory</a>.
 </p></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the message type this actor is receiving</p></dd><dt class="param">p</dt><dd class="cmt"><p>see <a href="#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a> for details on how to obtain a <code>Props</code> object</p></dd><dt class="param">name</dt><dd class="cmt"><p>the name of the actor.
             must not be null, empty or start with “$”.
             If the given name is already in use, an
             <code>InvalidActorNameException</code> is thrown.</p></dd><dt class="param">factory</dt><dd class="cmt"><p>the factory to create the actor. Within an actor itself,
                this is its <code>context</code>. For a toplevel actor, you need to
-               put the <code>ActorSystem</code> into the implicit scope.</p></dd><dt>returns</dt><dd class="cmt"><p>the typed ActorRef[A] for this actor</p></dd></dl><dl class="attributes block"> <dt>Exceptions thrown</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.ConfigurationException" class="extype" target="_top"><code>akka.ConfigurationException</code></a> if deployment, dispatcher or
-                                    mailbox configuration is wrong</p></span><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.InvalidActorNameException" class="extype" target="_top"><code>akka.actor.InvalidActorNameException</code></a> if the given name is
+               put the <code>ActorSystem</code> into the implicit scope.</p></dd><dt>returns</dt><dd class="cmt"><p>the typed ActorRef[A] for this actor</p></dd></dl><dl class="attributes block"> <dt>Exceptions thrown</dt><dd><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.ConfigurationException" class="extype" target="_top"><code>akka.ConfigurationException</code></a> if deployment, dispatcher or
+                                    mailbox configuration is wrong</p></span><span class="cmt"><p><a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.InvalidActorNameException" class="extype" target="_top"><code>akka.actor.InvalidActorNameException</code></a> if the given name is
                                              invalid or already in use</p></span></dd></dl></div>
     </li><li name="de.knutwalker.akka.typed#Props" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="Props[A](p:de.knutwalker.akka.typed.package.UntypedProps):de.knutwalker.akka.typed.package.Props[A]"></a>
@@ -374,8 +374,8 @@ implicit <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new typed Props that uses the given <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Props" class="extype" target="_top">akka.actor.Props</a> to
-create instances of this actor.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new typed Props that uses the given <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Props" class="extype" target="_top">akka.actor.Props</a> to
+      <p class="shortcomment cmt">Creates a new typed Props that uses the given <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Props" class="extype" target="_top">akka.actor.Props</a> to
+create instances of this actor.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new typed Props that uses the given <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Props" class="extype" target="_top">akka.actor.Props</a> to
 create instances of this actor.
 </p></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the message type this actor is receiving</p></dd><dt class="param">p</dt><dd class="cmt"><p>the Props to use</p></dd><dt>returns</dt><dd class="cmt"><p>a typed Props to create <code>ActorRef[A]</code>s for this actor</p></dd></dl></div>
     </li><li name="de.knutwalker.akka.typed#Props" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -387,7 +387,7 @@ create instances of this actor.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">Props</span><span class="tparams">[<span name="A">A</span>, <span name="T">T &lt;: <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a></span>]</span><span class="params">(<span name="clazz">clazz: <span class="extype" name="scala.Predef.Class">Class</span>[<span class="extype" name="de.knutwalker.akka.typed.Props.T">T</span>]</span>, <span name="args">args: <span class="extype" name="scala.Any">Any</span>*</span>)</span><span class="result">: <a href="#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a>[<span class="extype" name="de.knutwalker.akka.typed.Props.A">A</span>]</span>
+        <span class="name">Props</span><span class="tparams">[<span name="A">A</span>, <span name="T">T &lt;: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a></span>]</span><span class="params">(<span name="clazz">clazz: <span class="extype" name="scala.Predef.Class">Class</span>[<span class="extype" name="de.knutwalker.akka.typed.Props.T">T</span>]</span>, <span name="args">args: <span class="extype" name="scala.Any">Any</span>*</span>)</span><span class="result">: <a href="#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a>[<span class="extype" name="de.knutwalker.akka.typed.Props.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.package@Props[A,T&lt;:akka.actor.Actor](clazz:Class[T],args:Any*):de.knutwalker.akka.typed.package.Props[A]" title="Permalink" target="_top">
@@ -407,7 +407,7 @@ arguments to create instances of this actor.</p><p>Wrapper for <code>akka.actor.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">Props</span><span class="tparams">[<span name="A">A</span>, <span name="T">T &lt;: <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a></span>]</span><span class="params">(<span name="creator">creator: ⇒ <span class="extype" name="de.knutwalker.akka.typed.Props.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="de.knutwalker.akka.typed.Props.T">T</span>]</span>)</span><span class="result">: <a href="#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a>[<span class="extype" name="de.knutwalker.akka.typed.Props.A">A</span>]</span>
+        <span class="name">Props</span><span class="tparams">[<span name="A">A</span>, <span name="T">T &lt;: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a></span>]</span><span class="params">(<span name="creator">creator: ⇒ <span class="extype" name="de.knutwalker.akka.typed.Props.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="de.knutwalker.akka.typed.Props.T">T</span>]</span>)</span><span class="result">: <a href="#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a>[<span class="extype" name="de.knutwalker.akka.typed.Props.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.package@Props[A,T&lt;:akka.actor.Actor](creator:=&gt;T)(implicitevidence$2:scala.reflect.ClassTag[T]):de.knutwalker.akka.typed.package.Props[A]" title="Permalink" target="_top">
@@ -430,7 +430,7 @@ in <code>Stash</code>:</p><pre>Props(<span class="kw">new</span> Actor <span cla
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">Props</span><span class="tparams">[<span name="A">A</span>, <span name="T">T &lt;: <a href="http://doc.akka.io/api/akka/2.3.12/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="de.knutwalker.akka.typed.Props.T">T</span>]</span>)</span><span class="result">: <a href="#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a>[<span class="extype" name="de.knutwalker.akka.typed.Props.A">A</span>]</span>
+        <span class="name">Props</span><span class="tparams">[<span name="A">A</span>, <span name="T">T &lt;: <a href="http://doc.akka.io/api/akka/2.3.14/index.html#akka.actor.Actor" class="extype" target="_top">Actor</a></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="de.knutwalker.akka.typed.Props.T">T</span>]</span>)</span><span class="result">: <a href="#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a>[<span class="extype" name="de.knutwalker.akka.typed.Props.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.package@Props[A,T&lt;:akka.actor.Actor](implicitevidence$1:scala.reflect.ClassTag[T]):de.knutwalker.akka.typed.package.Props[A]" title="Permalink" target="_top">
