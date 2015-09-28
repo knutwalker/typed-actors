@@ -16,7 +16,9 @@
 
 package de.knutwalker.akka.typed
 
-import akka.actor.{ Terminated, PoisonPill, ActorSystem, Inbox }
+import akka.actor.Actor.Receive
+import akka.actor.{ ActorPath, Actor, Deploy, Terminated, PoisonPill, ActorSystem, Inbox }
+import akka.routing.NoRouter
 import akka.util.Timeout
 import org.specs2.concurrent.ExecutionEnv
 import org.specs2.execute._
@@ -60,6 +62,17 @@ object TypedSpec extends Specification with AfterAll {
     }
   }
 
+  class TestActor extends TypedActor.Of[TestMessage] {
+    def typedReceive: TypedReceive = Total(_ ⇒ ())
+  }
+
+  class AnotherActor extends Actor {
+    def receive = {
+      case Foo(msg)              ⇒ self.typed[SomeOtherMessage].forward(SomeOtherMessage(msg))
+      case SomeOtherMessage(msg) ⇒ inboxRef ! SomeOtherMessage(msg)
+    }
+  }
+
   "A compile-time wrapper around actors" should {
     val ref: ActorRef[TestMessage] = Typed[MyActor].create("Bernd")
 
@@ -77,6 +90,7 @@ object TypedSpec extends Specification with AfterAll {
     "have the same runtime representation as regular actors" >> {
       ref must beAnInstanceOf[akka.actor.ActorRef]
       ref.untyped must beTheSameAs (ref.asInstanceOf[akka.actor.ActorRef])
+      ref must beTheSameAs (ref.untyped.typed[TestMessage])
     }
   }
 
@@ -89,7 +103,7 @@ object TypedSpec extends Specification with AfterAll {
     }
 
     "respect the timeout" >> { implicit ee: ExecutionEnv ⇒
-      val ref = ActorOf(TypedActor[Baz](_ ⇒ ()))
+      val ref = ActorOf(TypedActor[Baz](_ ⇒ ()), "discarder")
       val expectedMessage = s"Ask timed out on [$ref] after [100 ms]"
       patchedAwait(ref)(be_===(expectedMessage))
     }
@@ -106,6 +120,108 @@ object TypedSpec extends Specification with AfterAll {
       val ref = kill(ActorOf(TypedActor[Baz](m ⇒ m.replyTo ! SomeOtherMessage(m.msg))))
       val expectedMessage = s"Recipient[$ref] had already been terminated."
       patchedAwait(ref)(startWith(expectedMessage))
+    }
+  }
+
+  "further ops and syntax of typed actors" >> {
+    val ref = ActorOf(Props[Foo, AnotherActor])
+
+    "forward" >> {
+      ref ! Foo("foo")
+      inbox.receive(1.second) === SomeOtherMessage("foo")
+    }
+
+    "unsafeTell" >> {
+      ref.unsafeTell(SomeOtherMessage("foo"))
+      inbox.receive(1.second) === SomeOtherMessage("foo")
+    }
+
+    "path" >> {
+      ref.path must beTheSameAs (ref.untyped.path)
+    }
+  }
+
+  "Props builders" should {
+
+    "simple props apply for zero-arg constructors" >> {
+
+      val byProps = Props[TestMessage, TestActor]
+      val byPropsFor = PropsFor[TestActor]
+      val byPropsOf = PropsOf[TestMessage][TestActor]
+      val byAkka = UntypedProps[TestActor]
+
+      byProps must be_===(byPropsOf)
+      byProps must be_===(byPropsFor)
+      byProps must be_==(byAkka)
+    }
+
+    "props apply with closure" >> {
+
+      def inner(creator: ⇒ MyActor) = {
+        val byProps = Props[TestMessage, MyActor](creator)
+        val byPropsFor = PropsFor[MyActor](creator)
+        val byPropsOf = PropsOf[TestMessage](creator)
+        val byAkka = UntypedProps(creator)
+
+        byProps must be_===(byPropsOf)
+        byProps must be_===(byPropsFor)
+        byProps must be_==(byAkka)
+      }
+
+      inner(new MyActor("Bernd"))
+    }
+
+    "reflection based props apply" >> {
+
+      val byProps = Props[TestMessage, MyActor](classOf[MyActor], "Bernd")
+      val byPropsFor = PropsFor[MyActor](classOf[MyActor], "Bernd")
+      val byPropsOf = PropsOf[TestMessage](classOf[MyActor], "Bernd")
+      val byAkka = UntypedProps(classOf[MyActor], "Bernd")
+
+      byProps must be_===(byPropsOf)
+      byProps must be_===(byPropsFor)
+      byProps must be_==(byAkka)
+    }
+  }
+
+  "Ops syntax for typed props" should {
+    val props: Props[TestMessage] = Typed[MyActor].props("Bernd")
+    val untyped = props.untyped
+
+    "dispatcher" >> {
+      props.dispatcher must beTheSameAs (untyped.dispatcher)
+    }
+
+    "mailbox" >> {
+      props.mailbox must beTheSameAs (untyped.mailbox)
+    }
+
+    "routerConfig" >> {
+      props.routerConfig must beTheSameAs (untyped.routerConfig)
+    }
+
+    "actorClass()" >> {
+      props.actorClass() must beTheSameAs (untyped.actorClass())
+    }
+
+    "withDispatcher()" >> {
+      props.withDispatcher("foo").untyped must be_=== (untyped.withDispatcher("foo"))
+      props.withDispatcher("foo") must be_=== (untyped.withDispatcher("foo").typed)
+    }
+
+    "withMailbox()" >> {
+      props.withMailbox("foo").untyped must be_=== (untyped.withMailbox("foo"))
+      props.withMailbox("foo") must be_=== (untyped.withMailbox("foo").typed)
+    }
+
+    "withRouter()" >> {
+      props.withRouter(NoRouter).untyped must be_=== (untyped.withRouter(NoRouter))
+      props.withRouter(NoRouter) must be_=== (untyped.withRouter(NoRouter).typed)
+    }
+
+    "withDeploy()" >> {
+      props.withDeploy(Deploy("foo")).untyped must be_=== (untyped.withDeploy(Deploy("foo")))
+      props.withDeploy(Deploy("foo")) must be_=== (untyped.withDeploy(Deploy("foo")).typed)
     }
   }
 

@@ -312,7 +312,7 @@ package object typed {
       untyped.path
 
     /** @see [[akka.actor.ActorRef#forward]] */
-    def forward[B >: A](msg: B)(implicit context: ActorContext): Unit =
+    def forward(msg: A)(implicit context: ActorContext): Unit =
       untyped.forward(msg)
 
     /**

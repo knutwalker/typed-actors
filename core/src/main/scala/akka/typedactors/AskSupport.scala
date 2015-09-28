@@ -50,6 +50,5 @@ object AskSupport {
         _ref.tell(msg, ref)
         ref.result.future.asInstanceOf[Future[B]]
       }
-    case _ ⇒ Future.failed[B](new IllegalArgumentException(s"Unsupported recipient ActorRef type, question not sent to [${_ref}]. Sender[$sender] sent the message of type '${ctA.runtimeClass.getName}'."))
   }
 }

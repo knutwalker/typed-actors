@@ -114,14 +114,6 @@ sealed trait TypedActor extends Actor {
    * Defines the actors behavior. Unlike [[akka.actor.Actor#receive]], this one
    * is typed in its first parameter.
    */
-  @deprecated("use typedReceive", "1.2.0")
-  def receiveMsg: TypedReceive =
-    typedReceive
-
-  /**
-   * Defines the actors behavior. Unlike [[akka.actor.Actor#receive]], this one
-   * is typed in its first parameter.
-   */
   def typedReceive: TypedReceive
 
   private def mkReceive(f: TypedReceive): Receive =

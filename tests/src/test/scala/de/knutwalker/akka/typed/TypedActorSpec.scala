@@ -21,6 +21,7 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
 
 import scala.annotation.tailrec
+import scala.concurrent.TimeoutException
 import scala.concurrent.duration.Duration
 
 import java.util.concurrent.TimeUnit
@@ -120,6 +121,29 @@ object TypedActorSpec extends Specification with AfterAll {
 
       ref ! Foo
       expectMsg("received a foo")
+
+      ref ! Bar
+      expectMsg("received a bar")
+
+      ref.untyped ! Qux
+      expectUnhandled(Qux, ref)
+
+      ref.untyped ! Nil
+      expectUnhandled(Nil, ref)
+    }
+
+    "have a typed become" >> {
+      class MyActor extends TypedActor.Of[MyFoo] {
+        def typedReceive = {
+          case Foo ⇒ typedBecome {
+            case Bar ⇒ inbox.getRef() ! "received a bar"
+          }
+        }
+      }
+      val ref = ActorOf(PropsFor(new MyActor))
+
+      ref ! Foo
+      expectUnhandled(Foo, ref) must throwA[TimeoutException]
 
       ref ! Bar
       expectMsg("received a bar")
