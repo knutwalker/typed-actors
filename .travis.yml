@@ -32,5 +32,4 @@ before_install:
   - pip install --user codecov
 
 after_success:
-  - sbt coveralls
   - codecov
