@@ -11,7 +11,7 @@ We will reuse the definitions and actors from the [&laquo; Basic Usage](index.ht
 
 ```scala
 scala> val typedRef = ActorOf[MyMessage](props, name = "my-actor")
-typedRef: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#864635608]
+typedRef: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-2074689866]
 ```
 
 #### Autoreceive Messages
@@ -30,7 +30,7 @@ You can easily turn your typed actor into an untyped one bu using `untyped`.
 
 ```scala
 scala> val untypedRef = typedRef.untyped
-untypedRef: de.knutwalker.akka.typed.package.UntypedActorRef = Actor[akka://foo/user/my-actor#864635608]
+untypedRef: de.knutwalker.akka.typed.package.UntypedActorRef = Actor[akka://foo/user/my-actor#-2074689866]
 ```
 
 For convenience, `akka.actor.ActorRef` is type aliased as `de.knutwalker.akka.typed.UntypedActorRef`.
@@ -38,14 +38,14 @@ Similarly, you can turn any untyped ref into a typed one using `typed`.
 
 ```scala
 scala> val typedAgain = untypedRef.typed[MyMessage]
-typedAgain: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#864635608]
+typedAgain: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-2074689866]
 ```
 
 As scala tends to infer `Nothing` as the most specific bottom type, you want to make sure to always provide a useful type.
 
 ```scala
 scala> untypedRef.typed
-res1: de.knutwalker.akka.typed.package.ActorRef[Nothing] = Actor[akka://foo/user/my-actor#864635608]
+res1: de.knutwalker.akka.typed.package.ActorRef[Nothing] = Actor[akka://foo/user/my-actor#-2074689866]
 ```
 
 #### Compiletime only
@@ -78,7 +78,7 @@ scala> class MyOtherActor extends Actor {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#1094821951]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-1004519623]
 
 scala> otherRef ! Foo("foo")
 [DEBUG] received handled message Foo(foo)

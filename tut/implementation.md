@@ -7,7 +7,6 @@ tut: 06
 
 
 
-
 Typed Actors are implemented as a type tag, a structural type refinement.
 This is very similar to [`scalaz.@@`](https://github.com/scalaz/scalaz/blob/81e68e845e91b54450a4542b19c1378f06aea861/core/src/main/scala/scalaz/package.scala#L90-L101) and a little bit to [`shapeless.tag.@@`](https://github.com/milessabin/shapeless/blob/6c659d253ba004baf74e20d5d815729552677303/core/src/main/scala/shapeless/typeoperators.scala#L28-L29)
 The message type is put togehter with the surrounding type (`ActorRef` or `Props`) into a special type, that exists only at compile time.
@@ -22,7 +21,7 @@ That being said, you get the most benefit by using the [TypedActor](typed-actor.
 
 One other thing that is frequently causing trouble is `sender()`.
 For one, it's not referentially transparent, return the sender of whatever message the Actor is currently processing. This is causing trouble when the `sender()` call happens for example in a callback attached to a `Future`.
-The other thing is, it's always an untyped actor and knowledge about the protocol has to be implicitly kept in the head of the developer. 
+The other thing is, it's always an untyped actor and knowledge about the protocol has to be implicitly kept in the head of the developer.
 For that reasons, it is a good idea to always provide a `replyTo: ActorRef[A]` field in the message itself and refrain from using `sender()`, ideally ever.
 
 An example of how this could look like. First, the counter example using `sender()` as a quasi status quo.
@@ -30,7 +29,7 @@ To have a sensible `sender()` available, we're gonna use `akka.actor.Inbox`.
 
 ```scala
 import akka.actor.ActorDSL._
-val box = inbox()  
+val box = inbox()
 ```
 
 This is a typical request reply cycle using `sender()`.
@@ -47,7 +46,7 @@ case class MyActor() extends TypedActor.Of[MyMessage] {
 
 ```scala
 scala> val ref = Typed[MyActor].create()
-ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-1523674025]
+ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-1825252310]
 
 scala> box.send(ref.untyped, MyMessage(42))
 ```
@@ -57,7 +56,7 @@ Note that there already is a bug, as the return message was not wrapped in `MyRe
 ```scala
 scala> val MyResponse(response) = box.receive()
 scala.MatchError: 42 (of class java.lang.String)
-  ... 378 elided
+  ... 374 elided
 ```
 
 Here's how that looks using the `replyTo` pattern.
@@ -74,7 +73,7 @@ case class MyActor() extends TypedActor.Of[MyMessage] {
 
 ```scala
 scala> val ref = Typed[MyActor].create()
-ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$b#1028992645]
+ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$b#-1240771812]
 
 scala> ref ! MyMessage(42)(box.receiver.typed)
 

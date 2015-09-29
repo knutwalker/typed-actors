@@ -25,7 +25,7 @@ scala> class MyActor extends TypedActor.Of[MyMessage] {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#354954417]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#1420654842]
 
 scala> ref ! Foo("foo")
 received a Foo: foo
@@ -65,7 +65,7 @@ Similar to the untyped actor, `context.become` is not hidden and can still lead 
 ```scala
 scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
      |   def typedReceive = {
-     |     case Foo(foo) => println(s"received a Foo: $foo")  
+     |     case Foo(foo) => println(s"received a Foo: $foo")
      |     case Bar(bar) => context become LoggingReceive {
      |       case SomeOtherMessage => println("received some other message")
      |     }
@@ -74,13 +74,13 @@ scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-963138999]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-553207230]
 
 scala> otherRef ! Foo("foo")
 
 scala> otherRef ! Bar("bar")
-[DEBUG] received handled message Foo(foo)
 received a Foo: foo
+[DEBUG] received handled message Foo(foo)
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -102,7 +102,7 @@ Using `typedBecome`, diverging from the type bound is no longer possible
 ```scala
 scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
      |   def typedReceive = {
-     |     case Foo(foo) => println(s"received a Foo: $foo")  
+     |     case Foo(foo) => println(s"received a Foo: $foo")
      |     case Bar(bar) => typedBecome {
      |       case SomeOtherMessage => println("received some other message")
      |     }
@@ -138,14 +138,31 @@ scala> val ref = ActorOf(TypedActor[MyMessage] {
      |   case Foo(foo) => println(s"received a Foo: $foo")
      |   case Bar(bar) => println(s"received a Bar: $bar")
      | })
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-1183023470]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-711928601]
 ```
+
+Please be aware of a ~~bug~~ feature that wouldn't fail on non-exhaustive checks.
+If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the failing non-exhaustiveness warning in the next example.
+
+```scala
+scala> val False = false
+False: Boolean = false
+
+scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
+     |   def typedReceive = Total {
+     |     case Foo(foo) if False =>
+     |   }
+     | }
+defined class MyOtherActor
+```
+
+Unfortunately, this can not be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
 
 
 #### Going back to untyped land
 
 Sometimes you have to receive messages that are outside of your protocol. A typical case is `Terminated`, but other modules and patterns have those messages as well.
-You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go.  
+You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go.
 
 
 ```scala
