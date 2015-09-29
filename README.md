@@ -24,7 +24,7 @@ import de.knutwalker.akka.typed._
 The underscore/wildcard import is important to bring some implicit classes into scope.
 These classes enable the actual syntax to use typed actors.
 Also, _Typed Actors_ shadows some names from `akka.actor`, so you need to make sure, that you add this import **after** your akka imports.
- 
+
 ```scala
 import akka.actor._
 import de.knutwalker.akka.typed._
@@ -233,8 +233,8 @@ otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://fo
 
 scala> otherRef ! Foo("foo")
 [DEBUG] received handled message Foo(foo)
-
 received a Foo: foo
+
 scala> otherRef ! Bar("bar")
 [DEBUG] received handled message Bar(bar)
 
@@ -317,7 +317,7 @@ Similar to the untyped actor, `context.become` is not hidden and can still lead 
 ```scala
 scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
      |   def typedReceive = {
-     |     case Foo(foo) => println(s"received a Foo: $foo")  
+     |     case Foo(foo) => println(s"received a Foo: $foo")
      |     case Bar(bar) => context become LoggingReceive {
      |       case SomeOtherMessage => println("received some other message")
      |     }
@@ -354,7 +354,7 @@ Using `typedBecome`, diverging from the type bound is no longer possible
 ```scala
 scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
      |   def typedReceive = {
-     |     case Foo(foo) => println(s"received a Foo: $foo")  
+     |     case Foo(foo) => println(s"received a Foo: $foo")
      |     case Bar(bar) => typedBecome {
      |       case SomeOtherMessage => println("received some other message")
      |     }
@@ -397,7 +397,7 @@ ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/use
 #### Going back to untyped land
 
 Sometimes you have to receive messages that are outside of your protocol. A typical case is `Terminated`, but other modules and patterns have those messages as well.
-You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go.  
+You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go.
 
 
 ```scala
@@ -521,7 +521,7 @@ Next, look at how you can improve type safety even further.
 
 
 When creating a `Props`, the preferred way is to use the `(Class[_], Any*)` overload, since this one does create a closure.
-If you create a props from within an Actor using the `(=> Actor)` overload, you accidentally close over the `ActorContext`, that's shared state you don't want. 
+If you create a props from within an Actor using the `(=> Actor)` overload, you accidentally close over the `ActorContext`, that's shared state you don't want.
 The problem with the constructor using `Class`, you don't get any help from the compiler. If you change one parameter, there is nothing telling you to change the Props constructor but the eventual runtime error.
 
 Using shapeless, we can try to fix this issue.
@@ -604,7 +604,6 @@ The next bits are about the internals and some good pratices..
 
 
 
-
 Typed Actors are implemented as a type tag, a structural type refinement.
 This is very similar to [`scalaz.@@`](https://github.com/scalaz/scalaz/blob/81e68e845e91b54450a4542b19c1378f06aea861/core/src/main/scala/scalaz/package.scala#L90-L101) and a little bit to [`shapeless.tag.@@`](https://github.com/milessabin/shapeless/blob/6c659d253ba004baf74e20d5d815729552677303/core/src/main/scala/shapeless/typeoperators.scala#L28-L29)
 The message type is put togehter with the surrounding type (`ActorRef` or `Props`) into a special type, that exists only at compile time.
@@ -618,7 +617,7 @@ That is, you can aways switch between untyped and typed actors, even if the type
 
 One other thing that is frequently causing trouble is `sender()`.
 For one, it's not referentially transparent, return the sender of whatever message the Actor is currently processing. This is causing trouble when the `sender()` call happens for example in a callback attached to a `Future`.
-The other thing is, it's always an untyped actor and knowledge about the protocol has to be implicitly kept in the head of the developer. 
+The other thing is, it's always an untyped actor and knowledge about the protocol has to be implicitly kept in the head of the developer.
 For that reasons, it is a good idea to always provide a `replyTo: ActorRef[A]` field in the message itself and refrain from using `sender()`, ideally ever.
 
 An example of how this could look like. First, the counter example using `sender()` as a quasi status quo.
@@ -626,7 +625,7 @@ To have a sensible `sender()` available, we're gonna use `akka.actor.Inbox`.
 
 ```scala
 import akka.actor.ActorDSL._
-val box = inbox()  
+val box = inbox()
 ```
 
 This is a typical request reply cycle using `sender()`.
@@ -713,10 +712,10 @@ This is one important difference to; `Typed Actors` is a possibility to add some
 `Akka Typed` is better at hiding their untyped implementation, nothing in the public API leads to the fact that something like an untyped actor could even exist.
 They removed `sender()` and, in fact, the whole `Actor` trait. The new `Behavior` API is really nice and gives you a great way to compose and change your behaviour and it really shines in tests, as behaviors can be easily tested in a synchronous fashion, unrelated to the whole actors thing.
 
-On the other hand, having `Akka Typed` as a separate module means it is difficult to use the typed API with other modules. Most APIs expect an `akka.actor.ActorRef` and you can't get one from a akka-typed actor (well, you can, but it's dirty). This also applies to things like `ActorLogging` and `Stash`.  
+On the other hand, having `Akka Typed` as a separate module means it is difficult to use the typed API with other modules. Most APIs expect an `akka.actor.ActorRef` and you can't get one from a akka-typed actor (well, you can, but it's dirty). This also applies to things like `ActorLogging` and `Stash`.
 `Typed Actors` doesn't try to prevent you from going untyped and as there is no different runtime representation, it can be easily used with all existing akka modules.
 However, if you mix typed/untyped code too much, you run into unhandled messages or even runtime class cast exceptions.
- 
+
 Also, `Akka Typed` is concerned with Java interop, which `Typed Actors` is not.
 Nevertheless, `Akka Typed` is a &emdash; in my opinion &emdash; really nice project and its new API is a major improvement over the default `Actor`. The resulting patterns, like `replyTo` are a good idea to use with `Typed Actor`s as well.
 

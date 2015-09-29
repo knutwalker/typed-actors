@@ -13,7 +13,7 @@ import de.knutwalker.akka.typed._
 The underscore/wildcard import is important to bring some implicit classes into scope.
 These classes enable the actual syntax to use typed actors.
 Also, _Typed Actors_ shadows some names from `akka.actor`, so you need to make sure, that you add this import **after** your akka imports.
- 
+
 ```tut:silent
 import akka.actor._
 import de.knutwalker.akka.typed._

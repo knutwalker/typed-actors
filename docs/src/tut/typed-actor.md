@@ -69,7 +69,7 @@ akka.actor.debug.receive=on
 ```tut
 class MyOtherActor extends TypedActor.Of[MyMessage] {
   def typedReceive = {
-    case Foo(foo) => println(s"received a Foo: $foo")  
+    case Foo(foo) => println(s"received a Foo: $foo")
     case Bar(bar) => context become LoggingReceive {
       case SomeOtherMessage => println("received some other message")
     }
@@ -94,7 +94,7 @@ Using `typedBecome`, diverging from the type bound is no longer possible
 ```tut:fail
 class MyOtherActor extends TypedActor.Of[MyMessage] {
   def typedReceive = {
-    case Foo(foo) => println(s"received a Foo: $foo")  
+    case Foo(foo) => println(s"received a Foo: $foo")
     case Bar(bar) => typedBecome {
       case SomeOtherMessage => println("received some other message")
     }
@@ -125,7 +125,7 @@ val ref = ActorOf(TypedActor[MyMessage] {
 #### Going back to untyped land
 
 Sometimes you have to receive messages that are outside of your protocol. A typical case is `Terminated`, but other modules and patterns have those messages as well.
-You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go.  
+You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go.
 
 
 ```tut
