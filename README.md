@@ -393,6 +393,23 @@ scala> val ref = ActorOf(TypedActor[MyMessage] {
 ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-1432583014]
 ```
 
+Please be aware of a ~~bug~~ feature that wouldn't fail on non-exhaustive checks.
+If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the failing non-exhaustiveness warning in the next example.
+
+```scala
+scala> val False = false
+False: Boolean = false
+
+scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
+     |   def typedReceive = Total {
+     |     case Foo(foo) if False =>
+     |   }
+     | }
+defined class MyOtherActor
+```
+
+Unfortunately, this can not be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
+
 
 #### Going back to untyped land
 
