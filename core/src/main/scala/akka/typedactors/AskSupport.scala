@@ -45,7 +45,7 @@ object AskSupport {
       if (timeout.duration.length <= 0) {
         Future.failed[B](new IllegalArgumentException(s"Timeout length must not be negative, question not sent to [${_ref}]. Sender[$sender] sent the message of type '${ctA.runtimeClass.getName}'."))
       } else {
-        val ref = PromiseActorRef(r.provider, timeout, targetName = _ref.untyped.toString())
+        val ref = PromiseActorRef(r.provider, timeout, targetName = _ref.toString())
         val msg = f(ref)
         _ref.tell(msg, ref)
         ref.result.future.asInstanceOf[Future[B]]
