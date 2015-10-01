@@ -25,7 +25,7 @@ scala> class MyActor extends TypedActor.Of[MyMessage] {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#1420654842]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#281591139]
 
 scala> ref ! Foo("foo")
 received a Foo: foo
@@ -74,7 +74,7 @@ scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-553207230]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#156650772]
 
 scala> otherRef ! Foo("foo")
 
@@ -138,7 +138,7 @@ scala> val ref = ActorOf(TypedActor[MyMessage] {
      |   case Foo(foo) => println(s"received a Foo: $foo")
      |   case Bar(bar) => println(s"received a Bar: $bar")
      | })
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-711928601]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#2051043235]
 ```
 
 Please be aware of a ~~bug~~ feature that wouldn't fail on non-exhaustive checks.
