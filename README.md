@@ -548,7 +548,7 @@ Using shapeless, we can try to fix this issue.
 The types creator lives in a [separate module](http://search.maven.org/#search%7Cga%7C1%7Cg:%22de.knutwalker%22%20AND%20a:typed-actors-creator*) that you have to include first.
 
 ```scala
-libraryDependencies += "de.knutwalker" %% "typed-actors-creator" % "1.3.0"
+libraryDependencies += "de.knutwalker" %% "typed-actors-creator" % "1.3.1"
 ```
 
 This is necessary, so that shapeless' generic machinery can pick up the required constructor parameters.
@@ -721,7 +721,7 @@ The `replyTo` pattern is also important in [Akka Typed](http://doc.akka.io/docs/
 ## Comparison with Akka Typed
 
 
-The [`Akka Typed`](http://doc.akka.io/docs/akka/snapshot/scala/typed.html) project is an upcomping (2.4) module of Akka which aims to provide typesafe actors as well.
+The [`Akka Typed`](http://doc.akka.io/docs/akka/snapshot/scala/typed.html) project is a module of Akka (as of 2.4) which aims to provide typesafe actors as well.
 Akka typed takes a completely different approach, mirroring most of the untyped API and ultimately offering a completely new API to define your actors behavior. Currently, this implementation sits on top of untyped They are currently actors.
 
 This is one important difference to; `Typed Actors` is a possibility to add some compile-time checking while `Akka Typed` is a completely new API.
