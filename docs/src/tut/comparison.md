@@ -4,7 +4,7 @@ title: Comparison with Akka Typed
 tut: 07
 ---
 
-The [`Akka Typed`](http://doc.akka.io/docs/akka/snapshot/scala/typed.html) project is an upcomping (2.4) module of Akka which aims to provide typesafe actors as well.
+The [`Akka Typed`](http://doc.akka.io/docs/akka/snapshot/scala/typed.html) project is a module of Akka (as of 2.4) which aims to provide typesafe actors as well.
 Akka typed takes a completely different approach, mirroring most of the untyped API and ultimately offering a completely new API to define your actors behavior. Currently, this implementation sits on top of untyped They are currently actors.
 
 This is one important difference to; `Typed Actors` is a possibility to add some compile-time checking while `Akka Typed` is a completely new API.
