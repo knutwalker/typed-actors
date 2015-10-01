@@ -10,7 +10,12 @@ Tools to support binary compatibility might be introduced in the future.
 ## [Unreleased][unreleased]
 
 
-## [1.3.0][1.3.0]
+## [1.3.1][1.3.1] - 2015-10-01
+### Fixed
+- Lubbing on `forward` could lead to unchecked messages being send
+
+
+## [1.3.0][1.3.0] - 2015-09-29
 ### Added
 - `TypedActor.apply` to quickly create an actor from a total function
 - Ask support for typed actors
@@ -61,7 +66,8 @@ Tools to support binary compatibility might be introduced in the future.
 - Initial release, basic typed actors
 
 
-[unreleased]: https://github.com/knutwalker/typed-actors/compare/v1.3.0...develop
+[unreleased]: https://github.com/knutwalker/typed-actors/compare/v1.3.1...develop
+[1.3.1]: https://github.com/knutwalker/typed-actors/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/knutwalker/typed-actors/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/knutwalker/typed-actors/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/knutwalker/typed-actors/compare/v1.0.1...v1.1.0
