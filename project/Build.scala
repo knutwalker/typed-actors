@@ -8,6 +8,8 @@ import sbtrelease.ReleasePlugin.autoImport._
 import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.{ Vcs, Version }
 
+import scala.annotation.tailrec
+
 object Build extends AutoPlugin {
   override def trigger = allRequirements
   override def requires = KSbtPlugin
@@ -71,15 +73,39 @@ object Build extends AutoPlugin {
     files.map(x ⇒ (x, x.getName))
   }
 
+  val tutLine = raw"tut: (\d+)".r
+  val titleLine = raw"title: (.+)".r
+  val directLink = raw".*?\[&(?:l|r)aquo;.*?\]\([^/]+.html\).*".r
+  val internalLink = raw".*\(([^/]+.html)\).*".r
+  val slugify = (title: String) ⇒ title.replaceAll(raw"\s+", "-").toLowerCase(java.util.Locale.ENGLISH)
+  val withoutExtension = (name: String) ⇒ name.substring(0, name.lastIndexOf('.'))
+
+  def getTitles(srcs: Seq[(File,String)]): Map[String, String] = {
+    val sources = srcs.map(_._1)
+    sources.flatMap {f ⇒
+      val lines = IO.readLines(f)
+      val front = lines.dropWhile(_ == "---").takeWhile(_ != "---")
+      front.collectFirst {
+        case titleLine(t) ⇒ withoutExtension(f.getName) → t
+      }
+    }.toMap
+  }
+
+  @tailrec
+  def replaceLinks(version: String, titles: Map[String, String])(line: String): String = line match {
+    case line@internalLink(link) ⇒
+      val newLink = titles.get(withoutExtension(link)).fold(link)(l ⇒ s"#${slugify(l)}")
+      replaceLinks(version, titles)(line.replaceAllLiterally(link, newLink))
+    case _                       ⇒ line.replaceAll(raw"\{\{ site\.data\.version\.version \}\}", version)
+  }
+
   def mkReadme(state: State, srcs: Seq[(File,String)], tpl: Option[File], out: Option[File]): Option[File] = {
+    val titles = getTitles(srcs)
     tpl.filter(_.exists()).flatMap { template ⇒
       out.flatMap {outputFile ⇒
         val sources = srcs.map(_._1)
         val extracted = Project.extract(state)
         val (_, latestVersion) = getLatestVersion(state, extracted)
-        val tutLine = raw"tut: (\d+)".r
-        val titleLine = raw"title: (.+)".r
-        val directLink = raw".*?\[&(?:l|r)aquo;.*?\]\([^/]+.html\).*".r
         val files = sources.flatMap {f ⇒
           val lines = IO.readLines(f)
           val (front, content) = lines.dropWhile(_ == "---").span(_ != "---")
@@ -90,9 +116,7 @@ object Build extends AutoPlugin {
             val actualContent = content.drop(1).withFilter {
               case directLink() ⇒ false
               case _            ⇒ true
-            }.map {line ⇒
-              line.replaceAll(raw"\{\{ site\.data\.version\.version \}\}", latestVersion)
-            }
+            }.map(replaceLinks(latestVersion, titles))
             (index, title, actualContent)
           }
         }
@@ -103,6 +127,9 @@ object Build extends AutoPlugin {
           val (_, tail) = middle.span(_ != "<!--- TUT:END -->")
           IO.writeLines(outputFile, head)
           IO.writeLines(outputFile, middle.take(1), append = true)
+          IO.writeLines(outputFile, makeLibraryDeps(extracted, latestVersion), append = true)
+          IO.writeLines(outputFile, Seq.fill(2)(""), append = true)
+          IO.writeLines(outputFile, makeToc(titles), append = true)
           IO.writeLines(outputFile, ls, append = true)
           IO.writeLines(outputFile, tail, append = true)
           outputFile
@@ -110,6 +137,22 @@ object Build extends AutoPlugin {
       }
     }
   }
+
+  def makeLibraryDeps(extracted: Extracted, version: String): Seq[String] = {
+    val modules = extracted.get(thisProject).dependencies.map(_.project)
+    val dependencies = modules.flatMap { proj ⇒
+      val org = extracted.get(organization in proj)
+      val module = extracted.get(name in proj)
+      List(s"""  "$org" %% "$module" % "$version"""", ",")
+    }.init
+    val deps = dependencies.grouped(2).map(_.mkString("")).toList
+    "```scala" :: "libraryDependencies ++= List(" :: deps ::: ")" :: "```" :: Nil
+  }
+
+  def makeToc(titles: Map[String, String]): List[String] =
+    List("## [Documentation][docs]", "") ++ titles.values.map { title ⇒
+      s"- [$title](#${slugify(title)})"
+    }
 
   def addAndCommitReadme(state: State, readme: Option[File], message: Option[String], maybeVcs: Option[Vcs]): Option[File] = for {
     vcs ← maybeVcs

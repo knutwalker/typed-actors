@@ -47,6 +47,6 @@ lazy val docs = project dependsOn (core, creator) settings (
   watchSources <++= (tutSourceDirectory, siteSourceDirectory, includeFilter in makeSite) map { (t, s, f) ⇒ (t ** "*.md").get ++ (s ** f).get }
 )
 
-lazy val parent = project in file(".") dependsOn creator aggregate (core, creator, tests, examples) settings dontRelease
+lazy val parent = project in file(".") dependsOn (core, creator) aggregate (core, creator, tests, examples) settings dontRelease
 
 addCommandAlias("travis", ";clean;coverage;test;coverageReport;coverageAggregate")
