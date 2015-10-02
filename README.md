@@ -1,16 +1,25 @@
-[![Travis CI](https://img.shields.io/travis/knutwalker/typed-actors/develop.svg)](https://travis-ci.org/knutwalker/typed-actors)
-[![Coverage](https://img.shields.io/codecov/c/github/knutwalker/typed-actors/develop.svg)](https://codecov.io/github/knutwalker/typed-actors?branch=develop)
-[![Maven](https://img.shields.io/maven-central/v/de.knutwalker/typed-actors_2.11.svg?label=latest)](http://search.maven.org/#search|ga|1|g%3A%22de.knutwalker%22%20AND%20a%3Atyped-actors*_2.11)
-[![Gitter](https://img.shields.io/badge/gitter-Join_Chat-1dce73.svg)](https://gitter.im/knutwalker/typed-actors)
-[![Apache License](https://img.shields.io/badge/license-APACHE_2-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-
-# Typed Actors
+# Typed Actors [![Travis CI][travis-img]][travis] [![Coverage][codecov-img]][codecov] [![Maven][maven-img]][maven] [![Gitter][gitter-img]][gitter] [![Apache License][license-img]][license]
 
 compile-time typechecked akka actors.
 
-[Documentation](http://knutwalker.github.io/typed-actors/)
-
 <!--- TUT:START -->
+```scala
+libraryDependencies ++= List(
+  "de.knutwalker" %% "typed-actors" % "1.3.1",
+  "de.knutwalker" %% "typed-actors-creator" % "1.3.1"
+)
+```
+
+
+## [Documentation][docs]
+
+- [Comparison with Akka Typed](#comparison-with-akka-typed)
+- [Typed Creator](#typed-creator)
+- [Implementation Notes](#implementation-notes)
+- [Building Props](#building-props)
+- [Unsafe Usage](#unsafe-usage)
+- [TypedActor](#typedactor)
+- [Basic Usage](#basic-usage)
 
 ## Basic Usage
 
@@ -547,7 +556,7 @@ The types creator lives in a [separate module](http://search.maven.org/#search%7
 libraryDependencies += "de.knutwalker" %% "typed-actors-creator" % "1.3.1"
 ```
 
-Next, you _have_ to use the [`TypedActor`](typed-actor.html) trait and you _have_ to make your actor a `case class`.
+Next, you _have_ to use the [`TypedActor`](#typedactor) trait and you _have_ to make your actor a `case class`.
 This is necessary, so that shapeless' generic machinery can pick up the required constructor parameters.
 
 ```scala
@@ -628,7 +637,7 @@ The actual methods are provided by a implicit ops wrapper that extends AnyVal, s
 
 Typed Actors does not try to prevent you from doing fancy things and shooting yourself in the foot, it rather wants to give you a way so you can help yourself in keeping your sanity.
 That is, you can aways switch between untyped and typed actors, even if the type information is not actually corresponding to the actors implementation. It is up to you to decide how much safety you want to trade in for flexibility.
-That being said, you get the most benefit by using the [TypedActor](typed-actor.html) with the [Typed Creator](creator.html) and only on the `typedReceive` and `typedBecome` methods with the `Total` wrapper. Depending on the situation, you can fairly fine-tune the amount of untypedness you want to have.
+That being said, you get the most benefit by using the [TypedActor](#typedactor) with the [Typed Creator](#typed-creator) and only on the `typedReceive` and `typedBecome` methods with the `Total` wrapper. Depending on the situation, you can fairly fine-tune the amount of untypedness you want to have.
 
 One other thing that is frequently causing trouble is `sender()`.
 For one, it's not referentially transparent, return the sender of whatever message the Actor is currently processing. This is causing trouble when the `sender()` call happens for example in a callback attached to a `Future`.
@@ -740,3 +749,18 @@ That concludes the Usage Guide. I guess the only thing left is to go on hAkking!
 ## License
 
 This code is open source software licensed under the Apache 2.0 License.
+
+
+[travis-img]: https://img.shields.io/travis/knutwalker/typed-actors/develop.svg
+[codecov-img]: https://img.shields.io/codecov/c/github/knutwalker/typed-actors/develop.svg
+[maven-img]: https://img.shields.io/maven-central/v/de.knutwalker/typed-actors_2.11.svg?label=latest
+[gitter-img]: https://img.shields.io/badge/gitter-Join_Chat-1dce73.svg
+[license-img]: https://img.shields.io/badge/license-APACHE_2-green.svg
+
+[travis]: https://travis-ci.org/knutwalker/typed-actors
+[codecov]: https://codecov.io/github/knutwalker/typed-actors?branch=develop
+[maven]: http://search.maven.org/#search|ga|1|g%3A%22de.knutwalker%22%20AND%20a%3Atyped-actors*_2.11
+[gitter]: https://gitter.im/knutwalker/typed-actors
+[license]: https://www.apache.org/licenses/LICENSE-2.0
+
+[docs]: http://knutwalker.github.io/typed-actors/
