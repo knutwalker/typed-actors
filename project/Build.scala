@@ -79,7 +79,7 @@ object Build extends AutoPlugin {
         val (_, latestVersion) = getLatestVersion(state, extracted)
         val tutLine = raw"tut: (\d+)".r
         val titleLine = raw"title: (.+)".r
-        val directLink = raw".*\([^/]+.html\).*".r
+        val directLink = raw".*?\[&(?:l|r)aquo;.*?\]\([^/]+.html\).*".r
         val files = sources.flatMap {f ⇒
           val lines = IO.readLines(f)
           val (front, content) = lines.dropWhile(_ == "---").span(_ != "---")
