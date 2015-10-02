@@ -42,8 +42,7 @@ ref ! Bar("bar")
 If you match on messages from a different type, you will get a compile error.
 
 ```tut:fail
-class MyActor extends TypedActor {
-  type Message = MyMessage
+class MyActor extends TypedActor.Of[MyMessage] {
   def typedReceive = {
     case SomeOtherMessage => println("received some other message")
   }
@@ -122,7 +121,7 @@ val ref = ActorOf(TypedActor[MyMessage] {
 ```
 
 Please be aware of a ~~bug~~ feature that wouldn't fail on non-exhaustive checks.
-If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the failing non-exhaustiveness warning in the next example.
+If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
 
 ```tut
 val False = false

@@ -64,7 +64,7 @@ val props: Props[MyMessage] = PropsFor(classOf[MyActor])
 
 #### Type Currying for Props
 
-`PropsFor` only works with a `TypedActor`. There is yet another way to create a `Props`, that hast the type information curried, `PropsOf`.
+`PropsFor` only works with a `TypedActor`. There is yet another way to create a `Props`, that has the type information curried, `PropsOf`.
 With `PropsOf`, you apply once with the message type and then use one of the three ways to create a `Props`. This works for all actors
 
 ```tut
