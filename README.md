@@ -1,4 +1,10 @@
-# Typed Actors [![Travis CI][travis-img]][travis] [![Coverage][codecov-img]][codecov] [![Maven][maven-img]][maven] [![Gitter][gitter-img]][gitter] [![Apache License][license-img]][license]
+[![Travis CI][travis-img]][travis]
+[![Coverage][codecov-img]][codecov]
+[![Maven][maven-img]][maven]
+[![Gitter][gitter-img]][gitter]
+[![Apache License][license-img]][license]
+
+# Typed Actors
 
 compile-time typechecked akka actors.
 
