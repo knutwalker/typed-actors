@@ -25,7 +25,7 @@ scala> class MyActor extends TypedActor.Of[MyMessage] {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#281591139]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-302003605]
 
 scala> ref ! Foo("foo")
 received a Foo: foo
@@ -37,16 +37,12 @@ received a Bar: bar
 If you match on messages from a different type, you will get a compile error.
 
 ```scala
-scala> class MyActor extends TypedActor {
-     |   type Message = MyMessage
+scala> class MyActor extends TypedActor.Of[MyMessage] {
      |   def typedReceive = {
      |     case SomeOtherMessage => println("received some other message")
      |   }
      | }
-<console>:20: error: illegal inheritance from sealed trait TypedActor
-       class MyActor extends TypedActor {
-                             ^
-<console>:23: error: pattern type is incompatible with expected type;
+<console>:22: error: pattern type is incompatible with expected type;
  found   : SomeOtherMessage.type
  required: MyActor.this.Message
     (which expands to)  MyMessage
@@ -74,7 +70,7 @@ scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#156650772]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-598215594]
 
 scala> otherRef ! Foo("foo")
 
@@ -138,11 +134,11 @@ scala> val ref = ActorOf(TypedActor[MyMessage] {
      |   case Foo(foo) => println(s"received a Foo: $foo")
      |   case Bar(bar) => println(s"received a Bar: $bar")
      | })
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#2051043235]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-1614502878]
 ```
 
 Please be aware of a ~~bug~~ feature that wouldn't fail on non-exhaustive checks.
-If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the failing non-exhaustiveness warning in the next example.
+If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
 
 ```scala
 scala> val False = false
