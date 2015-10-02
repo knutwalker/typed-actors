@@ -289,16 +289,12 @@ received a Bar: bar
 If you match on messages from a different type, you will get a compile error.
 
 ```scala
-scala> class MyActor extends TypedActor {
-     |   type Message = MyMessage
+scala> class MyActor extends TypedActor.Of[MyMessage] {
      |   def typedReceive = {
      |     case SomeOtherMessage => println("received some other message")
      |   }
      | }
-<console>:20: error: illegal inheritance from sealed trait TypedActor
-       class MyActor extends TypedActor {
-                             ^
-<console>:23: error: pattern type is incompatible with expected type;
+<console>:22: error: pattern type is incompatible with expected type;
  found   : SomeOtherMessage.type
  required: MyActor.this.Message
     (which expands to)  MyMessage
@@ -394,7 +390,7 @@ ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/use
 ```
 
 Please be aware of a ~~bug~~ feature that wouldn't fail on non-exhaustive checks.
-If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the failing non-exhaustiveness warning in the next example.
+If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
 
 ```scala
 scala> val False = false
@@ -511,7 +507,7 @@ props: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleCo
 
 #### Type Currying for Props
 
-`PropsFor` only works with a `TypedActor`. There is yet another way to create a `Props`, that hast the type information curried, `PropsOf`.
+`PropsFor` only works with a `TypedActor`. There is yet another way to create a `Props`, that has the type information curried, `PropsOf`.
 With `PropsOf`, you apply once with the message type and then use one of the three ways to create a `Props`. This works for all actors
 
 ```scala
@@ -537,9 +533,9 @@ Next, look at how you can improve type safety even further.
 
 
 
-When creating a `Props`, the preferred way is to use the `(Class[_], Any*)` overload, since this one does create a closure.
+When creating a `Props`, the preferred way is to use the `(Class[_], Any*)` overload, since this one does not create a closure.
 If you create a props from within an Actor using the `(=> Actor)` overload, you accidentally close over the `ActorContext`, that's shared state you don't want.
-The problem with the constructor using `Class`, you don't get any help from the compiler. If you change one parameter, there is nothing telling you to change the Props constructor but the eventual runtime error.
+The problem with the constructor using `Class`, you don't get any help from the compiler. If you change one parameter, there is nothing telling you to change the Props constructor but the eventual runtime error (from your tests, hopefully).
 
 Using shapeless, we can try to fix this issue.
 
@@ -551,6 +547,7 @@ The types creator lives in a [separate module](http://search.maven.org/#search%7
 libraryDependencies += "de.knutwalker" %% "typed-actors-creator" % "1.3.1"
 ```
 
+Next, you _have_ to use the [`TypedActor`](typed-actor.html) trait and you _have_ to make your actor a `case class`.
 This is necessary, so that shapeless' generic machinery can pick up the required constructor parameters.
 
 ```scala
@@ -631,6 +628,7 @@ The actual methods are provided by a implicit ops wrapper that extends AnyVal, s
 
 Typed Actors does not try to prevent you from doing fancy things and shooting yourself in the foot, it rather wants to give you a way so you can help yourself in keeping your sanity.
 That is, you can aways switch between untyped and typed actors, even if the type information is not actually corresponding to the actors implementation. It is up to you to decide how much safety you want to trade in for flexibility.
+That being said, you get the most benefit by using the [TypedActor](typed-actor.html) with the [Typed Creator](creator.html) and only on the `typedReceive` and `typedBecome` methods with the `Total` wrapper. Depending on the situation, you can fairly fine-tune the amount of untypedness you want to have.
 
 One other thing that is frequently causing trouble is `sender()`.
 For one, it's not referentially transparent, return the sender of whatever message the Actor is currently processing. This is causing trouble when the `sender()` call happens for example in a callback attached to a `Future`.
