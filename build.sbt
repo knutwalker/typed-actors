@@ -16,7 +16,7 @@ lazy val tests = project dependsOn (core, creator) settings (
     "org.specs2" %% "specs2-core"          % "3.6.4" % "test",
     "org.specs2" %% "specs2-matcher-extra" % "3.6.4" % "test"))
 
-lazy val examples = project dependsOn (core, creator) settings dontRelease
+lazy val examples = project dependsOn (core, creator, tests % "test->test") settings dontRelease
 
 lazy val docs = project dependsOn (core, creator) settings (
   dontRelease,

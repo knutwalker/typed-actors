@@ -60,5 +60,5 @@ object TypedCreatorExample extends App {
 
   Thread.sleep(1000)
 
-  system.shutdown()
+  Shutdown(system)
 }

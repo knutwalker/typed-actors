@@ -16,8 +16,7 @@
 
 package de.knutwalker.akka.typed
 
-import akka.actor.Actor.Receive
-import akka.actor.{ ActorPath, Actor, Deploy, Terminated, PoisonPill, ActorSystem, Inbox }
+import akka.actor.{ Actor, Deploy, Terminated, PoisonPill, ActorSystem, Inbox }
 import akka.routing.NoRouter
 import akka.util.Timeout
 import org.specs2.concurrent.ExecutionEnv
@@ -29,7 +28,7 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
 
 import scala.annotation.tailrec
-import scala.concurrent.TimeoutException
+import scala.concurrent.{ Await, TimeoutException }
 import scala.concurrent.duration._
 
 object TypedSpec extends Specification with AfterAll {
@@ -250,5 +249,5 @@ object TypedSpec extends Specification with AfterAll {
     ref
   }
 
-  def afterAll(): Unit = system.shutdown()
+  def afterAll(): Unit = Shutdown(system)
 }

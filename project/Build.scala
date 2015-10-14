@@ -14,8 +14,6 @@ object Build extends AutoPlugin {
   override def trigger = allRequirements
   override def requires = KSbtPlugin
 
-  val akkaVersion = "2.3.14"
-
   object autoImport {
     lazy val genModules = taskKey[Seq[(File, String)]]("generate module files for guide")
     lazy val makeReadme = taskKey[Option[File]]("generate readme file from tutorial.")
@@ -33,7 +31,8 @@ object Build extends AutoPlugin {
         githubProject := Github("knutwalker", "typed-actors"),
           description := "Compile time wrapper for more type safe actors",
          scalaVersion := "2.11.7",
-  libraryDependencies += "com.typesafe.akka" %% "akka-actor" % akkaVersion % "provided",
+          akkaVersion := "2.3.14",
+  libraryDependencies += "com.typesafe.akka" %% "akka-actor" % akkaVersion.value % "provided",
           javaVersion := JavaVersion.Java17,
       autoAPIMappings := true,
          apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value),
@@ -59,6 +58,12 @@ object Build extends AutoPlugin {
       setNextVersion,
       commitNextVersion,
       pushChanges
+    ),
+    unmanagedSourceDirectories in Compile ++= List(
+      if (akkaVersion.value.startsWith("2.4")) (sourceDirectory in Compile).value / s"scala-akka-2.4.x"
+      else                                     (sourceDirectory in Compile).value / s"scala-akka-2.3.x",
+      if (akkaVersion.value.startsWith("2.4")) (sourceDirectory in (Test, test)).value / s"scala-akka-2.4.x"
+      else                                     (sourceDirectory in (Test, test)).value / s"scala-akka-2.3.x"
     )
   )
 

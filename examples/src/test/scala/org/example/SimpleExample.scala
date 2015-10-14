@@ -55,5 +55,5 @@ object SimpleExample extends App {
 
   Thread.sleep(1000)
 
-  system.shutdown()
+  Shutdown(system)
 }

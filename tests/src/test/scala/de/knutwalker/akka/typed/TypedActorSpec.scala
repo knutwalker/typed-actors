@@ -16,7 +16,7 @@
 
 package de.knutwalker.akka.typed
 
-import akka.actor.{ UnhandledMessage, DeadLetter, Inbox, ActorSystem }
+import akka.actor.{ UnhandledMessage, Inbox, ActorSystem }
 import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
 
@@ -164,5 +164,5 @@ object TypedActorSpec extends Specification with AfterAll {
 
 
 
-  def afterAll(): Unit = system.shutdown()
+  def afterAll(): Unit = Shutdown(system)
 }
