@@ -62,7 +62,6 @@ import scala.reflect.ClassTag
 trait TypedActor extends Actor {
   type Message
   final type TypedReceive = PartialFunction[Message, Unit]
-  implicit def _ct: ClassTag[Message]
 
   /** Typed variant of [[self]]. */
   final val typedSelf: ActorRef[Message] =
@@ -85,8 +84,8 @@ trait TypedActor extends Actor {
    *   }
    * }}}
    */
-  final def Total(f: Message ⇒ Unit): TypedReceive =
-    new Downcast[Message](_ct.runtimeClass.asInstanceOf[Class[Message]])(f)
+  final def Total(f: Message ⇒ Unit)(implicit ct: ClassTag[Message]): TypedReceive =
+    new Downcast[Message](ct.runtimeClass.asInstanceOf[Class[Message]])(f)
 
   /**
    * Wraps an untyped receiver and returns it as a [[TypedReceive]].
@@ -138,7 +137,7 @@ object TypedActor {
    *
    * @tparam A the message type this actor is receiving
    */
-  abstract class Of[A](implicit val _ct: ClassTag[A]) extends TypedActor {
+  abstract class Of[A: ClassTag] extends TypedActor {
     final type Message = A
   }
 
