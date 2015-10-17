@@ -47,7 +47,7 @@ object Build extends AutoPlugin {
         latestVersion := latestVersionTag.value.getOrElse(version.value),
      previousArtifact := latestVersionTag.value.map(v ⇒ organization.value %% name.value % v).filter(_ ⇒ publishArtifact.value),
   binaryIssueFilters ++= ignoredABIProblems,
-         apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value),
+         apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value, akkaVersion.value),
            genModules := generateModules(state.value, sourceManaged.value, streams.value.cacheDirectory, thisProject.value.dependencies),
            makeReadme := mkReadme(state.value, buildReadmeContent.?.value.getOrElse(Nil), readmeFile.?.value, readmeFile.?.value),
          commitReadme := addAndCommitReadme(state.value, makeReadme.value, readmeCommitMessage.?.value, releaseVcs.value),
@@ -109,7 +109,7 @@ object Build extends AutoPlugin {
     always ++ versionSpecific ++ after
   }
 
-  def mapAkkaJar(cp: Seq[Attributed[File]], crossVersion: String): Map[File, URL] =
+  def mapAkkaJar(cp: Seq[Attributed[File]], crossVersion: String, akkaVersion: String): Map[File, URL] =
     cp.collect {
       case file if file.data.toPath.endsWith(s"akka-actor_$crossVersion-$akkaVersion.jar") ⇒
         (file.data, url(s"http://doc.akka.io/api/akka/$akkaVersion/"))
