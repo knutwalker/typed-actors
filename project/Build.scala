@@ -26,6 +26,7 @@ object Build extends AutoPlugin {
     lazy val buildReadmeContent = taskKey[Seq[(File, String)]]("Generate content for the readme file.")
     lazy val readmeFile = settingKey[File]("The readme file to build.")
     lazy val readmeCommitMessage = settingKey[String]("The message to commit the readme file with.")
+    lazy val akkaPersistence = akkaPersistenceDependency
   }
   import autoImport._
 
@@ -76,6 +77,11 @@ object Build extends AutoPlugin {
     )
   )
 
+  val akkaPersistenceDependency = (_: String) match {
+    case x if x.startsWith("2.4") ⇒ "com.typesafe.akka" %% "akka-persistence" % x % "provided"
+    case otherwise                ⇒ "com.typesafe.akka" %% "akka-persistence-experimental" % otherwise % "provided"
+  }
+
   def findLatestVersion(git: JGit): Option[String] = {
     val tags = git.tags.collect {
       case tag if tag.getName startsWith "refs/tags/" ⇒
@@ -89,6 +95,7 @@ object Build extends AutoPlugin {
     import com.typesafe.tools.mima.core._
     import com.typesafe.tools.mima.core.ProblemFilters._
     List(
+      exclude[MissingMethodProblem]("de.knutwalker.akka.typed.TypedActor.untypedFromTyped")
     )
   }
 

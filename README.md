@@ -446,6 +446,50 @@ scala> class MyTypedActor extends TypedActor {
 defined class MyTypedActor
 ```
 
+You can even override the `receive` method, if you have to, using the `untypedFromTyped` method.
+
+```scala
+scala> class MyTypedActor extends TypedActor {
+     |   type Message = MyMessage
+     |   
+     |   override def receive =
+     |     untypedFromTyped(typedReceive)
+     |   
+     |   def typedReceive = {
+     |     case Foo(foo) =>
+     |   }
+     | }
+defined class MyTypedActor
+```
+
+Using this, you can mix a `TypedActor` and a `PersistentActor` together.
+
+```scala
+scala> import akka.persistence.PersistentActor
+import akka.persistence.PersistentActor
+
+scala> class TypedPersistentActor extends TypedActor with PersistentActor with ActorLogging {
+     |   type Message = MyMessage
+     | 
+     |   def persistenceId: String = "typed-persistent-id"
+     | 
+     |   val receiveRecover: Receive = akka.actor.Actor.emptyBehavior
+     | 
+     |   val typedReceive: TypedReceive = {
+     |     case foo: Foo ⇒
+     |       persist(foo)(f => context.system.eventStream.publish(foo))
+     |   }
+     | 
+     |   val receiveCommand: Receive =
+     |     untypedFromTyped(typedReceive)
+     | 
+     |   override def receive: Receive =
+     |     receiveCommand
+     | }
+defined class TypedPersistentActor
+```
+
+
 #### Going back to untyped land
 
 Sometimes you have to receive messages that are outside of your protocol. A typical case is `Terminated`, but other modules and patterns have those messages as well.

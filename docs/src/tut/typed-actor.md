@@ -156,6 +156,45 @@ class MyTypedActor extends TypedActor {
 }
 ```
 
+You can even override the `receive` method, if you have to, using the `untypedFromTyped` method.
+
+```tut
+class MyTypedActor extends TypedActor {
+  type Message = MyMessage
+  
+  override def receive =
+    untypedFromTyped(typedReceive)
+  
+  def typedReceive = {
+    case Foo(foo) =>
+  }
+}
+```
+
+Using this, you can mix a `TypedActor` and a `PersistentActor` together.
+
+```tut
+import akka.persistence.PersistentActor
+
+class TypedPersistentActor extends TypedActor with PersistentActor with ActorLogging {
+  type Message = MyMessage
+
+  def persistenceId: String = "typed-persistent-id"
+
+  val receiveRecover: Receive = akka.actor.Actor.emptyBehavior
+
+  val typedReceive: TypedReceive = {
+    case foo: Foo ⇒
+      persist(foo)(f => context.system.eventStream.publish(foo))
+  }
+
+  val receiveCommand: Receive =
+    untypedFromTyped(typedReceive)
+
+  override def receive: Receive =
+    receiveCommand
+}
+```
 
 
 #### Going back to untyped land
