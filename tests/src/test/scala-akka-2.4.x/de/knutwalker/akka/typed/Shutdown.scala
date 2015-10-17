@@ -17,11 +17,19 @@
 package de.knutwalker.akka.typed
 
 import akka.actor.ActorSystem
+import akka.util.Timeout
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.reflect.ClassTag
 
 object Shutdown {
   def apply(system: ActorSystem): Unit =
     Await.result(system.terminate(), Duration.Inf)
+}
+
+object TimeoutMessage {
+  def apply[A](ref: ActorRef[A])(implicit ct: ClassTag[A], timeout: Timeout): String = {
+    s"""Ask timed out on [$ref] after [${timeout.duration.toMillis} ms]. Sender[null] sent message of type "${ct.runtimeClass.getName}"."""
+  }
 }

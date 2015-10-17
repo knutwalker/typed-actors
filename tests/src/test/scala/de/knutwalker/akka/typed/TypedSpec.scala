@@ -103,7 +103,7 @@ object TypedSpec extends Specification with AfterAll {
 
     "respect the timeout" >> { implicit ee: ExecutionEnv ⇒
       val ref = ActorOf(TypedActor[Baz](_ ⇒ ()), "discarder")
-      val expectedMessage = s"Ask timed out on [$ref] after [100 ms]"
+      val expectedMessage = TimeoutMessage(ref)
       patchedAwait(ref)(be_===(expectedMessage))
     }
 
