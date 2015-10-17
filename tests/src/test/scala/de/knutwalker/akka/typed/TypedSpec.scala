@@ -17,6 +17,7 @@
 package de.knutwalker.akka.typed
 
 import akka.actor.{ Actor, Deploy, Terminated, PoisonPill, ActorSystem, Inbox }
+import akka.pattern.AskTimeoutException
 import akka.routing.NoRouter
 import akka.util.Timeout
 import org.specs2.concurrent.ExecutionEnv
@@ -30,6 +31,8 @@ import org.specs2.specification.AfterAll
 import scala.annotation.tailrec
 import scala.concurrent.{ Await, TimeoutException }
 import scala.concurrent.duration._
+
+import java.util.regex.Pattern
 
 object TypedSpec extends Specification with AfterAll {
   sequential
@@ -104,7 +107,8 @@ object TypedSpec extends Specification with AfterAll {
     "respect the timeout" >> { implicit ee: ExecutionEnv ⇒
       val ref = ActorOf(TypedActor[Baz](_ ⇒ ()), "discarder")
       val expectedMessage = TimeoutMessage(ref)
-      patchedAwait(ref)(be_===(expectedMessage))
+      val matchMessage = s"^${Pattern.quote(expectedMessage)}$$"
+      (ref ? Baz("foo")) must throwAn[AskTimeoutException](message = matchMessage).await
     }
 
     "fail with an invalid timeout" >> { implicit ee: ExecutionEnv ⇒
@@ -118,7 +122,8 @@ object TypedSpec extends Specification with AfterAll {
     "fail when the target is already terminated" >> { implicit ee: ExecutionEnv ⇒
       val ref = kill(ActorOf(TypedActor[Baz](m ⇒ m.replyTo ! SomeOtherMessage(m.msg))))
       val expectedMessage = s"Recipient[$ref] had already been terminated."
-      patchedAwait(ref)(startWith(expectedMessage))
+      val matchMessage = s"^${Pattern.quote(expectedMessage)}.*$$"
+      (ref ? Baz("foo")) must throwAn[AskTimeoutException](message = matchMessage).await
     }
   }
 
@@ -221,23 +226,6 @@ object TypedSpec extends Specification with AfterAll {
     "withDeploy()" >> {
       props.withDeploy(Deploy("foo")).untyped must be_=== (untyped.withDeploy(Deploy("foo")))
       props.withDeploy(Deploy("foo")) must be_=== (untyped.withDeploy(Deploy("foo")).typed)
-    }
-  }
-
-  def patchedAwait(ref: ActorRef[Baz])(m: ⇒ Matcher[String])(implicit timeout: Timeout): Result = {
-    // cant use .await matcher since s.c.Await.result throws a TimeoutException
-    // and akka AskTimeout is <: TimeoutException as well
-    // see https://github.com/etorreborre/specs2/pull/417
-    try {
-      scala.concurrent.Await.result(ref ? Baz("foo"), 1.second)
-      Success()
-    } catch {
-      // check if exception is a direct instance of TimeoutException (await timeout)
-      // and not of a subclass (akka timeout)
-      case te: TimeoutException if te.getClass == classOf[TimeoutException] ⇒
-        Failure(s"Timeout after 1 second")
-      case other: Throwable ⇒
-        createExpectable(other.getMessage).applyMatcher(m).toResult
     }
   }
 
