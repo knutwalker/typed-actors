@@ -8,6 +8,14 @@ Tools to support binary compatibility might be introduced in the future.
 
 
 ## [Unreleased][unreleased]
+**This release is source compatible with the previous release, but not binary compatible.**
+
+### Added
+- New modules for Akka 2.4
+
+### Changed
+- `TypedActor` can now be extended directly and used as a trait
+
 
 
 ## [1.3.1][1.3.1] - 2015-10-01
