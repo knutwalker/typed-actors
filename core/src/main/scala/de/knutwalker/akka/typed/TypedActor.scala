@@ -59,9 +59,9 @@ import scala.reflect.ClassTag
  *
  * @see [[akka.actor.Actor]] for more about Actors in general.
  */
-sealed trait TypedActor extends Actor {
+trait TypedActor extends Actor {
   type Message
-  type TypedReceive = PartialFunction[Message, Unit]
+  final type TypedReceive = PartialFunction[Message, Unit]
   implicit def _ct: ClassTag[Message]
 
   /** Typed variant of [[self]]. */
@@ -70,7 +70,7 @@ sealed trait TypedActor extends Actor {
 
   /** Typed variant of `context.become`. */
   final def typedBecome(f: TypedReceive): Unit =
-    context become mkReceive(f)
+    context become untypedFromTyped(f)
 
   /**
    * Wraps a total receiver function and returns it as a [[TypedReceive]].
@@ -107,8 +107,8 @@ sealed trait TypedActor extends Actor {
    * `TypedActor`s delegate to [[typedReceive]].
    * @see [[akka.actor.Actor#receive]]
    */
-  final def receive: Receive =
-    mkReceive(typedReceive)
+  def receive: Receive =
+    untypedFromTyped(typedReceive)
 
   /**
    * Defines the actors behavior. Unlike [[akka.actor.Actor#receive]], this one
@@ -116,7 +116,12 @@ sealed trait TypedActor extends Actor {
    */
   def typedReceive: TypedReceive
 
-  private def mkReceive(f: TypedReceive): Receive =
+  /**
+   * Wraps a typed receive and returns it as an untyped receive.
+   * Use this only if you have to mix with other traits that override receive,
+   * where you need to repeat the implementation of this typed actors default receive method.
+   */
+  final protected def untypedFromTyped(f: TypedReceive): Receive =
     LoggingReceive(new TypedReceiver(f))
 }
 object TypedActor {

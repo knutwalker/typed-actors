@@ -280,7 +280,7 @@ Having a typed reference to an actor is one thing, but how can we improve type-s
 **Typed Actors** offers a `trait` called `TypedActor` which you can extend from instead of `Actor`.
 `TypedActor` itself extends `Actor` but contains an abstract type member and typed receive method
 instead of just an untyped receive method.
-In order to use the `TypedActor`, you have to extend `TypedActor.Of[_]` and provide your message type via type parameter (you cannot extend directly from `TypedActor`).
+In order to use the `TypedActor`, you have to extend `TypedActor.Of[_]` and provide your message type via type parameter.
 
 ```scala
 scala> class MyActor extends TypedActor.Of[MyMessage] {
@@ -394,16 +394,6 @@ It would fail on the following input: Bar(_)
 defined class MyOtherActor
 ```
 
-The companion object `TypedActor` has an `apply` method that wraps a total function in an actor and returns a prop for this actor.
-
-```scala
-scala> val ref = ActorOf(TypedActor[MyMessage] {
-     |   case Foo(foo) => println(s"received a Foo: $foo")
-     |   case Bar(bar) => println(s"received a Bar: $bar")
-     | })
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-1432583014]
-```
-
 Please be aware of a ~~bug~~ feature that wouldn't fail on non-exhaustive checks.
 If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
 
@@ -421,6 +411,40 @@ defined class MyOtherActor
 
 Unfortunately, this can not be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
 
+
+#### Stateless actor from a total function
+
+The companion object `TypedActor` has an `apply` method that wraps a total function in an actor and returns a prop for this actor.
+
+```scala
+scala> val ref = ActorOf(TypedActor[MyMessage] {
+     |   case Foo(foo) => println(s"received a Foo: $foo")
+     |   case Bar(bar) => println(s"received a Bar: $bar")
+     | })
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#466840424]
+```
+
+
+#### Low-level TypedActor
+
+You can also directly extend `TypedActor`, in which case you have to implement the abstract type `Message`. The `Of` constructor just does this for you by getting all information from the defined type parameter.
+You want to use this you need the `TypedActor` as a trait, for example when mixing it together with other Actor traits, like `PersistenActor`.
+For normal use-case, extending `TypedActor.Of[_]` is encouraged.
+
+
+```scala
+scala> import scala.reflect.classTag
+import scala.reflect.classTag
+
+scala> class MyTypedActor extends TypedActor {
+     |   type Message = MyMessage
+     |   
+     |   def typedReceive = {
+     |     case Foo(foo) =>
+     |   }
+     | }
+defined class MyTypedActor
+```
 
 #### Going back to untyped land
 
