@@ -8,6 +8,9 @@ Tools to support binary compatibility might be introduced in the future.
 
 
 ## [Unreleased][unreleased]
+
+
+## [1.4.0][1.4.0] - 2015-10-16
 **This release is source compatible with the previous release, but not binary compatible.**
 
 ### Added
@@ -15,7 +18,6 @@ Tools to support binary compatibility might be introduced in the future.
 
 ### Changed
 - `TypedActor` can now be extended directly and used as a trait
-
 
 
 ## [1.3.1][1.3.1] - 2015-10-01
@@ -74,7 +76,8 @@ Tools to support binary compatibility might be introduced in the future.
 - Initial release, basic typed actors
 
 
-[unreleased]: https://github.com/knutwalker/typed-actors/compare/v1.3.1...develop
+[unreleased]: https://github.com/knutwalker/typed-actors/compare/v1.4.0...develop
+[1.4.0]: https://github.com/knutwalker/typed-actors/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/knutwalker/typed-actors/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/knutwalker/typed-actors/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/knutwalker/typed-actors/compare/v1.1.0...v1.2.0
