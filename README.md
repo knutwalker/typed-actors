@@ -8,6 +8,9 @@
 
 compile-time typechecked akka actors.
 
+**Note**: For Akka 2.4, you have to add `-a24` to the version number. For example `1.1.0` becomes `1.1.0-a24`.
+The first version available for Akka 2.4 is `1.4.0`.
+
 <!--- TUT:START -->
 ```scala
 libraryDependencies ++= List(
