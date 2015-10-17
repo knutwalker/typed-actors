@@ -18,11 +18,12 @@ object Build extends AutoPlugin {
   override def requires = KSbtPlugin
 
   object autoImport {
-    lazy val latestVersionTag = settingKey[Option[String]]("the latest tag describing a version number.")
-    lazy val latestVersion = settingKey[String]("the latest version or the current one, if there is no previous version.")
-    lazy val genModules = taskKey[Seq[(File, String)]]("generate module files for guide")
-    lazy val makeReadme = taskKey[Option[File]]("generate readme file from tutorial.")
-    lazy val commitReadme = taskKey[Option[File]]("Commits the readme file.")
+    lazy val latestVersionTag = settingKey[Option[String]]("The latest tag describing a version number.")
+    lazy val latestVersion = settingKey[String]("The latest version or the current one, if there is no previous version.")
+    lazy val isAkka24 = settingKey[Boolean]("Whether the build is compiled against Akka 2.4.x.")
+    lazy val genModules = taskKey[Seq[(File, String)]]("Generate module files for guide.")
+    lazy val makeReadme = taskKey[Option[File]]("Generate readme file from tutorial.")
+    lazy val commitReadme = taskKey[Option[File]]("Commit the readme file.")
     lazy val buildReadmeContent = taskKey[Seq[(File, String)]]("Generate content for the readme file.")
     lazy val readmeFile = settingKey[File]("The readme file to build.")
     lazy val readmeCommitMessage = settingKey[String]("The message to commit the readme file with.")
@@ -38,6 +39,7 @@ object Build extends AutoPlugin {
           description := "Compile time wrapper for more type safe actors",
          scalaVersion := "2.11.7",
           akkaVersion := "2.3.14",
+             isAkka24 := akkaVersion.value.startsWith("2.4"),
   libraryDependencies += "com.typesafe.akka" %% "akka-actor" % akkaVersion.value % "provided",
           javaVersion := JavaVersion.Java17,
       autoAPIMappings := true,
@@ -49,31 +51,16 @@ object Build extends AutoPlugin {
            genModules := generateModules(state.value, sourceManaged.value, streams.value.cacheDirectory, thisProject.value.dependencies),
            makeReadme := mkReadme(state.value, buildReadmeContent.?.value.getOrElse(Nil), readmeFile.?.value, readmeFile.?.value),
          commitReadme := addAndCommitReadme(state.value, makeReadme.value, readmeCommitMessage.?.value, releaseVcs.value),
+       releaseProcess := getReleaseSteps(isAkka24.value),
              pomExtra := pomExtra.value ++
                <properties>
                  <info.apiURL>http://{githubProject.value.org}.github.io/{githubProject.value.repo}/api/{version.value}/</info.apiURL>
                </properties>,
-    releaseProcess := List[ReleaseStep](
-      checkSnapshotDependencies,
-      inquireVersions,
-      runClean,
-      runTest,
-      setReleaseVersion,
-      commitReleaseVersion,
-      tagRelease,
-      publishSignedArtifacts,
-      releaseToCentral,
-      pushGithubPages,
-      commitTheReadme,
-      setNextVersion,
-      commitNextVersion,
-      pushChanges
-    ),
     unmanagedSourceDirectories in Compile ++= List(
-      if (akkaVersion.value.startsWith("2.4")) (sourceDirectory in Compile).value / s"scala-akka-2.4.x"
-      else                                     (sourceDirectory in Compile).value / s"scala-akka-2.3.x",
-      if (akkaVersion.value.startsWith("2.4")) (sourceDirectory in (Test, test)).value / s"scala-akka-2.4.x"
-      else                                     (sourceDirectory in (Test, test)).value / s"scala-akka-2.3.x"
+      if (isAkka24.value) (sourceDirectory in Compile).value / s"scala-akka-2.4.x"
+      else                (sourceDirectory in Compile).value / s"scala-akka-2.3.x",
+      if (isAkka24.value) (sourceDirectory in (Test, test)).value / s"scala-akka-2.4.x"
+      else                (sourceDirectory in (Test, test)).value / s"scala-akka-2.3.x"
     )
   )
 
@@ -97,6 +84,29 @@ object Build extends AutoPlugin {
     List(
       exclude[MissingMethodProblem]("de.knutwalker.akka.typed.TypedActor.untypedFromTyped")
     )
+  }
+
+  def getReleaseSteps(isAkka24: Boolean) = {
+    val always = List(
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      publishSignedArtifacts,
+      releaseToCentral
+    )
+    val versionSpecific =
+      if (isAkka24) Nil else List(
+        pushGithubPages,
+        commitTheReadme,
+        setNextVersion,
+        commitNextVersion
+      )
+    val after = List(pushChanges)
+    always ++ versionSpecific ++ after
   }
 
   def mapAkkaJar(cp: Seq[Attributed[File]], crossVersion: String): Map[File, URL] =
