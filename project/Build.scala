@@ -1,5 +1,5 @@
 import com.typesafe.sbt.SbtGit.GitKeys
-import com.typesafe.sbt.git.NullLogger
+import com.typesafe.sbt.git.JGit
 import sbt._
 import sbt.Keys._
 import de.knutwalker.sbt._
@@ -15,6 +15,8 @@ object Build extends AutoPlugin {
   override def requires = KSbtPlugin
 
   object autoImport {
+    lazy val latestVersionTag = settingKey[Option[String]]("the latest tag describing a version number.")
+    lazy val latestVersion = settingKey[String]("the latest version or the current one, if there is no previous version.")
     lazy val genModules = taskKey[Seq[(File, String)]]("generate module files for guide")
     lazy val makeReadme = taskKey[Option[File]]("generate readme file from tutorial.")
     lazy val commitReadme = taskKey[Option[File]]("Commits the readme file.")
@@ -35,6 +37,8 @@ object Build extends AutoPlugin {
   libraryDependencies += "com.typesafe.akka" %% "akka-actor" % akkaVersion.value % "provided",
           javaVersion := JavaVersion.Java17,
       autoAPIMappings := true,
+     latestVersionTag := GitKeys.gitReader.value.withGit(g ⇒ findLatestVersion(g.asInstanceOf[JGit])),
+        latestVersion := latestVersionTag.value.getOrElse(version.value),
          apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value),
            genModules := generateModules(state.value, sourceManaged.value, streams.value.cacheDirectory, thisProject.value.dependencies),
            makeReadme := mkReadme(state.value, buildReadmeContent.?.value.getOrElse(Nil), readmeFile.?.value, readmeFile.?.value),
@@ -66,6 +70,15 @@ object Build extends AutoPlugin {
       else                                     (sourceDirectory in (Test, test)).value / s"scala-akka-2.3.x"
     )
   )
+
+  def findLatestVersion(git: JGit): Option[String] = {
+    val tags = git.tags.collect {
+      case tag if tag.getName startsWith "refs/tags/" ⇒
+        tag.getName drop 10 replaceFirst ("^v", "")
+    }
+    val sortedTags = tags.flatMap(Version(_)).sorted.map(_.string)
+    sortedTags.lastOption
+  }
 
   def mapAkkaJar(cp: Seq[Attributed[File]], crossVersion: String): Map[File, URL] =
     cp.collect {
@@ -110,7 +123,7 @@ object Build extends AutoPlugin {
       out.flatMap {outputFile ⇒
         val sources = srcs.map(_._1)
         val extracted = Project.extract(state)
-        val (_, latestVersion) = getLatestVersion(state, extracted)
+        val latest = extracted.get(latestVersion)
         val files = sources.flatMap {f ⇒
           val lines = IO.readLines(f)
           val (front, content) = lines.dropWhile(_ == "---").span(_ != "---")
@@ -121,7 +134,7 @@ object Build extends AutoPlugin {
             val actualContent = content.drop(1).withFilter {
               case directLink() ⇒ false
               case _            ⇒ true
-            }.map(replaceLinks(latestVersion, titles))
+            }.map(replaceLinks(latest, titles))
             (index, title, actualContent)
           }
         }
@@ -132,7 +145,7 @@ object Build extends AutoPlugin {
           val (_, tail) = middle.span(_ != "<!--- TUT:END -->")
           IO.writeLines(outputFile, head)
           IO.writeLines(outputFile, middle.take(1), append = true)
-          IO.writeLines(outputFile, makeLibraryDeps(extracted, latestVersion), append = true)
+          IO.writeLines(outputFile, makeLibraryDeps(extracted, latest), append = true)
           IO.writeLines(outputFile, Seq.fill(2)(""), append = true)
           IO.writeLines(outputFile, makeToc(titles), append = true)
           IO.writeLines(outputFile, ls, append = true)
@@ -178,16 +191,6 @@ object Build extends AutoPlugin {
     }
   }
 
-  def getLatestVersion(state: State, extracted: Extracted): (State, String) = {
-    val baseDir = extracted.get(baseDirectory)
-    val currentVersion = extracted.get(version)
-    val (nextState, runner) = extracted.runTask(GitKeys.gitRunner, state)
-    val tagDashEl = runner("tag", "-l")(baseDir, NullLogger)
-    val tags = tagDashEl.trim.split("\\s+").toSeq.map(_.replaceFirst("^v", ""))
-    val sortedTags = tags.flatMap(Version(_)).sorted.map(_.string)
-    (nextState, sortedTags.lastOption.getOrElse(currentVersion))
-  }
-
   private class GenerateModulesTask(state: State, dir: File, cacheDir: File, modules: Seq[ProjectRef]) {
     val tempModulesFile = cacheDir / "gen-modules" / "modules.yml"
     val tempVersionFile = cacheDir / "gen-modules" / "version.yml"
@@ -204,8 +207,8 @@ object Build extends AutoPlugin {
 
     def mkFiles() = {
       val extracted = Project.extract(state)
-      val (_, latestVersion) = getLatestVersion(state, extracted)
-      val lines = mkLines(extracted, latestVersion)
+      val latest = extracted.get(latestVersion)
+      val lines = mkLines(extracted, latest)
       IO.writeLines(tempModulesFile, lines)
       IO.writeLines(tempVersionFile, s"version: $latestVersion" :: Nil)
     }
