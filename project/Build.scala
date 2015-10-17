@@ -4,6 +4,9 @@ import sbt._
 import sbt.Keys._
 import de.knutwalker.sbt._
 import de.knutwalker.sbt.KSbtKeys._
+import com.typesafe.tools.mima.plugin.MimaKeys.binaryIssueFilters
+import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
+import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifact
 import sbtrelease.ReleasePlugin.autoImport._
 import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.{ Vcs, Version }
@@ -26,7 +29,7 @@ object Build extends AutoPlugin {
   }
   import autoImport._
 
-  override lazy val projectSettings = List(
+  override lazy val projectSettings = mimaDefaultSettings ++ List(
          organization := "de.knutwalker",
             startYear := Some(2015),
            maintainer := "Paul Horn",
@@ -39,6 +42,8 @@ object Build extends AutoPlugin {
       autoAPIMappings := true,
      latestVersionTag := GitKeys.gitReader.value.withGit(g ⇒ findLatestVersion(g.asInstanceOf[JGit])),
         latestVersion := latestVersionTag.value.getOrElse(version.value),
+     previousArtifact := latestVersionTag.value.map(v ⇒ organization.value %% name.value % v).filter(_ ⇒ publishArtifact.value),
+  binaryIssueFilters ++= ignoredABIProblems,
          apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value),
            genModules := generateModules(state.value, sourceManaged.value, streams.value.cacheDirectory, thisProject.value.dependencies),
            makeReadme := mkReadme(state.value, buildReadmeContent.?.value.getOrElse(Nil), readmeFile.?.value, readmeFile.?.value),
@@ -78,6 +83,13 @@ object Build extends AutoPlugin {
     }
     val sortedTags = tags.flatMap(Version(_)).sorted.map(_.string)
     sortedTags.lastOption
+  }
+
+  lazy val ignoredABIProblems = {
+    import com.typesafe.tools.mima.core._
+    import com.typesafe.tools.mima.core.ProblemFilters._
+    List(
+    )
   }
 
   def mapAkkaJar(cp: Seq[Attributed[File]], crossVersion: String): Map[File, URL] =
