@@ -828,14 +828,14 @@ That concludes the Usage Guide. I guess the only thing left is to go on hAkking!
 This code is open source software licensed under the Apache 2.0 License.
 
 
-[travis-img]: https://img.shields.io/travis/knutwalker/typed-actors/develop.svg
-[codecov-img]: https://img.shields.io/codecov/c/github/knutwalker/typed-actors/develop.svg
+[travis-img]: https://img.shields.io/travis/knutwalker/typed-actors/master.svg
+[codecov-img]: https://img.shields.io/codecov/c/github/knutwalker/typed-actors/master.svg
 [maven-img]: https://img.shields.io/maven-central/v/de.knutwalker/typed-actors_2.11.svg?label=latest
 [gitter-img]: https://img.shields.io/badge/gitter-Join_Chat-1dce73.svg
 [license-img]: https://img.shields.io/badge/license-APACHE_2-green.svg
 
 [travis]: https://travis-ci.org/knutwalker/typed-actors
-[codecov]: https://codecov.io/github/knutwalker/typed-actors?branch=develop
+[codecov]: https://codecov.io/github/knutwalker/typed-actors
 [maven]: http://search.maven.org/#search|ga|1|g%3A%22de.knutwalker%22%20AND%20a%3Atyped-actors*_2.11
 [gitter]: https://gitter.im/knutwalker/typed-actors
 [license]: https://www.apache.org/licenses/LICENSE-2.0
