@@ -276,7 +276,7 @@ package object typed {
     def untyped: UntypedProps =
       untag(props)
 
-    def or[B]: Props[∅ | A | B] =
+    def or[B]: Props[A | B] =
       tag(untyped)
   }
 
@@ -335,7 +335,7 @@ package object typed {
     def untyped: UntypedActorRef =
       untag(ref)
 
-    def or[B]: ActorRef[∅ | A | B] =
+    def or[B]: ActorRef[A | B] =
       tag(untyped)
   }
 
@@ -391,17 +391,19 @@ package object typed {
 package typed {
 
   sealed trait Union
-  sealed trait |[+A <: Union, +B] extends Union
-  sealed trait ∅ extends Union
+  sealed trait |[+A, +B] extends Union
 
   @implicitNotFound("Cannot send message of type ${A} since it is not a member of ${U}.")
   sealed trait isPartOf[A, U <: Union]
   object isPartOf {
 
-    implicit def partOfTail[H, U <: Union, T](implicit partOfTl: T isPartOf U): isPartOf[T, U | H] =
+    implicit def leftPart[A, ∅](implicit ev: A isNotA Union): isPartOf[A, A | ∅] =
       null
 
-    implicit def partOfHead[A, U <: Union]: isPartOf[A, U | A] =
+    implicit def rightPart[∅, B](implicit ev: B isNotA Union): isPartOf[B, ∅ | B] =
+      null
+
+    implicit def tailPart[H, A, T <: Union](implicit partOfTl: A isPartOf T): isPartOf[A, T | H] =
       null
   }
 
@@ -411,5 +413,4 @@ package typed {
     implicit def nsubAmbig1[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
     implicit def nsubAmbig2[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
   }
-
 }

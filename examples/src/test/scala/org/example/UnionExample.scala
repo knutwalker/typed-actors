@@ -34,10 +34,10 @@ object UnionExample extends App {
 
   implicit val system = ActorSystem()
 
-  val props1: Props[Foo]                    = Props(new UnionedActor)
-  val props0: Props[∅ | Foo | Bar]          = props1.or[Bar]
-  val props : Props[∅ | Foo | Bar | Baz]    = props0.or[Baz]
-  val ref   : ActorRef[∅ | Foo | Bar | Baz] = ActorOf(props, "union")
+  val props1: Props[Foo]                = Props(new UnionedActor)
+  val props0: Props[Foo | Bar]          = props1.or[Bar]
+  val ref0  : ActorRef[Foo | Bar]       = ActorOf(props0, "union")
+  val ref   : ActorRef[Foo | Bar | Baz] = ref0.or[Baz]
 
   ref ! Foo()
   ref ! Bar()
