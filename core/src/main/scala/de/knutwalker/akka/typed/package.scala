@@ -21,6 +21,7 @@ import _root_.akka.routing.RouterConfig
 import akka.typedactors.AskSupport
 import akka.util.Timeout
 
+import scala.annotation.implicitNotFound
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 
@@ -274,6 +275,9 @@ package object typed {
      */
     def untyped: UntypedProps =
       untag(props)
+
+    def or[B]: Props[∅ | A | B] =
+      tag(untyped)
   }
 
   implicit final class ActorRefOps[A](val ref: ActorRef[A]) extends AnyVal {
@@ -330,6 +334,22 @@ package object typed {
      */
     def untyped: UntypedActorRef =
       untag(ref)
+
+    def or[B]: ActorRef[∅ | A | B] =
+      tag(untyped)
+  }
+
+  implicit final class ActorRefUnionedOps[U <: Union](val ref: ActorRef[U]) extends AnyVal {
+    def or[A]: ActorRef[U | A] =
+      tag(untag(ref))
+
+    def ![A](msg: A)(implicit ev: A isPartOf U, sender: UntypedActorRef = Actor.noSender): Unit =
+      untag(ref) ! msg
+  }
+
+  implicit final class PropsUnionedOps[U <: Union](val props: Props[U]) extends AnyVal {
+    def or[A]: Props[U | A] =
+      tag(untag(props))
   }
 
   implicit final class UntypedPropsOps(val untyped: UntypedProps) extends AnyVal {
@@ -366,4 +386,30 @@ package object typed {
 
   @inline private[typed] def untag[A, T](t: Tagged[A, T]): A =
     t.asInstanceOf[A]
+}
+
+package typed {
+
+  sealed trait Union
+  sealed trait |[+A <: Union, +B] extends Union
+  sealed trait ∅ extends Union
+
+  @implicitNotFound("Cannot send message of type ${A} since it is not a member of ${U}.")
+  sealed trait isPartOf[A, U <: Union]
+  object isPartOf {
+
+    implicit def partOfTail[H, U <: Union, T](implicit partOfTl: T isPartOf U): isPartOf[T, U | H] =
+      null
+
+    implicit def partOfHead[A, U <: Union]: isPartOf[A, U | A] =
+      null
+  }
+
+  sealed trait isNotA[A, B]
+  object isNotA {
+    implicit def nsub[A, B]: A isNotA B = null
+    implicit def nsubAmbig1[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
+    implicit def nsubAmbig2[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
+  }
+
 }
