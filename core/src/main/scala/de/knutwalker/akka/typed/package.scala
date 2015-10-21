@@ -343,6 +343,8 @@ package object typed {
     def ![A](msg: A)(implicit ev: A isPartOf U, sender: UntypedActorRef = Actor.noSender): Unit =
       untag(ref) ! msg
 
+    def ?[A, B](f: ActorRef[B] ⇒ A)(implicit ev: A isPartOf U, timeout: Timeout, ctA: ClassTag[A], sender: UntypedActorRef = Actor.noSender): Future[B] =
+      AskSupport.ask[A, B](retag(ref), f, timeout, ctA, sender)
   }
 
   implicit final class UntypedPropsOps(val untyped: UntypedProps) extends AnyVal {
