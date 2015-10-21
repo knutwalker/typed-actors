@@ -16,20 +16,17 @@
 
 package de.knutwalker.akka.typed
 
-import akka.actor.{ Actor, Deploy, Terminated, PoisonPill, ActorSystem, Inbox }
+import akka.actor.{ Actor, Deploy, Terminated, PoisonPill, ActorSystem }
 import akka.pattern.AskTimeoutException
 import akka.routing.NoRouter
 import akka.util.Timeout
 import org.specs2.concurrent.ExecutionEnv
 import org.specs2.execute._
 import org.specs2.execute.Typecheck._
-import org.specs2.matcher.Matcher
 import org.specs2.matcher.TypecheckMatchers._
 import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
 
-import scala.annotation.tailrec
-import scala.concurrent.{ Await, TimeoutException }
 import scala.concurrent.duration._
 
 import java.util.regex.Pattern
@@ -45,16 +42,8 @@ object TypedSpec extends Specification with AfterAll {
   case class SomeOtherMessage(msg: String)
 
   implicit val system = ActorSystem("test")
-  val inbox    = createInbox(system)
+  val inbox    = CreateInbox()
   val inboxRef = inbox.getRef()
-
-  // https://github.com/akka/akka/issues/15409
-  @tailrec
-  def createInbox(sys: ActorSystem): Inbox = {
-    try Inbox.create(system) catch {
-      case cee: ClassCastException ⇒ createInbox(sys)
-    }
-  }
 
   case class MyActor(name: String) extends TypedActor.Of[TestMessage] {
     def typedReceive: TypedReceive = {
