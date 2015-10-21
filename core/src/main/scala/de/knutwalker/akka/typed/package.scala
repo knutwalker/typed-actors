@@ -277,7 +277,7 @@ package object typed {
       untag(props)
 
     def or[B]: Props[A | B] =
-      tag(untyped)
+      retag(props)
   }
 
   implicit final class ActorRefOps[A](val ref: ActorRef[A]) extends AnyVal {
@@ -336,7 +336,7 @@ package object typed {
       untag(ref)
 
     def or[B]: ActorRef[A | B] =
-      tag(untyped)
+      retag(ref)
   }
 
   implicit final class ActorRefUnionedOps[U <: Union](val ref: ActorRef[U]) extends AnyVal {
@@ -379,6 +379,9 @@ package object typed {
 
   @inline private[typed] def untag[A, T](t: Tagged[A, T]): A =
     t.asInstanceOf[A]
+
+  @inline private[this] def retag[A, B, T](a: Tagged[T, A]): Tagged[T, B] =
+    a.asInstanceOf[Tagged[T, B]]
 }
 
 package typed {
