@@ -340,16 +340,9 @@ package object typed {
   }
 
   implicit final class ActorRefUnionedOps[U <: Union](val ref: ActorRef[U]) extends AnyVal {
-    def or[A]: ActorRef[U | A] =
-      tag(untag(ref))
-
     def ![A](msg: A)(implicit ev: A isPartOf U, sender: UntypedActorRef = Actor.noSender): Unit =
       untag(ref) ! msg
-  }
 
-  implicit final class PropsUnionedOps[U <: Union](val props: Props[U]) extends AnyVal {
-    def or[A]: Props[U | A] =
-      tag(untag(props))
   }
 
   implicit final class UntypedPropsOps(val untyped: UntypedProps) extends AnyVal {
