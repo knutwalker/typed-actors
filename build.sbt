@@ -18,7 +18,7 @@ lazy val tests = project dependsOn (core, creator) settings (
 
 lazy val examples = project dependsOn (core, creator, tests % "test->test") settings (
   dontRelease,
-  libraryDependencies += akkaPersistence(akkaVersion.value)
+  libraryDependencies += akkaPersistence(akkaActorVersion.value)
 )
 
 lazy val docs = project dependsOn (core, creator) settings (
@@ -27,7 +27,7 @@ lazy val docs = project dependsOn (core, creator) settings (
   site.settings,
   ghpages.settings,
   tutSettings,
-  libraryDependencies += akkaPersistence(akkaVersion.value),
+  libraryDependencies += akkaPersistence(akkaActorVersion.value),
   tutSourceDirectory := sourceDirectory.value / "tut",
   buildReadmeContent := tut.value,
   readmeFile := baseDirectory.value / ".." / "README.md",

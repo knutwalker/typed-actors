@@ -3,7 +3,7 @@ import com.typesafe.sbt.git.JGit
 import sbt._
 import sbt.Keys._
 import de.knutwalker.sbt._
-import de.knutwalker.sbt.KSbtKeys._
+import de.knutwalker.sbt.KSbtKeys.{ akkaVersion ⇒ _, _ }
 import com.typesafe.tools.mima.plugin.MimaKeys.binaryIssueFilters
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
 import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifact
@@ -18,6 +18,7 @@ object Build extends AutoPlugin {
   override def requires = KSbtPlugin
 
   object autoImport {
+    lazy val akkaActorVersion = settingKey[String]("Version of akka-actor.")
     lazy val latestVersionTag = settingKey[Option[String]]("The latest tag describing a version number.")
     lazy val latestVersion = settingKey[String]("The latest version or the current one, if there is no previous version.")
     lazy val isAkka24 = settingKey[Boolean]("Whether the build is compiled against Akka 2.4.x.")
@@ -38,16 +39,16 @@ object Build extends AutoPlugin {
         githubProject := Github("knutwalker", "typed-actors"),
           description := "Compile time wrapper for more type safe actors",
          scalaVersion := "2.11.7",
-          akkaVersion := "2.3.14",
-             isAkka24 := akkaVersion.value.startsWith("2.4"),
-  libraryDependencies += "com.typesafe.akka" %% "akka-actor" % akkaVersion.value % "provided",
+     akkaActorVersion := "2.3.14",
+             isAkka24 := akkaActorVersion.value.startsWith("2.4"),
+  libraryDependencies += "com.typesafe.akka" %% "akka-actor" % akkaActorVersion.value % "provided",
           javaVersion := JavaVersion.Java17,
       autoAPIMappings := true,
      latestVersionTag := GitKeys.gitReader.value.withGit(g ⇒ findLatestVersion(g.asInstanceOf[JGit])),
         latestVersion := latestVersionTag.value.getOrElse(version.value),
      previousArtifact := latestVersionTag.value.map(v ⇒ organization.value %% name.value % v).filter(_ ⇒ publishArtifact.value),
   binaryIssueFilters ++= ignoredABIProblems,
-         apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value, akkaVersion.value),
+         apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value, akkaActorVersion.value),
            genModules := generateModules(state.value, sourceManaged.value, streams.value.cacheDirectory, thisProject.value.dependencies),
            makeReadme := mkReadme(state.value, buildReadmeContent.?.value.getOrElse(Nil), readmeFile.?.value, readmeFile.?.value),
          commitReadme := addAndCommitReadme(state.value, makeReadme.value, readmeCommitMessage.?.value, releaseVcs.value),
