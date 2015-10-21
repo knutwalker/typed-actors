@@ -406,7 +406,9 @@ package typed {
   sealed trait isNotA[A, B]
   object isNotA {
     implicit def nsub[A, B]: A isNotA B = null
+    // $COVERAGE-OFF$
     implicit def nsubAmbig1[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
     implicit def nsubAmbig2[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
+    // $COVERAGE-ON$
   }
 }
