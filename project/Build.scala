@@ -12,6 +12,7 @@ import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.{ Vcs, Version }
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ListMap
 
 object Build extends AutoPlugin {
   override def trigger = allRequirements
@@ -128,15 +129,32 @@ object Build extends AutoPlugin {
   val slugify = (title: String) ⇒ title.replaceAll(raw"\s+", "-").toLowerCase(java.util.Locale.ENGLISH)
   val withoutExtension = (name: String) ⇒ name.substring(0, name.lastIndexOf('.'))
 
-  def getTitles(srcs: Seq[(File,String)]): Map[String, String] = {
+  case class TutFile(title: String, file: File, content: List[String], index: Int)
+
+  def parseTutFiles(srcs: Seq[(File,String)]): Seq[TutFile] = {
     val sources = srcs.map(_._1)
-    sources.flatMap {f ⇒
-      val lines = IO.readLines(f)
-      val front = lines.dropWhile(_ == "---").takeWhile(_ != "---")
-      front.collectFirst {
-        case titleLine(t) ⇒ withoutExtension(f.getName) → t
-      }
-    }.toMap
+    sources.flatMap(parseFrontMatter).sortBy(_.index)
+  }
+
+  def getTitles(tuts: Seq[TutFile]): Map[String, String] =
+    ListMap(tuts.map(f ⇒ withoutExtension(f.file.getName) → f.title): _*)
+
+  def parseFrontMatter(file: File): Option[TutFile] = {
+    val lines = IO.readLines(file)
+    val (front, content) = lines.dropWhile(_ == "---").span(_ != "---")
+    for {
+      index ← front.collectFirst {case tutLine(idx) ⇒ idx.toInt}
+      title ← front.collectFirst {case titleLine(t) ⇒ t}
+    } yield TutFile(title, file, content, index)
+  }
+
+  def parseTutContent(latest: String, titles: Map[String, String])(tut: TutFile): List[String] = {
+    import tut._
+    val actualContent = content.drop(1).withFilter {
+      case directLink() ⇒ false
+      case _            ⇒ true
+    }.map(replaceLinks(latest, titles))
+    "" :: "## " + title :: "" :: actualContent
   }
 
   @tailrec
@@ -148,27 +166,13 @@ object Build extends AutoPlugin {
   }
 
   def mkReadme(state: State, srcs: Seq[(File,String)], tpl: Option[File], out: Option[File]): Option[File] = {
-    val titles = getTitles(srcs)
     tpl.filter(_.exists()).flatMap { template ⇒
       out.flatMap {outputFile ⇒
-        val sources = srcs.map(_._1)
         val extracted = Project.extract(state)
         val latest = extracted.get(latestVersion)
-        val files = sources.flatMap {f ⇒
-          val lines = IO.readLines(f)
-          val (front, content) = lines.dropWhile(_ == "---").span(_ != "---")
-          for {
-            index ← front.collectFirst {case tutLine(idx) ⇒ idx.toInt}
-            title ← front.collectFirst {case titleLine(t) ⇒ t}
-          } yield {
-            val actualContent = content.drop(1).withFilter {
-              case directLink() ⇒ false
-              case _            ⇒ true
-            }.map(replaceLinks(latest, titles))
-            (index, title, actualContent)
-          }
-        }
-        val lines = files.sortBy(_._1).flatMap(line ⇒ "" :: "## " + line._2 :: "" :: line._3)
+        val tuts = parseTutFiles(srcs)
+        val titles = getTitles(tuts)
+        val lines = tuts.flatMap(parseTutContent(latest, titles))
         Some(lines).filter(_.nonEmpty).map { ls ⇒
           val targetLines = IO.readLines(template)
           val (head, middle) = targetLines.span(_ != "<!--- TUT:START -->")

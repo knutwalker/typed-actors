@@ -22,13 +22,13 @@ libraryDependencies ++= List(
 
 ## [Documentation][docs]
 
-- [Comparison with Akka Typed](#comparison-with-akka-typed)
-- [Typed Creator](#typed-creator)
-- [Implementation Notes](#implementation-notes)
-- [Building Props](#building-props)
+- [Basic Usage](#basic-usage)
 - [Unsafe Usage](#unsafe-usage)
 - [TypedActor](#typedactor)
-- [Basic Usage](#basic-usage)
+- [Building Props](#building-props)
+- [Typed Creator](#typed-creator)
+- [Implementation Notes](#implementation-notes)
+- [Comparison with Akka Typed](#comparison-with-akka-typed)
 
 ## Basic Usage
 
