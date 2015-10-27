@@ -9,6 +9,9 @@ Tools to support binary compatibility might be introduced in the future.
 
 ## [Unreleased][unreleased]
 
+### Fixed
+- the dependeny on `akka-actor` is set to the `provided` scope again
+
 
 ## [1.4.0][1.4.0] - 2015-10-16
 **This release is source compatible with the previous release, but not binary compatible.**
