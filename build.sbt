@@ -53,4 +53,4 @@ lazy val docs = project dependsOn (core, creator) settings (
 
 lazy val parent = project in file(".") dependsOn (core, creator) aggregate (core, creator, tests, examples) settings dontRelease
 
-addCommandAlias("travis", ";clean;coverage;test;coverageReport;coverageAggregate")
+addCommandAlias("travis", ";clean;coverage;testOnly -- timefactor 3;coverageReport;coverageAggregate")
