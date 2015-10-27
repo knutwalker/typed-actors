@@ -8,9 +8,13 @@ Tools to support binary compatibility might be introduced in the future.
 
 
 ## [Unreleased][unreleased]
+**This release is source compatible with the previous release, but not binary compatible.**
 
 ### Fixed
 - the dependeny on `akka-actor` is set to the `provided` scope again
+
+### Changed
+- `TypedActor.Of` no longer requires an implicit classTag to be available.
 
 
 ## [1.4.0][1.4.0] - 2015-10-16

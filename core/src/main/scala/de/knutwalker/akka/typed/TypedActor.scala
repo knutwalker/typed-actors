@@ -137,7 +137,7 @@ object TypedActor {
    *
    * @tparam A the message type this actor is receiving
    */
-  abstract class Of[A: ClassTag] extends TypedActor {
+  abstract class Of[A] extends TypedActor {
     final type Message = A
   }
 
