@@ -24,7 +24,7 @@ The actual methods are provided by a implicit ops wrapper that extends AnyVal, s
 #### Good Practices
 
 Typed Actors does not try to prevent you from doing fancy things and shooting yourself in the foot, it rather wants to give you a way so you can help yourself in keeping your sanity.
-That is, you can aways switch between untyped and typed actors, even if the type information is not actually corresponding to the actors implementation. It is up to you to decide how much safety you want to trade in for flexibility.
+That is, you can always switch between untyped and typed actors, even if the type information is not actually corresponding to the actors implementation. It is up to you to decide how much safety you want to trade in for flexibility.
 That being said, you get the most benefit by using the [TypedActor](typed-actor.html) with the [Typed Creator](creator.html) and only on the `typedReceive` and `typedBecome` methods with the `Total` wrapper. Depending on the situation, you can fairly fine-tune the amount of untypedness you want to have.
 
 One other thing that is frequently causing trouble is `sender()`.
