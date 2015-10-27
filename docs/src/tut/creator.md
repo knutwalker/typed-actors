@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Typed Creator
-tut: 05
+tut: 06
 ---
 
 ```tut:invisible

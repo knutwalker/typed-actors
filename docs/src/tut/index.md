@@ -111,9 +111,9 @@ val future = ref ? MyMessage("foo")
 val response = scala.concurrent.Await.result(future, 1.second)
 ```
 
-Next up, learn how to interact with the less safer parts of Akka.
+Next up, learn how mix multiple unlerated messages into the checked type.
 
-##### [&raquo; Unsafe Usage](unsafe.html)
+##### [&raquo; Union Types](union.html)
 
 
 ```tut:invisible
