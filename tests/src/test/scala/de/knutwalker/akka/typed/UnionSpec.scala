@@ -26,6 +26,7 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
 
 import scala.concurrent.duration._
+import scala.util.matching.Regex
 
 
 object UnionSpec extends Specification with AfterAll {
@@ -41,15 +42,15 @@ object UnionSpec extends Specification with AfterAll {
   val inbox    = CreateInbox()
   val inboxRef = inbox.getRef()
 
-  case class MyActor(name: String) extends TypedActor.Of[Foo] {
-    def typedReceive = Untyped {
-      case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg")
-      case Bar      ⇒ inboxRef ! Bar
-      case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg)
-    }
-  }
-
   "Type unions on actors" should {
+    class MyActor(name: String) extends TypedActor.Of[Foo] {
+      def typedReceive = Untyped {
+        case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg")
+        case Bar      ⇒ inboxRef ! Bar
+        case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg)
+      }
+    }
+
     val fooProps: Props[Foo] = PropsFor(new MyActor("Bernd"))
     val fooOrBarProps: Props[Foo | Bar.type] = fooProps.or[Bar.type]
     val fooOrBarRef: ActorRef[Foo | Bar.type] = ActorOf(fooOrBarProps)
@@ -79,6 +80,185 @@ object UnionSpec extends Specification with AfterAll {
     "support ask" >> { implicit ee: ExecutionEnv ⇒
       implicit val timeout: Timeout = 100.millis
       (ref ? Baz("foo")) must be_==(SomeOtherMessage("foo")).await
+    }
+  }
+
+  "A unioned TypedActor" should {
+    "the Union helper" should {
+
+      class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+        def typedReceive: TypedReceive = Union
+        .part[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+        .part[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
+        .part[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
+        .apply
+      }
+
+      val props: Props[Foo | Bar.type | Baz] = PropsFor(new MyActor("Bernd"))
+      val ref: ActorRef[Foo | Bar.type | Baz] = ActorOf(props)
+
+      "allow partial definition" >> {
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = Union
+                .part[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .apply
+            }
+          """
+        } must succeed
+      }
+
+      "require at least one sub path" >> {
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = Union
+                .apply
+            }
+          """
+        } must failWith(Regex.quote("Cannot prove that de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.Empty =:= de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.NonEmpty."))
+      }
+
+      "only allow defined parts" >> {
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = Union
+                .part[String]{ case msg ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .apply
+            }
+          """
+        } must failWith(Regex.quote("Cannot prove that message of type String is a member of de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]."))
+      }
+
+      "accept a foo message" >> {
+        ref ! Foo("foo")
+        inbox.receive(1.second) === Foo("Bernd: foo")
+      }
+
+      "accept a bar message" >> {
+        ref ! Bar
+        inbox.receive(1.second) === Bar
+      }
+
+      "accept a baz message" >> {
+        ref ! Baz("baz")(inboxRef.typed)
+        inbox.receive(1.second) === SomeOtherMessage("baz")
+      }
+
+      "fail to compile if the wrong message type is sent" >> {
+        typecheck {
+          """ ref ! SomeOtherMessage("some other message") """
+        } must not succeed
+      }
+
+      "support ask" >> { implicit ee: ExecutionEnv ⇒
+        implicit val timeout: Timeout = 100.millis
+        (ref ? Baz("foo")) must be_==(SomeOtherMessage("foo")).await
+      }
+    }
+
+    "the TotalUnion helper" should {
+
+      class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+        def typedReceive: TypedReceive = TotalUnion
+        .part[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+        .part[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
+        .part[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
+        .apply
+      }
+
+      val props: Props[Foo | Bar.type | Baz] = PropsFor(new MyActor("Bernd"))
+      val ref: ActorRef[Foo | Bar.type | Baz] = ActorOf(props)
+
+      "allow total definition" >> {
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = TotalUnion
+                .part[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .part[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
+                .part[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
+                .apply
+            }
+          """
+        } must succeed
+      }
+
+      "fail without any parts" >> {
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = TotalUnion
+                .apply
+            }
+          """
+        } must failWith(Regex.quote("value apply is not a member of de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveStep1[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]]"))
+      }
+
+      "fail with just one part" >> {
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = TotalUnion
+                .part[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .apply
+            }
+          """
+        } must failWith(Regex.quote("value apply is not a member of de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveStep2[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz],de.knutwalker.akka.typed.UnionSpec.Foo]"))
+      }
+
+      "require all definitions" >> {
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = TotalUnion
+                .part[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .part[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
+                .apply
+            }
+          """
+        } must failWith(Regex.quote("Cannot prove that de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type] contains the same members as de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]."))
+      }
+
+      "only allow defined parts" >> {
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = TotalUnion
+                .part[String]{ case msg ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .apply
+            }
+          """
+        } must failWith(Regex.quote("Cannot prove that message of type String is a member of de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]."))
+      }
+
+      "accept a foo message" >> {
+        ref ! Foo("foo")
+        inbox.receive(1.second) === Foo("Bernd: foo")
+      }
+
+      "accept a bar message" >> {
+        ref ! Bar
+        inbox.receive(1.second) === Bar
+      }
+
+      "accept a baz message" >> {
+        ref ! Baz("baz")(inboxRef.typed)
+        inbox.receive(1.second) === SomeOtherMessage("baz")
+      }
+
+      "fail to compile if the wrong message type is sent" >> {
+        typecheck {
+          """ ref ! SomeOtherMessage("some other message") """
+        } must not succeed
+      }
+
+      "support ask" >> { implicit ee: ExecutionEnv ⇒
+        implicit val timeout: Timeout = 100.millis
+        (ref ? Baz("foo")) must be_==(SomeOtherMessage("foo")).await
+      }
     }
   }
 

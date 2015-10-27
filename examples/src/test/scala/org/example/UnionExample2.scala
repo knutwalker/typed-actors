@@ -16,35 +16,35 @@
 
 package org.example
 
-import akka.actor.{ Actor, ActorSystem }
+import akka.actor.ActorSystem
 import de.knutwalker.akka.typed._
 
 
-object UnionExample extends App {
+object UnionExample2 extends App {
 
   case class Foo()
   case class Bar()
   case class Baz()
 
-  class UnionedActor extends Actor {
-    def receive = {
-      case x ⇒ println(x)
-    }
+  class UnionedActor extends TypedActor.Of[Foo | Bar | Baz] {
+    def typedReceive: TypedReceive = Union
+      .part[Foo] { case Foo() ⇒ println("foo") }
+      .part[Bar] { case Bar() ⇒ println("bar") }
+      .part[Baz] { case Baz() ⇒ println("baz") }
+      .apply
   }
 
   implicit val system = ActorSystem()
 
-  val props1: Props[Foo]                = Props(new UnionedActor)
-  val props0: Props[Foo | Bar]          = props1.or[Bar]
-  val ref0  : ActorRef[Foo | Bar]       = ActorOf(props0, "union")
-  val ref   : ActorRef[Foo | Bar | Baz] = ref0.or[Baz]
+  val props: Props[Foo | Bar | Baz]    = PropsFor(new UnionedActor)
+  val ref  : ActorRef[Foo | Bar | Baz] = ActorOf(props, "union")
 
   ref ! Foo()
   ref ! Bar()
   ref ! Baz()
 
-  // [error] UnionExample.scala:49:
-  // Cannot prove that message of type org.example.UnionExample.Foo.type is a member of org.example.UnionExample.ref.Message.
+  // [error] UnionExample2.scala:48:
+  // Cannot prove that message of type org.example.UnionExample2.Foo.type is a member of org.example.UnionExample2.ref.Message.
   // ref ! Foo
 
   Shutdown(system)

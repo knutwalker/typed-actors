@@ -391,20 +391,53 @@ package typed {
   sealed trait Union
   sealed trait |[+A, +B] extends Union
 
-  @implicitNotFound("Cannot send message of type ${A} since it is not a member of ${U}.")
-  sealed trait isPartOf[A, U <: Union]
-  object isPartOf {
+  @implicitNotFound("Cannot prove that ${A} is a union type.")
+  sealed trait IsUnion[-A] {
+    type Out <: Union
+  }
 
+  object IsUnion {
+    type Aux[-A0, U0 <: Union] = IsUnion[A0] { type Out = U0 }
+    implicit def isUnion[A <: Union]: Aux[A, A] =
+      new IsUnion[A] {
+        type Out = A
+      }
+  }
+
+  @implicitNotFound("Cannot prove that message of type ${A} is a member of ${U}.")
+  sealed trait isPartOf[A, U <: Union]
+  object isPartOf extends IsPartOf0 {
     implicit def leftPart[A, ∅](implicit ev: A isNotA Union): isPartOf[A, A | ∅] =
       null
-
+  }
+  sealed trait IsPartOf0 extends IsPartOf1 {
     implicit def rightPart[∅, B](implicit ev: B isNotA Union): isPartOf[B, ∅ | B] =
       null
-
+  }
+  sealed trait IsPartOf1 {
     implicit def tailPart[H, A, T <: Union](implicit partOfTl: A isPartOf T): isPartOf[A, T | H] =
       null
   }
 
+  @implicitNotFound("Cannot prove that ${U} contains some members of ${T}.")
+  sealed trait containsSomeOf[U <: Union, T <: Union]
+  object containsSomeOf extends ContainsSomeOf0 {
+    implicit def tailPart0[A, B, T <: Union](implicit evA: A isPartOf T, evB: B isPartOf T): containsSomeOf[A | B, T] =
+      null
+  }
+  sealed trait ContainsSomeOf0 {
+    implicit def tailPart1[A, U <: Union, T <: Union](implicit ev: A isPartOf T, tailAligns: U containsSomeOf T): containsSomeOf[U | A, T] =
+      null
+  }
+
+  @implicitNotFound("Cannot prove that ${U} contains the same members as ${T}.")
+  sealed trait containsAllOf[U <: Union, T <: Union]
+  object containsAllOf {
+    implicit def uContainsAllOfT[U <: Union, T <: Union](implicit evA: U containsSomeOf T, evB: T containsSomeOf U): containsAllOf[U, T] =
+      null
+  }
+
+  // @annotation.implicitAmbiguous("${A} must not be <: ${B}")
   sealed trait isNotA[A, B]
   object isNotA {
     implicit def nsub[A, B]: A isNotA B = null
