@@ -78,7 +78,7 @@ object UnionSpec extends Specification with AfterAll {
     }
 
     "support ask" >> { implicit ee: ExecutionEnv ⇒
-      implicit val timeout: Timeout = 100.millis
+      implicit val timeout: Timeout = (100 * ee.timeFactor).millis
       (ref ? Baz("foo")) must be_==(SomeOtherMessage("foo")).await
     }
   }
@@ -154,7 +154,7 @@ object UnionSpec extends Specification with AfterAll {
       }
 
       "support ask" >> { implicit ee: ExecutionEnv ⇒
-        implicit val timeout: Timeout = 100.millis
+        implicit val timeout: Timeout = (100 * ee.timeFactor).millis
         (ref ? Baz("foo")) must be_==(SomeOtherMessage("foo")).await
       }
     }
@@ -256,7 +256,7 @@ object UnionSpec extends Specification with AfterAll {
       }
 
       "support ask" >> { implicit ee: ExecutionEnv ⇒
-        implicit val timeout: Timeout = 100.millis
+        implicit val timeout: Timeout = (100 * ee.timeFactor).millis
         (ref ? Baz("foo")) must be_==(SomeOtherMessage("foo")).await
       }
     }

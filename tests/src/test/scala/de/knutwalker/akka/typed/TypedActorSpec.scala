@@ -17,6 +17,7 @@
 package de.knutwalker.akka.typed
 
 import akka.actor.{ UnhandledMessage, ActorSystem }
+import org.specs2.concurrent.ExecutionEnv
 import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
 
@@ -38,7 +39,7 @@ object TypedActorSpec extends Specification with AfterAll {
   system.eventStream.subscribe(inbox.getRef(), classOf[UnhandledMessage])
 
   "The TypedActor" should {
-    "have typed partial receive" >> {
+    "have typed partial receive" >> { implicit ee: ExecutionEnv ⇒
       class MyActor extends TypedActor.Of[MyFoo] {
         def typedReceive = {
           case Foo => inbox.getRef() ! "received a foo"
@@ -59,7 +60,7 @@ object TypedActorSpec extends Specification with AfterAll {
       expectUnhandled(Nil, ref)
     }
 
-    "have typed total receive" >> {
+    "have typed total receive" >> { implicit ee: ExecutionEnv ⇒
       class MyActor extends TypedActor.Of[MyFoo] {
         def typedReceive = Total {
           case Foo => inbox.getRef() ! "received a foo"
@@ -81,7 +82,7 @@ object TypedActorSpec extends Specification with AfterAll {
       expectUnhandled(Nil, ref)
     }
 
-    "have untyped partial receive" >> {
+    "have untyped partial receive" >> { implicit ee: ExecutionEnv ⇒
       class MyActor extends TypedActor.Of[MyFoo] {
         def typedReceive = Untyped {
           case Foo => inbox.getRef() ! "received a foo"
@@ -104,7 +105,7 @@ object TypedActorSpec extends Specification with AfterAll {
       expectUnhandled(Nil, ref)
     }
 
-    "have a quick apply method for total functions" >> {
+    "have a quick apply method for total functions" >> { implicit ee: ExecutionEnv ⇒
       val ref = ActorOf(TypedActor[MyFoo] {
         case Foo => inbox.getRef() ! "received a foo"
         case Bar => inbox.getRef() ! "received a bar"
@@ -123,7 +124,7 @@ object TypedActorSpec extends Specification with AfterAll {
       expectUnhandled(Nil, ref)
     }
 
-    "have a typed become" >> {
+    "have a typed become" >> { implicit ee: ExecutionEnv ⇒
       class MyActor extends TypedActor.Of[MyFoo] {
         def typedReceive = {
           case Foo ⇒ typedBecome {
@@ -147,13 +148,15 @@ object TypedActorSpec extends Specification with AfterAll {
     }
   }
 
-  def expectUnhandled(message: Any, ref: ActorRef[_]) =
-    inbox.receive(Duration(10, TimeUnit.MILLISECONDS)) === UnhandledMessage(message, system.deadLetters, ref.untyped)
+  def expectUnhandled(message: Any, ref: ActorRef[_])(implicit ee: ExecutionEnv) = {
+    val receiveTimeout = Duration(100L * ee.timeFactor.toLong, TimeUnit.MILLISECONDS)
+    inbox.receive(receiveTimeout) === UnhandledMessage(message, system.deadLetters, ref.untyped)
+  }
 
-  def expectMsg(expected: Any) =
-    inbox.receive(Duration(10, TimeUnit.MILLISECONDS)) === expected
-
-
+  def expectMsg(expected: Any)(implicit ee: ExecutionEnv) = {
+    val receiveTimeout = Duration(100L * ee.timeFactor.toLong, TimeUnit.MILLISECONDS)
+    inbox.receive(receiveTimeout) === expected
+  }
 
   def afterAll(): Unit = Shutdown(system)
 }

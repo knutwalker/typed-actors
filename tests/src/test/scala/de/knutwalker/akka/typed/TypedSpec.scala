@@ -86,14 +86,15 @@ object TypedSpec extends Specification with AfterAll {
   }
 
   "ask support of typed actors" should {
-    implicit val timeout: Timeout = 100.millis
 
     "ask the question and the return a future" >> { implicit ee: ExecutionEnv ⇒
+      implicit val timeout: Timeout = (100 * ee.timeFactor).millis
       val ref = ActorOf(TypedActor[Baz](m ⇒ m.replyTo ! SomeOtherMessage(m.msg)))
       (ref ? Baz("foo")) must be_==(SomeOtherMessage("foo")).await
     }
 
     "respect the timeout" >> { implicit ee: ExecutionEnv ⇒
+      implicit val timeout: Timeout = (100 * ee.timeFactor).millis
       val ref = ActorOf(TypedActor[Baz](_ ⇒ ()), "discarder")
       val expectedMessage = TimeoutMessage(ref)
       val matchMessage = s"^${Pattern.quote(expectedMessage)}$$"
@@ -101,14 +102,15 @@ object TypedSpec extends Specification with AfterAll {
     }
 
     "fail with an invalid timeout" >> { implicit ee: ExecutionEnv ⇒
-      val ref = ActorOf(TypedActor[Baz](m ⇒ m.replyTo ! SomeOtherMessage(m.msg)))
       implicit val timeout: Timeout = -100.millis
+      val ref = ActorOf(TypedActor[Baz](m ⇒ m.replyTo ! SomeOtherMessage(m.msg)))
       (ref ? Baz("foo")) must throwAn[IllegalArgumentException].like {
         case e ⇒ e.getMessage must startWith("Timeout length must not be negative, question not sent")
       }.await
     }
 
     "fail when the target is already terminated" >> { implicit ee: ExecutionEnv ⇒
+      implicit val timeout: Timeout = (100 * ee.timeFactor).millis
       val ref = kill(ActorOf(TypedActor[Baz](m ⇒ m.replyTo ! SomeOtherMessage(m.msg))))
       val expectedMessage = s"Recipient[$ref] had already been terminated."
       val matchMessage = s"^${Pattern.quote(expectedMessage)}.*$$"
