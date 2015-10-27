@@ -111,7 +111,7 @@ val future = ref ? MyMessage("foo")
 val response = scala.concurrent.Await.result(future, 1.second)
 ```
 
-Next up, learn how mix multiple unlerated messages into the checked type.
+Next up, learn how to mix multiple unrelated messages into the checked type.
 
 ##### [&raquo; Union Types](union.html)
 
