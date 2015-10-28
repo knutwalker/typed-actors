@@ -88,9 +88,9 @@ object UnionSpec extends Specification with AfterAll {
 
       class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
         def typedReceive: TypedReceive = Union
-        .part[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-        .part[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
-        .part[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
+        .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+        .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
+        .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
         .apply
       }
 
@@ -102,7 +102,7 @@ object UnionSpec extends Specification with AfterAll {
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
               def typedReceive: TypedReceive = Union
-                .part[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
                 .apply
             }
           """
@@ -125,7 +125,7 @@ object UnionSpec extends Specification with AfterAll {
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
               def typedReceive: TypedReceive = Union
-                .part[String]{ case msg ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .on[String]{ case msg ⇒ inboxRef ! Foo(s"$name: $msg") }
                 .apply
             }
           """
@@ -163,9 +163,9 @@ object UnionSpec extends Specification with AfterAll {
 
       class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
         def typedReceive: TypedReceive = TotalUnion
-        .part[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-        .part[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
-        .part[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
+        .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+        .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
+        .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
         .apply
       }
 
@@ -177,9 +177,9 @@ object UnionSpec extends Specification with AfterAll {
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
               def typedReceive: TypedReceive = TotalUnion
-                .part[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-                .part[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
-                .part[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
+                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
+                .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
                 .apply
             }
           """
@@ -194,7 +194,7 @@ object UnionSpec extends Specification with AfterAll {
                 .apply
             }
           """
-        } must failWith(Regex.quote("value apply is not a member of de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveStep1[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]]"))
+        } must failWith(Regex.quote("value apply is not a member of de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveEmpty[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]]"))
       }
 
       "fail with just one part" >> {
@@ -202,11 +202,11 @@ object UnionSpec extends Specification with AfterAll {
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
               def typedReceive: TypedReceive = TotalUnion
-                .part[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
                 .apply
             }
           """
-        } must failWith(Regex.quote("value apply is not a member of de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveStep2[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz],de.knutwalker.akka.typed.UnionSpec.Foo]"))
+        } must failWith(Regex.quote("value apply is not a member of de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveHalfEmpty[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz],de.knutwalker.akka.typed.UnionSpec.Foo]"))
       }
 
       "require all definitions" >> {
@@ -214,8 +214,8 @@ object UnionSpec extends Specification with AfterAll {
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
               def typedReceive: TypedReceive = TotalUnion
-                .part[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-                .part[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
+                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
                 .apply
             }
           """
@@ -227,7 +227,7 @@ object UnionSpec extends Specification with AfterAll {
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
               def typedReceive: TypedReceive = TotalUnion
-                .part[String]{ case msg ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .on[String]{ case msg ⇒ inboxRef ! Foo(s"$name: $msg") }
                 .apply
             }
           """

@@ -28,9 +28,9 @@ object UnionExample2 extends App {
 
   class UnionedActor extends TypedActor.Of[Foo | Bar | Baz] {
     def typedReceive: TypedReceive = Union
-      .part[Foo] { case Foo() ⇒ println("foo") }
-      .part[Bar] { case Bar() ⇒ println("bar") }
-      .part[Baz] { case Baz() ⇒ println("baz") }
+      .on[Foo] { case Foo() ⇒ println("foo") }
+      .on[Bar] { case Bar() ⇒ println("bar") }
+      .on[Baz] { case Baz() ⇒ println("baz") }
       .apply
   }
 

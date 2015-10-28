@@ -19,7 +19,7 @@ package de.knutwalker.akka.typed
 import _root_.akka.actor.Actor
 import _root_.akka.event.LoggingReceive
 import akka.actor.Actor.Receive
-import de.knutwalker.akka.typed.TypedActor.{ MkTotalUnionReceiveStep1, MkPartialUnionReceive, Downcast, TypedReceiver }
+import de.knutwalker.akka.typed.TypedActor.{ MkTotalUnionReceiveEmpty, MkPartialUnionReceive, Downcast, TypedReceiver }
 
 import scala.reflect.ClassTag
 
@@ -105,8 +105,8 @@ trait TypedActor extends Actor {
   final def Union(implicit ev: IsUnion[Message]): MkPartialUnionReceive[ev.Out, MkPartialUnionReceive.Empty] =
     new MkPartialUnionReceive(None)
 
-  final def TotalUnion(implicit ev: IsUnion[Message]): MkTotalUnionReceiveStep1[ev.Out] =
-    new MkTotalUnionReceiveStep1(None)
+  final def TotalUnion(implicit ev: IsUnion[Message]): MkTotalUnionReceiveEmpty[ev.Out] =
+    new MkTotalUnionReceiveEmpty(None)
 
   /**
    * `TypedActor`s delegate to [[typedReceive]].
@@ -158,7 +158,8 @@ object TypedActor {
     PropsFor(new TypedActor.Of[A] {def typedReceive = Total(f)})
 
   final class MkPartialUnionReceive[U <: Union, S <: MkPartialUnionReceive.State](val finalPf: Option[PartialFunction[U, Unit]]) extends AnyVal {
-    def part[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty] = {
+
+    def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty] = {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
       new MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty](Some(finalPf.fold(pf)(_ orElse pf)))
     }
@@ -172,22 +173,25 @@ object TypedActor {
     sealed trait NonEmpty extends State
   }
 
-  final class MkTotalUnionReceiveStep1[U <: Union](val ignore: Option[Nothing]) extends AnyVal {
-    def part[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkTotalUnionReceiveStep2[U, A] =
-      new MkTotalUnionReceiveStep2[U, A](new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]])
+  final class MkTotalUnionReceiveEmpty[U <: Union](val ignore: Option[Nothing]) extends AnyVal {
+
+    def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkTotalUnionReceiveHalfEmpty[U, A] =
+      new MkTotalUnionReceiveHalfEmpty[U, A](new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]])
   }
 
-  final class MkTotalUnionReceiveStep2[U <: Union, B](val finalPf: PartialFunction[U, Unit]) extends AnyVal {
-    def part[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkTotalUnionReceiveStep3[U, B | A] = {
+  final class MkTotalUnionReceiveHalfEmpty[U <: Union, B](val finalPf: PartialFunction[U, Unit]) extends AnyVal {
+
+    def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkTotalUnionReceive[U, B | A] = {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
-      new MkTotalUnionReceiveStep3[U, B | A](finalPf orElse pf)
+      new MkTotalUnionReceive[U, B | A](finalPf orElse pf)
     }
   }
 
-  final class MkTotalUnionReceiveStep3[U <: Union, T <: Union](val finalPf: PartialFunction[U, Unit]) extends AnyVal {
-    def part[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkTotalUnionReceiveStep3[U, T | A] = {
+  final class MkTotalUnionReceive[U <: Union, T <: Union](val finalPf: PartialFunction[U, Unit]) extends AnyVal {
+
+    def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkTotalUnionReceive[U, T | A] = {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
-      new MkTotalUnionReceiveStep3[U, T | A](finalPf orElse pf)
+      new MkTotalUnionReceive[U, T | A](finalPf orElse pf)
     }
 
     implicit def apply(implicit ev: T containsAllOf U): PartialFunction[U, Unit] =
