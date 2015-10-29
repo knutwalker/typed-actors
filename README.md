@@ -130,7 +130,7 @@ scala> ref ! SomeOtherMessage
 #### Ask pattern
 
 Typed actors support the ask pattern, `?`, without imports and the returned Future is properly typed.
-In order to achieve this, instead of sending an already instantiaded type, you send a function that, given the properly typed sender, will return the message.
+In order to achieve this, instead of sending an already instantiated type, you send a function that, given the properly typed sender, will return the message.
 This is usually achieved with a separate parameter list on a case class (message), typically called `replyTo`.
 
 ```scala
@@ -165,7 +165,7 @@ scala> val response = scala.concurrent.Await.result(future, 1.second)
 response: MyResponse = MyResponse(foo)
 ```
 
-Next up, learn how mix multiple unlerated messages into the checked type.
+Next up, learn how to mix multiple unrelated messages into the checked type.
 
 
 
@@ -188,7 +188,7 @@ To still use `Typed Actors`, you could use `Any`, which is just as bad as using 
 Alternatively, you could use a [sum type](https://en.wikipedia.org/wiki/Sum_type) like `Either`, define the actor as `ActorRef[Either[A, B]]` and pattern match on the either in the receive block. This has some drawbacks though.
 First, listing more than 2 different messages with Either gets very tedious and you'll probably start writing specific custom sum types for each different set of messages and end up with sealed traits that do nothing but wrap other messages and are thus just noisy boilerplate.
 Second, there is a runtime overhead involved of wrapping and unwrapping the message in the sum type, i.e. you have to `apply` and `unapply` the `Left`/`Right` instances.
-Third, and probably the most disruptive one, you cannot send any of the summed types directly but have to wrap them at tellsite, coupling the actor to the chosen sum type. This also means, that you cannot write proxy-like actors that sit inbetween other actors because you have to change the messages.
+Third, and probably the most disruptive one, you cannot send any of the summed types directly but have to wrap them at tellsite, coupling the actor to the chosen sum type. This also means, that you cannot write proxy-like actors that sit in-between other actors because you have to change the messages.
 
 `Typed Actors` offer an easy alternative, that solves all the aforementioned problems: **Union Types**.
 Both, `ActorRef[A]` and `Props[A]`, have a `or[B]` method, that turns those types into an `ActorRef[A | B]` or a `Props[A | B]`, respectively.
@@ -288,9 +288,9 @@ scala> val typedRef = ActorOf[MyMessage](props, name = "my-actor")
 typedRef: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-1040368688]
 ```
 
-#### Autoreceive Messages
+#### Autoreceived Messages
 
-Some messages are automatically handled by some actors and need or can not be provided in the actors type.
+Some messages are automatically handled by some actors and need or cannot be provided in the actors type.
 One example is `PoisonPill`. To sent those kind of messages anyway, use `unsafeTell`.
 
 ```scala
@@ -503,7 +503,7 @@ defined class MyOtherActor
 ```
 
 Please be aware of a ~~bug~~ feature that wouldn't fail on non-exhaustive checks.
-If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
+If you use guards in your matchers, the complete pattern is optimistically treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
 
 ```scala
 scala> val False = false
@@ -517,7 +517,7 @@ scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
 defined class MyOtherActor
 ```
 
-Unfortunately, this can not be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
+Unfortunately, this cannot be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
 
 
 #### Stateless actor from a total function
@@ -546,7 +546,7 @@ import scala.reflect.classTag
 
 scala> class MyTypedActor extends TypedActor {
      |   type Message = MyMessage
-     |   
+     | 
      |   def typedReceive = {
      |     case Foo(foo) =>
      |   }
@@ -559,10 +559,10 @@ You can even override the `receive` method, if you have to, using the `untypedFr
 ```scala
 scala> class MyTypedActor extends TypedActor {
      |   type Message = MyMessage
-     |   
+     | 
      |   override def receive =
      |     untypedFromTyped(typedReceive)
-     |   
+     | 
      |   def typedReceive = {
      |     case Foo(foo) =>
      |   }
@@ -601,7 +601,7 @@ defined class TypedPersistentActor
 #### Going back to untyped land
 
 Sometimes you have to receive messages that are outside of your protocol. A typical case is `Terminated`, but other modules and patterns have those messages as well.
-You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go.
+You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go. `Untyped` also works with union types without any special syntax.
 
 
 ```scala
@@ -791,7 +791,7 @@ scala> Typed[MyActor].create(42)
 
 Hooray, Benefit!
 
-As you can see, shapeless leakes in the error messages, but you can still easily see what parameters are wrong.
+As you can see, shapeless leaks in the error messages, but you can still easily see what parameters are wrong.
 This technique uses whitebox macros under the hood, which means that support from IDEs such as IntelliJ will be meager, so prepare for red, squiggly lines.
 If you open autocomplete on a `Typed[MyActor]`, you won't see the `create` or `props` methods but `createProduct` and `propsProduct`. This is a leaky implementation as well, better just ignore it and type against those IDE errors.
 
@@ -811,14 +811,14 @@ The next bits are about the internals and some good pratices..
 
 Typed Actors are implemented as a type tag, a structural type refinement.
 This is very similar to [`scalaz.@@`](https://github.com/scalaz/scalaz/blob/81e68e845e91b54450a4542b19c1378f06aea861/core/src/main/scala/scalaz/package.scala#L90-L101) and a little bit to [`shapeless.tag.@@`](https://github.com/milessabin/shapeless/blob/6c659d253ba004baf74e20d5d815729552677303/core/src/main/scala/shapeless/typeoperators.scala#L28-L29)
-The message type is put togehter with the surrounding type (`ActorRef` or `Props`) into a special type, that exists only at compile time.
+The message type is put together with the surrounding type (`ActorRef` or `Props`) into a special type, that exists only at compile time.
 It carries enough type information for the compiler reject certain calls to tell while not requiring any wrappers at runtime.
-The actual methods are provided by a implicit ops wrapper that extends AnyVal, so that there is no runtime overhead as well.
+The actual methods are provided by an implicit ops wrapper that extends AnyVal, so that there is no runtime overhead as well.
 
 #### Good Practices
 
 Typed Actors does not try to prevent you from doing fancy things and shooting yourself in the foot, it rather wants to give you a way so you can help yourself in keeping your sanity.
-That is, you can aways switch between untyped and typed actors, even if the type information is not actually corresponding to the actors implementation. It is up to you to decide how much safety you want to trade in for flexibility.
+That is, you can always switch between untyped and typed actors, even if the type information is not actually corresponding to the actors implementation. It is up to you to decide how much safety you want to trade in for flexibility.
 That being said, you get the most benefit by using the [TypedActor](#typedactor) with the [Typed Creator](#typed-creator) and only on the `typedReceive` and `typedBecome` methods with the `Total` wrapper. Depending on the situation, you can fairly fine-tune the amount of untypedness you want to have.
 
 One other thing that is frequently causing trouble is `sender()`.
@@ -912,18 +912,20 @@ The `replyTo` pattern is also important in [Akka Typed](http://doc.akka.io/docs/
 
 The [`Akka Typed`](http://doc.akka.io/docs/akka/snapshot/scala/typed.html) project is a module of Akka (as of 2.4) which aims to provide typesafe actors as well.
 Akka typed takes a completely different approach, mirroring most of the untyped API and ultimately offering a completely new API to define your actors behavior. Currently, this implementation sits on top of untyped They are currently actors.
+Let me add that I really like Akka Typed and having worked with it for some time lead me to think about how to bring type safety to the rest of Akka.
 
-This is one important difference to; `Typed Actors` is a possibility to add some compile-time checking while `Akka Typed` is a completely new API.
+`Akka Typed` is not only about a typed `ActorRef[A]`, there's much more that's changed and is reason to use `Akka Typed`, both in general and over `Typed Actors`. It separates the behavior of your actors from its execution model, making them really easy to test; You can just use a synchronous stub execution model and you get to test just the behavior without concerning yourself about the how-to-test-this-async-thingy. The new behavior API is not just a convoluted `PartialFunction[A, Unit]` but allows you to split your behavior into nice little pieces and have them composed together. `Akka Typed`'s getting rid of some old (and bad) habits as well; `sender()` is gone, as are lifecycle methods that have to be overridden, even the `Actor` trait itself is gone. It's messages and behavior all the way down!
 
-`Akka Typed` is better at hiding their untyped implementation, nothing in the public API leads to the fact that something like an untyped actor could even exist.
-They removed `sender()` and, in fact, the whole `Actor` trait. The new `Behavior` API is really nice and gives you a great way to compose and change your behaviour and it really shines in tests, as behaviors can be easily tested in a synchronous fashion, unrelated to the whole actors thing.
+Those are all concerns that `Typed Actor` will never deal with, this is one important difference: `Typed Actors` is a possibility to add some compile-time checking while `Akka Typed` is a completely new API. Understandingly, `Akka Typed` is better at hiding their untyped implementation, nothing in the public API leads to the fact that something like an untyped actor could even exist.
 
 On the other hand, having `Akka Typed` as a separate module means it is difficult to use the typed API with other modules. Most APIs expect an `akka.actor.ActorRef` and you can't get one from a akka-typed actor (well, you can, but it's dirty). This also applies to things like `ActorLogging` and `Stash`.
 `Typed Actors` doesn't try to prevent you from going untyped and as there is no different runtime representation, it can be easily used with all existing akka modules.
-However, if you mix typed/untyped code too much, you run into unhandled messages or even runtime class cast exceptions.
+However, if you mix typed/untyped code too much, you run into unhandled messages or maybe even runtime class cast exceptions or match errors (which ought to be bugs then, really).
+
+`Typed Actors` makes it easy to deal with multiple types of messages, not just one `A` thanks to its [Union type](#union-typed-actors) support. Joining multiple behavior requires them to be of the same type, although you can get far with a little bit of type-fu. Basically, you can take advantage of the covariant nature of `ActorRef[-A]` (in `Typed Actors`, ActorRef is actually invariant) and create phantom intersection types (`A with B`) and upcast at tellsite. It is, however, something different whether you as the library user has to know how to fu or I as the library author know so you don't have to.
 
 Also, `Akka Typed` is concerned with Java interop, which `Typed Actors` is not.
-Nevertheless, `Akka Typed` is a &emdash; in my opinion &emdash; really nice project and its new API is a major improvement over the default `Actor`. The resulting patterns, like `replyTo` are a good idea to use with `Typed Actor`s as well.
+Nevertheless, `Akka Typed` is a – in my opinion – really nice project and its new API is a major improvement over the default `Actor`. The resulting patterns, like `replyTo` are a good idea to use with `Typed Actor`s as well.
 
 That concludes the Usage Guide. I guess the only thing left is to go on hAkking!
 <!--- TUT:END -->

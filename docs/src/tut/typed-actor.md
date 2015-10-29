@@ -112,7 +112,7 @@ class MyOtherActor extends TypedActor.Of[MyMessage] {
 ```
 
 Please be aware of a ~~bug~~ feature that wouldn't fail on non-exhaustive checks.
-If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
+If you use guards in your matchers, the complete pattern is optimistically treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
 
 ```tut
 val False = false
@@ -123,7 +123,7 @@ class MyOtherActor extends TypedActor.Of[MyMessage] {
 }
 ```
 
-Unfortunately, this can not be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
+Unfortunately, this cannot be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
 
 
 #### Stateless actor from a total function
@@ -149,7 +149,7 @@ For normal use-case, extending `TypedActor.Of[_]` is encouraged.
 import scala.reflect.classTag
 class MyTypedActor extends TypedActor {
   type Message = MyMessage
-  
+
   def typedReceive = {
     case Foo(foo) =>
   }
@@ -161,10 +161,10 @@ You can even override the `receive` method, if you have to, using the `untypedFr
 ```tut
 class MyTypedActor extends TypedActor {
   type Message = MyMessage
-  
+
   override def receive =
     untypedFromTyped(typedReceive)
-  
+
   def typedReceive = {
     case Foo(foo) =>
   }

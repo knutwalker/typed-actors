@@ -17,9 +17,9 @@ akka.actor.debug.receive=off
 
 Typed Actors are implemented as a type tag, a structural type refinement.
 This is very similar to [`scalaz.@@`](https://github.com/scalaz/scalaz/blob/81e68e845e91b54450a4542b19c1378f06aea861/core/src/main/scala/scalaz/package.scala#L90-L101) and a little bit to [`shapeless.tag.@@`](https://github.com/milessabin/shapeless/blob/6c659d253ba004baf74e20d5d815729552677303/core/src/main/scala/shapeless/typeoperators.scala#L28-L29)
-The message type is put togehter with the surrounding type (`ActorRef` or `Props`) into a special type, that exists only at compile time.
+The message type is put together with the surrounding type (`ActorRef` or `Props`) into a special type, that exists only at compile time.
 It carries enough type information for the compiler reject certain calls to tell while not requiring any wrappers at runtime.
-The actual methods are provided by a implicit ops wrapper that extends AnyVal, so that there is no runtime overhead as well.
+The actual methods are provided by an implicit ops wrapper that extends AnyVal, so that there is no runtime overhead as well.
 
 #### Good Practices
 

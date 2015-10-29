@@ -27,7 +27,7 @@ To still use `Typed Actors`, you could use `Any`, which is just as bad as using 
 Alternatively, you could use a [sum type](https://en.wikipedia.org/wiki/Sum_type) like `Either`, define the actor as `ActorRef[Either[A, B]]` and pattern match on the either in the receive block. This has some drawbacks though.
 First, listing more than 2 different messages with Either gets very tedious and you'll probably start writing specific custom sum types for each different set of messages and end up with sealed traits that do nothing but wrap other messages and are thus just noisy boilerplate.
 Second, there is a runtime overhead involved of wrapping and unwrapping the message in the sum type, i.e. you have to `apply` and `unapply` the `Left`/`Right` instances.
-Third, and probably the most disruptive one, you cannot send any of the summed types directly but have to wrap them at tellsite, coupling the actor to the chosen sum type. This also means, that you cannot write proxy-like actors that sit inbetween other actors because you have to change the messages.
+Third, and probably the most disruptive one, you cannot send any of the summed types directly but have to wrap them at tellsite, coupling the actor to the chosen sum type. This also means, that you cannot write proxy-like actors that sit in-between other actors because you have to change the messages.
 
 `Typed Actors` offer an easy alternative, that solves all the aforementioned problems: **Union Types**.
 Both, `ActorRef[A]` and `Props[A]`, have a `or[B]` method, that turns those types into an `ActorRef[A | B]` or a `Props[A | B]`, respectively.

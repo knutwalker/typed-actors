@@ -33,9 +33,9 @@ val props = Props[MyMessage, MyActor]
 val typedRef = ActorOf[MyMessage](props, name = "my-actor")
 ```
 
-#### Autoreceive Messages
+#### Autoreceived Messages
 
-Some messages are automatically handled by some actors and need or can not be provided in the actors type.
+Some messages are automatically handled by some actors and need or cannot be provided in the actors type.
 One example is `PoisonPill`. To sent those kind of messages anyway, use `unsafeTell`.
 
 ```tut

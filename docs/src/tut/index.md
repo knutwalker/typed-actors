@@ -81,7 +81,7 @@ ref ! SomeOtherMessage
 #### Ask pattern
 
 Typed actors support the ask pattern, `?`, without imports and the returned Future is properly typed.
-In order to achieve this, instead of sending an already instantiaded type, you send a function that, given the properly typed sender, will return the message.
+In order to achieve this, instead of sending an already instantiated type, you send a function that, given the properly typed sender, will return the message.
 This is usually achieved with a separate parameter list on a case class (message), typically called `replyTo`.
 
 ```tut:silent
