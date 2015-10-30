@@ -546,8 +546,172 @@ defined class MyOtherActor
 
 Unfortunately, this cannot be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
 
+#### Working with Union Types
+
+Union typed [before](#union-typed-actors) were declared on an already existing `Props` or `ActorRef` but how can we use union types together with `TypedActor`?
+
+```scala
+case class Foo(foo: String)
+case class Bar(bar: String)
+case class Baz(baz: String)
+case object SomeOtherMessage
+```
+
+(We're shadowing the previous definition of `Foo` and `Bar` here, they are reverted after this chapter).
+
+Since union types are implemented at the type-level, there is no runtime value possible that would allow us to discriminate between those subtypes when running the receive block.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = {
+     |     case Foo(foo) ⇒ println(s"received a Foo: $foo")
+     |     case Bar(bar) ⇒ println(s"received a Bar: $bar")
+     |     case Baz(baz) ⇒ println(s"received a Baz: $baz")
+     |   }
+     | }
+<console>:29: error: constructor cannot be instantiated to expected type;
+ found   : Foo
+ required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
+           case Foo(foo) ⇒ println(s"received a Foo: $foo")
+                ^
+<console>:30: error: constructor cannot be instantiated to expected type;
+ found   : Bar
+ required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
+           case Bar(bar) ⇒ println(s"received a Bar: $bar")
+                ^
+<console>:31: error: constructor cannot be instantiated to expected type;
+ found   : Baz
+ required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
+           case Baz(baz) ⇒ println(s"received a Baz: $baz")
+                ^
+```
+
+We have to do this discrimination at type-level as well. Don't worry, it's less complicated as that sound. As a side note, sum types like `Either` are sometimes referred to as tagged union, the tag being the thing that would help us to discrimite at runtime – our union type is an untagged union instead.
+
+The basics stay the same, you still extends `TypedActor.Of` and implement `typedReceive` but this time using either `Union` or `TotalUnion`. Use `Union` if you only cover some of the union types cases and `TotalUnion` if you want to cover _all_ cases. The compiler can perform exhaustiveness checks on the latter.
+Both methods return a builder-style object that has an `on` method that must be used to enumerate the individual subcases of the union type and you close with a call to `apply`.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+     |     .on[Bar]{ case Bar(bar) ⇒ println(s"received a Bar: $bar") }
+     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     |     .apply
+     | }
+defined class MyActor
+```
+
+You have to provide at least one case, you cannot define an empty behavior.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .apply
+     | }
+<console>:29: error: Cannot prove that de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.Empty =:= de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.NonEmpty.
+           .apply
+            ^
+```
+
+
+If you remove one of those cases it still compiles, since `Union` does not check for exhaustiveness.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     |     .apply
+     | }
+defined class MyActor
+```
+
+If you switch to `TotalUnion` you can see the compiler message telling that something is missing. Unfortunately it doesn't tell you _which_ case is missing exactly, although that might change in the future.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = TotalUnion
+     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     |     .apply
+     | }
+<console>:31: error: Cannot prove that de.knutwalker.akka.typed.|[Foo,Baz] contains the same members as de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz].
+           .apply
+            ^
+```
+
+You can even leave out the call to `apply`.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     | }
+defined class MyActor
+```
+
+Which is true for `TotalUnion` as well.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = TotalUnion
+     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+     |     .on[Bar]{ case Bar(bar) ⇒ println(s"received a Bar: $bar") }
+     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     | }
+defined class MyActor
+```
+
+As you can see, you basically provide a receive block for all relevant subtypes of the union. One such receive block is typed in its input, though you cannot use the `Total` helper as this one is fixed on the complete message type, the union type itself in this case.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .on[Foo](Total { case Foo(foo) ⇒ println(s"received a Foo: $foo") })
+     |     .apply
+     | }
+<console>:29: error: constructor cannot be instantiated to expected type;
+ found   : Foo
+ required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
+           .on[Foo](Total { case Foo(foo) ⇒ println(s"received a Foo: $foo") })
+                                 ^
+```
+
+At any rate, the `Props` and `ActorRef` from this `TypedActor` are union typed as well.
+
+```scala
+scala> val props = PropsFor[MyActor]
+props: de.knutwalker.akka.typed.Props[MyActor#Message] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
+
+scala> val ref = ActorOf(props)
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/$a#442721323]
+
+scala> ref ! Foo("foo")
+[DEBUG] received handled message Foo(foo)
+received a Foo: foo
+
+scala> ref ! Bar("bar")
+[DEBUG] received handled message Bar(bar)
+received a Bar: bar
+
+scala> ref ! Baz("baz")
+[DEBUG] received handled message Baz(baz)
+received a Baz: baz
+```
+
+```scala
+scala> ref ! SomeOtherMessage
+<console>:32: error: Cannot prove that message of type SomeOtherMessage.type is a member of ref.Message.
+       ref ! SomeOtherMessage
+           ^
+```
 
 #### Stateless actor from a total function
+
+
+
 
 The companion object `TypedActor` has an `apply` method that wraps a total function in an actor and returns a prop for this actor.
 
