@@ -19,7 +19,11 @@ Typed Actors are implemented as a type tag, a structural type refinement.
 This is very similar to [`scalaz.@@`](https://github.com/scalaz/scalaz/blob/81e68e845e91b54450a4542b19c1378f06aea861/core/src/main/scala/scalaz/package.scala#L90-L101) and a little bit to [`shapeless.tag.@@`](https://github.com/milessabin/shapeless/blob/6c659d253ba004baf74e20d5d815729552677303/core/src/main/scala/shapeless/typeoperators.scala#L28-L29)
 The message type is put together with the surrounding type (`ActorRef` or `Props`) into a special type, that exists only at compile time.
 It carries enough type information for the compiler reject certain calls to tell while not requiring any wrappers at runtime.
+
 The actual methods are provided by an implicit ops wrapper that extends AnyVal, so that there is no runtime overhead as well.
+
+The union type is inspired by shapeless' `HNil` or `Coproduct`. The main differences are: 1) There is no runtime, value-level representation and as such, there is no Inr/Inl/:: constructor, it's just the type `|` (instead of `::` or `:+:` for HList and Coproduct, respectively). 2) It doesn't have an end type, a base case like `HNil` or `CNil`. Other than that, the operations around the union type are similar to what you would write if you'd define a function for an HList: There is a typeclass representing the function and some implicit induction steps that recurse on the type.
+There are some other union type implementations out there, including the one that is offered by shapeless itself but they often just focus on offering membership testing as functionality, while `Typed Actors` also includes a union set comparison to check whether two union types cover the same elements without them being defined in the same order.
 
 #### Good Practices
 
