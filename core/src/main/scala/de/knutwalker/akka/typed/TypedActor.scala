@@ -102,9 +102,38 @@ trait TypedActor extends Actor {
   final def Untyped(f: Receive): TypedReceive =
     f // .asInstanceOf[TypedReceive]
 
+  /**
+    * Builds final receive out of sub-receives if this TypedActor is for a Union message type.
+    * This mirrors a [[TypedReceive]], i.e. you must not cover all cases.
+    *
+    * {{{
+    *   class ExampleActor extends TypedActor.Of[Foo | Bar | Baz] {
+    *     def typedReceive: TypedReceive = Union
+    *       .on[Foo]{ case Foo() => println("foo") }
+    *       .on[Bar]{ case Bar() => println("bar") }
+    *       .apply
+    *     }
+    *   }
+    * }}}
+    */
   final def Union(implicit ev: IsUnion[Message]): MkPartialUnionReceive[ev.Out, MkPartialUnionReceive.Empty] =
     new MkPartialUnionReceive(None)
 
+  /**
+    * Builds final receive out of sub-receives if this TypedActor is for a Union message type.
+    * This mirrors a [[Total]] receive, i.e. you must provide all cases.
+    *
+    * {{{
+    *   class ExampleActor extends TypedActor.Of[Foo | Bar | Baz] {
+    *     def typedReceive: TypedReceive = TotalUnion
+    *       .on[Foo]{ case Foo() => println("foo") }
+    *       .on[Bar]{ case Bar() => println("bar") }
+    *       .on[Bax]{ case Bax() => println("bax") }
+    *       .apply
+    *     }
+    *   }
+    * }}}
+    */
   final def TotalUnion(implicit ev: IsUnion[Message]): MkTotalUnionReceiveEmpty[ev.Out] =
     new MkTotalUnionReceiveEmpty(None)
 
@@ -157,13 +186,23 @@ object TypedActor {
   def apply[A: ClassTag](f: A ⇒ Unit): Props[A] =
     PropsFor(new TypedActor.Of[A] {def typedReceive = Total(f)})
 
-  final class MkPartialUnionReceive[U <: Union, S <: MkPartialUnionReceive.State](val finalPf: Option[PartialFunction[U, Unit]]) extends AnyVal {
+  /**
+   * Builder API for creating total union matchers.
+   *
+   * @see [[TypedActor.Union]]
+   * @param finalPf the resulting receive function.
+   * @tparam U the union type that provided the possible sub cases
+   * @tparam S phantom type to ensure at least one case is provided
+   */
+  final class MkPartialUnionReceive[U <: Union, S <: MkPartialUnionReceive.State] private[TypedActor] (val finalPf: Option[PartialFunction[U, Unit]]) extends AnyVal {
 
+    /** Adds a case to the final receive function */
     def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty] = {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
       new MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty](Some(finalPf.fold(pf)(_ orElse pf)))
     }
 
+    /** Returns the final receive function */
     implicit def apply(implicit ev: S =:= MkPartialUnionReceive.NonEmpty): PartialFunction[U, Unit] =
       finalPf.get
   }
@@ -173,27 +212,58 @@ object TypedActor {
     sealed trait NonEmpty extends State
   }
 
-  final class MkTotalUnionReceiveEmpty[U <: Union](val ignore: Option[Nothing]) extends AnyVal {
+  /**
+   * Builder API for creating total union matchers.
+   * This is step 1 when no sub case was given.
+   *
+   * @see [[TypedActor.TotalUnion]]
+   * @tparam U the union type that provided the possible sub cases
+   */
+  final class MkTotalUnionReceiveEmpty[U <: Union] private[TypedActor] (val ignore: Option[Nothing]) extends AnyVal {
 
+    /** Adds a case to the final receive function */
     def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkTotalUnionReceiveHalfEmpty[U, A] =
       new MkTotalUnionReceiveHalfEmpty[U, A](new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]])
   }
 
-  final class MkTotalUnionReceiveHalfEmpty[U <: Union, B](val finalPf: PartialFunction[U, Unit]) extends AnyVal {
+  /**
+   * Builder API for creating total union matchers.
+   * This is step 2 when the first sub case was given.
+   * Cannot be an `AnyVal` as this would expose the final receive function.
+   *
+   * @see [[TypedActor.TotalUnion]]
+   * @param finalPf the resulting receive function.
+   * @tparam U the union type that provided the possible sub cases
+   * @tparam B the type of the first sub case
+   */
+  final class MkTotalUnionReceiveHalfEmpty[U <: Union, B](finalPf: PartialFunction[U, Unit]) {
 
+    /** Adds a case to the final receive function */
     def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkTotalUnionReceive[U, B | A] = {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
       new MkTotalUnionReceive[U, B | A](finalPf orElse pf)
     }
   }
 
-  final class MkTotalUnionReceive[U <: Union, T <: Union](val finalPf: PartialFunction[U, Unit]) extends AnyVal {
+  /**
+   * Builder API for creating total union matchers.
+   * This is the final step, when a covered union is given.
+   * Cannot be an `AnyVal` as this would expose the final receive function.
+   *
+   * @see [[TypedActor.TotalUnion]]
+   * @param finalPf the resulting receive function.
+   * @tparam U the union type that provided the possible sub cases
+   * @tparam T the union type of all the alrady given cases
+   */
+  final class MkTotalUnionReceive[U <: Union, T <: Union] private[TypedActor] (finalPf: PartialFunction[U, Unit]) {
 
+    /** Adds a case to the final receive function */
     def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkTotalUnionReceive[U, T | A] = {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
       new MkTotalUnionReceive[U, T | A](finalPf orElse pf)
     }
 
+    /** Returns the final receive function */
     implicit def apply(implicit ev: T containsAllOf U): PartialFunction[U, Unit] =
       finalPf
   }

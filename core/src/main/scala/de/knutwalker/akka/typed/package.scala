@@ -276,6 +276,10 @@ package object typed {
     def untyped: UntypedProps =
       untag(props)
 
+    /**
+      * Build a union typed Props out of this Props.
+      * The resulting props may accept either `A` or `B` as message.
+      */
     def or[B]: Props[A | B] =
       retag(props)
   }
@@ -335,14 +339,42 @@ package object typed {
     def untyped: UntypedActorRef =
       untag(ref)
 
+    /**
+      * Build a union typed ActorRef out of this ActorRef.
+      * The resulting actor may accept either `A` or `B` as message.
+      */
     def or[B]: ActorRef[A | B] =
       retag(ref)
   }
 
   implicit final class ActorRefUnionedOps[U <: Union](val ref: ActorRef[U]) extends AnyVal {
+
+    /**
+      * Sends a typed message asynchronously.
+      *
+      * @see [[akka.actor.ActorRef#tell]]
+      */
     def ![A](msg: A)(implicit ev: A isPartOf U, sender: UntypedActorRef = Actor.noSender): Unit =
       untag(ref) ! msg
 
+    /**
+      * Ask a typed question asynchronously.
+      * This signature enforces the `replyTo` pattern for keeping type safety.
+      *
+      * Instead of sending a message of `Any` and replying to an untyped `sender()`,
+      * you supply a function that, given a typed sender, will return the message.
+      * This is typically done with a second parameter list of a case class.
+      *
+      * {{{
+      * case class MyMessage(payload: String)(val replyTo: ActorRef[MyResponse])
+      *
+      * class MyActor extends Actor {
+      *   def receive = {
+      *     case m@MyMessage(payload) => m.replyTo ! MyResponse(payload)
+      *   }
+      * }
+      * }}}
+      */
     def ?[A, B](f: ActorRef[B] ⇒ A)(implicit ev: A isPartOf U, timeout: Timeout, ctA: ClassTag[A], sender: UntypedActorRef = Actor.noSender): Future[B] =
       AskSupport.ask[A, B](retag(ref), f, timeout, ctA, sender)
   }
@@ -386,6 +418,13 @@ package object typed {
     a.asInstanceOf[Tagged[T, B]]
 }
 
+/**
+ * Everything in here is is considered an INTERNAL API!
+ *
+ * Union type implementation follows. The only thing concerning the user is the
+ * `|` type which should be fairly self explanatory. The rest are type classes
+ * and provers to implement the type-level constraints for the union types.
+ */
 package typed {
 
   sealed trait Union
