@@ -201,6 +201,7 @@ object TypedActor {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
       new MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty](Some(finalPf.fold(pf)(_ orElse pf)))
     }
+    def onFun[A](f: A => Unit)(implicit ev: A isPartOf U): MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty] = on(PartialFunction(f))
 
     /** Returns the final receive function */
     implicit def apply(implicit ev: S =:= MkPartialUnionReceive.NonEmpty): PartialFunction[U, Unit] =
@@ -224,6 +225,7 @@ object TypedActor {
     /** Adds a case to the final receive function */
     def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkTotalUnionReceiveHalfEmpty[U, A] =
       new MkTotalUnionReceiveHalfEmpty[U, A](new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]])
+    def onFun[A](f: A => Unit)(implicit ev: A isPartOf U): MkTotalUnionReceiveHalfEmpty[U, A] = on(PartialFunction(f))
   }
 
   /**
@@ -243,6 +245,7 @@ object TypedActor {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
       new MkTotalUnionReceive[U, B | A](finalPf orElse pf)
     }
+    def onFun[A](f: A => Unit)(implicit ev: A isPartOf U): MkTotalUnionReceive[U, B | A] = on[A](PartialFunction(f))
   }
 
   /**
@@ -262,6 +265,7 @@ object TypedActor {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
       new MkTotalUnionReceive[U, T | A](finalPf orElse pf)
     }
+    def onFun[A](f: A => Unit)(implicit ev: A isPartOf U): MkTotalUnionReceive[U, T | A] = on(PartialFunction(f))
 
     /** Returns the final receive function */
     implicit def apply(implicit ev: T containsAllOf U): PartialFunction[U, Unit] =
