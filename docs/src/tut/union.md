@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Union typed actors
-tut: 02
+tut: 102
 ---
 
 We will assume imports and the actor system from the [&laquo; Basic Usage](index.html).

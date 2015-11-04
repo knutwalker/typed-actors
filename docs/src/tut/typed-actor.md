@@ -1,7 +1,7 @@
 ---
 layout: page
 title: TypedActor
-tut: 04
+tut: 104
 ---
 
 We will reuse the definitions and actors from the [&laquo; Unsafe Usage](unsafe.html).

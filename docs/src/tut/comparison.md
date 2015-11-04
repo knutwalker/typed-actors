@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Comparison with Akka Typed
-tut: 08
+tut: 108
 ---
 
 The [`Akka Typed`](http://doc.akka.io/docs/akka/snapshot/scala/typed.html) project is a module of Akka (as of 2.4) which aims to provide typesafe actors as well.

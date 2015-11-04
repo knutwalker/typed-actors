@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Basic Usage
-tut: 01
+tut: 101
 ---
 
 To use **Typed Actors**, import the following:
