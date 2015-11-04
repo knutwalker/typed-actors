@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Motivation
-tut: 00
+tut: 100
 ---
 
 One critique of Akka, that [comes](https://groups.google.com/d/msg/akka-user/rLKk7-D_jHQ/M_Anx7vRNhcJ) up [every](http://noelwelsh.com/programming/2013/03/04/why-i-dont-like-akka-actors/#akkas-actors-are-not-usefully-typed) [now](http://stew.vireo.org/posts/I-hate-akka/) and [then](http://stackoverflow.com/q/5547947/2996265) is the lack of type safety. Actors essentially represent a `PartialFunction[Any, Unit]` which is, from a type point of view, something of the worst you can have. It tells you nothing useful; Anything can go in, it might or might not be processed and if so, anything anywhere anytime can happen. It forgoes all the benefits of a statically typed language.

@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Basic Usage
-tut: 01
+tut: 101
 ---
 
 To use **Typed Actors**, import the following:
@@ -55,7 +55,7 @@ scala> val props = Props[MyMessage, MyActor]
 props: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref = ActorOf(props, name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#1638526268]
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#-1288500836]
 ```
 
 This will give you an `ActorRef[MyMessage]`.
@@ -126,10 +126,10 @@ implicit val timeout: Timeout = 1.second
 
 ```scala
 scala> val ref = ActorOf(Props[MyMessage, MyActor])
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-739546115]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-1443604833]
 
 scala> val future = ref ? MyMessage("foo")
-future: scala.concurrent.Future[MyResponse] = scala.concurrent.impl.Promise$DefaultPromise@1d457454
+future: scala.concurrent.Future[MyResponse] = scala.concurrent.impl.Promise$DefaultPromise@70eca03c
 
 scala> val response = scala.concurrent.Await.result(future, 1.second)
 response: MyResponse = MyResponse(foo)

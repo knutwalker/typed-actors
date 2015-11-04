@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Typed Creator
-tut: 06
+tut: 106
 ---
 
 
@@ -42,10 +42,10 @@ scala> Typed[MyActor].props("Bernd")
 res0: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class akka.actor.TypedCreatorFunctionConsumer,List(class MyActor, <function0>))
 
 scala> Typed[MyActor].create("Bernd")
-res1: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#1570709486]
+res1: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-612824344]
 
 scala> ActorOf(Typed[MyActor].props("Bernd"), "typed-bernd")
-res2: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/typed-bernd#1208218691]
+res2: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/typed-bernd#-236619810]
 ```
 
 Wrong invocations are greeted with a compile error instead of a runtime error!

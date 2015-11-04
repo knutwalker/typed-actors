@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Unsafe Usage
-tut: 03
+tut: 103
 ---
 
 We will reuse the definitions and actors from the [&laquo; Basic Usage](index.html).
@@ -11,7 +11,7 @@ We will reuse the definitions and actors from the [&laquo; Basic Usage](index.ht
 
 ```scala
 scala> val typedRef = ActorOf[MyMessage](props, name = "my-actor")
-typedRef: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#1078885778]
+typedRef: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#1982954990]
 ```
 
 #### Autoreceived Messages
@@ -30,7 +30,7 @@ You can easily turn your typed actor into an untyped one bu using `untyped`.
 
 ```scala
 scala> val untypedRef = typedRef.untyped
-untypedRef: de.knutwalker.akka.typed.package.UntypedActorRef = Actor[akka://foo/user/my-actor#1078885778]
+untypedRef: de.knutwalker.akka.typed.package.UntypedActorRef = Actor[akka://foo/user/my-actor#1982954990]
 ```
 
 For convenience, `akka.actor.ActorRef` is type aliased as `de.knutwalker.akka.typed.UntypedActorRef`.
@@ -38,14 +38,14 @@ Similarly, you can turn any untyped ref into a typed one using `typed`.
 
 ```scala
 scala> val typedAgain = untypedRef.typed[MyMessage]
-typedAgain: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#1078885778]
+typedAgain: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#1982954990]
 ```
 
 As scala tends to infer `Nothing` as the most specific bottom type, you want to make sure to always provide a useful type.
 
 ```scala
 scala> untypedRef.typed
-res1: de.knutwalker.akka.typed.package.ActorRef[Nothing] = Actor[akka://foo/user/my-actor#1078885778]
+res1: de.knutwalker.akka.typed.package.ActorRef[Nothing] = Actor[akka://foo/user/my-actor#1982954990]
 ```
 
 #### Compiletime only
@@ -78,13 +78,13 @@ scala> class MyOtherActor extends Actor {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#276743127]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-2051258807]
 
 scala> otherRef ! Foo("foo")
 [DEBUG] received handled message Foo(foo)
-received a Foo: foo
 
 scala> otherRef ! Bar("bar")
+received a Foo: foo
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")

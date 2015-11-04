@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Building Props
-tut: 05
+tut: 105
 ---
 
 With the [&laquo; Typed Actor](typed-actor.html) in place, we can now look at more ways to define a `Props`.

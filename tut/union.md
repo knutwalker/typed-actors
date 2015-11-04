@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Union typed actors
-tut: 02
+tut: 102
 ---
 
 We will assume imports and the actor system from the [&laquo; Basic Usage](index.html).
@@ -68,10 +68,10 @@ scala> val props2: Props[Foo | Bar] = props.or[Bar]
 props2: de.knutwalker.akka.typed.Props[de.knutwalker.akka.typed.|[Foo,Bar]] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref2: ActorRef[Foo | Bar] = ActorOf(props2, name = "my-actor")
-ref2: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[Foo,Bar]] = Actor[akka://foo/user/my-actor#-292624476]
+ref2: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[Foo,Bar]] = Actor[akka://foo/user/my-actor#1049837936]
 
 scala> val ref: ActorRef[Foo | Bar | Baz] = ref2.or[Baz]
-ref: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]] = Actor[akka://foo/user/my-actor#-292624476]
+ref: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]] = Actor[akka://foo/user/my-actor#1049837936]
 ```
 
 Now you can send either one of the messages that are listed in the union type.
