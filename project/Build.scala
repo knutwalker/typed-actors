@@ -244,7 +244,7 @@ object Build extends AutoPlugin {
       val latest = extracted.get(latestVersion)
       val lines = mkLines(extracted, latest)
       IO.writeLines(tempModulesFile, lines)
-      IO.writeLines(tempVersionFile, s"version: $latestVersion" :: Nil)
+      IO.writeLines(tempVersionFile, s"version: $latest" :: Nil)
     }
 
     def cachedCopyOf(from: File, to: File): File = {
