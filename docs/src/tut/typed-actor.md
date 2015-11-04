@@ -165,6 +165,18 @@ class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
 }
 ```
 
+Or if you have a total function for the cases, there is a shortcut:
+
+```tut
+class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+  def typedReceive: TypedReceive = Union
+    .total[Foo]{ foo ⇒ println(s"received a Foo: $foo.foo") }
+    .total[Bar]{ bar ⇒ println(s"received a Bar: $bar.bar") }
+    .total[Baz]{ baz ⇒ println(s"received a Baz: $baz.baz") }
+    .apply
+}
+```
+
 You have to provide at least one case, you cannot define an empty behavior.
 
 ```tut:fail

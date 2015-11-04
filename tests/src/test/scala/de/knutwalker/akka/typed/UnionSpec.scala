@@ -112,6 +112,34 @@ object UnionSpec extends Specification with AfterAll {
         } must succeed
       }
 
+      "allow using total handler" >> {
+        val ct = implicitly[ClassTag[Foo]]
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = Union
+                .total[Foo]{ foo ⇒ inboxRef ! Foo(s"$name: $foo.msg") }(implicitly, ct)
+                .apply
+            }
+          """
+        } must succeed
+      }
+
+      "allow using two total handlers" >> {
+        val ctFoo = implicitly[ClassTag[Foo]]
+        val ctBar = implicitly[ClassTag[Bar.type]]
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = Union
+                .total[Foo]{ foo ⇒ inboxRef ! Foo(s"$name: $foo.msg") }(implicitly, ctFoo)
+                .total[Bar.type] ( inboxRef ! _ )(implicitly, ctBar)
+                .apply
+            }
+          """
+        } must succeed
+      }
+
       "require at least one sub path" >> {
         typecheck {
           """
@@ -160,6 +188,35 @@ object UnionSpec extends Specification with AfterAll {
         implicit val timeout: Timeout = (100 * ee.timeFactor).millis
         (ref ? Baz("foo")) must be_==(SomeOtherMessage("foo")).await
       }
+
+      "fail to compile when total handler is not exhaustive" >> {
+        val ct = implicitly[ClassTag[Option[Foo]]]
+        typecheck {
+          """
+            class MyActor extends TypedActor.Of[Option[Foo] | Bar.type] {
+              def typedReceive: TypedReceive = Union
+                .total[Option[Foo]] {
+                  case Some(Foo("foo")) => ()
+                }
+            }
+          """
+        } must failWith(Regex.quote("match may not be exhaustive.\nIt would fail on the following inputs: None, Some(_)"))
+      }.pendingUntilFixed("succeeds... possibly missing fatal warnings or similar")
+
+      "not fail when the total doesn't match everything" >> {implicit ee: ExecutionEnv ⇒
+        class MyActor extends TypedActor.Of[Foo | Bar.type] {
+          def typedReceive: TypedReceive = Union.total[Foo] {
+            case Foo("foo") ⇒ inboxRef ! Foo("foo")
+          }.apply
+        }
+        val ref = ActorOf(PropsFor(new MyActor))
+
+        ref ! Foo("foo")
+        expectMsg(Foo("foo"))
+
+        ref ! Foo("baz")
+        expectUnhandled(Foo("baz"), ref)
+      }
     }
 
     "the TotalUnion helper" should {
@@ -183,6 +240,34 @@ object UnionSpec extends Specification with AfterAll {
                 .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
                 .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
                 .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
+                .apply
+            }
+          """
+        } must succeed
+      }
+
+      "allow one total handler" >> {
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = TotalUnion
+                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .total[Bar.type]{ inboxRef ! _ }
+                .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
+                .apply
+            }
+          """
+        } must succeed
+      }
+
+      "allow all total handlers" >> {
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = TotalUnion
+                .total[Foo]{ case Foo(msg) => inboxRef ! Foo(s"$name: foo.msg") }
+                .total[Bar.type]( inboxRef ! _ )
+                .total[Baz]{ m => m.replyTo ! SomeOtherMessage(m.msg) }
                 .apply
             }
           """

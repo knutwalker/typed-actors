@@ -121,7 +121,7 @@ trait TypedActor extends Actor {
     * }}}
     */
   final def Union(implicit ev: IsUnion[Message]): MkPartialUnionReceive[ev.Out, MkPartialUnionReceive.Empty] =
-    new MkPartialUnionReceive(None)
+    new MkPartialUnionReceive(this, None)
 
   /**
     * Builds final receive out of sub-receives if this TypedActor is for a Union message type.
@@ -198,13 +198,15 @@ object TypedActor {
    * @tparam U the union type that provided the possible sub cases
    * @tparam S phantom type to ensure at least one case is provided
    */
-  final class MkPartialUnionReceive[U <: Union, S <: MkPartialUnionReceive.State] private[TypedActor] (val finalPf: Option[PartialFunction[U, Unit]]) extends AnyVal {
+  final class MkPartialUnionReceive[U <: Union, S <: MkPartialUnionReceive.State] private[TypedActor] (self: Actor, val finalPf: Option[PartialFunction[U, Unit]]) {
 
     /** Adds a case to the final receive function */
     def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty] = {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
-      new MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty](Some(finalPf.fold(pf)(_ orElse pf)))
+      new MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty](self, Some(finalPf.fold(pf)(_ orElse pf)))
     }
+    def total[A](f: A => Unit)(implicit ev: A isPartOf U, ct: ClassTag[A]): MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty] =
+      on[A](new Downcast[A](self, ct.runtimeClass.asInstanceOf[Class[A]])(f))
 
     /** Returns the final receive function */
     implicit def apply(implicit ev: S =:= MkPartialUnionReceive.NonEmpty): PartialFunction[U, Unit] =
@@ -228,6 +230,7 @@ object TypedActor {
     /** Adds a case to the final receive function */
     def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkTotalUnionReceiveHalfEmpty[U, A] =
       new MkTotalUnionReceiveHalfEmpty[U, A](new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]])
+    def total[A](f: A => Unit)(implicit ev: A isPartOf U): MkTotalUnionReceiveHalfEmpty[U, A] = on(PartialFunction(f))
   }
 
   /**
@@ -247,6 +250,7 @@ object TypedActor {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
       new MkTotalUnionReceive[U, B | A](finalPf orElse pf)
     }
+    def total[A](f: A => Unit)(implicit ev: A isPartOf U): MkTotalUnionReceive[U, B | A] = on[A](PartialFunction(f))
   }
 
   /**
@@ -266,6 +270,7 @@ object TypedActor {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
       new MkTotalUnionReceive[U, T | A](finalPf orElse pf)
     }
+    def total[A](f: A => Unit)(implicit ev: A isPartOf U): MkTotalUnionReceive[U, T | A] = on(PartialFunction(f))
 
     /** Returns the final receive function */
     implicit def apply(implicit ev: T containsAllOf U): PartialFunction[U, Unit] =
