@@ -197,27 +197,6 @@ class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
 }
 ```
 
-You can even leave out the call to `apply`.
-
-```tut
-class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
-  def typedReceive: TypedReceive = Union
-    .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-    .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
-}
-```
-
-Which is true for `TotalUnion` as well.
-
-```tut
-class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
-  def typedReceive: TypedReceive = TotalUnion
-    .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-    .on[Bar]{ case Bar(bar) ⇒ println(s"received a Bar: $bar") }
-    .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
-}
-```
-
 As you can see, you basically provide a receive block for all relevant subtypes of the union. One such receive block is typed in its input, though you cannot use the `Total` helper as this one is fixed on the complete message type, the union type itself in this case.
 
 ```tut:fail
