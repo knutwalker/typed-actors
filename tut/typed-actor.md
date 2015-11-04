@@ -25,7 +25,7 @@ scala> class MyActor extends TypedActor.Of[MyMessage] {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-876255770]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#511942537]
 
 scala> ref ! Foo("foo")
 received a Foo: foo
@@ -70,13 +70,13 @@ scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#370996515]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-289570296]
 
 scala> otherRef ! Foo("foo")
 
 scala> otherRef ! Bar("bar")
-received a Foo: foo
 [DEBUG] received handled message Foo(foo)
+received a Foo: foo
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -285,20 +285,20 @@ scala> val props = PropsFor[MyActor]
 props: de.knutwalker.akka.typed.Props[MyActor#Message] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref = ActorOf(props)
-ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/$a#-1984918119]
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/$a#570642278]
 
 scala> ref ! Foo("foo")
+[DEBUG] received handled message Foo(foo)
 received a Foo: foo
 
-[DEBUG] received handled message Foo(foo)
 scala> ref ! Bar("bar")
-
-scala> ref ! Baz("baz")
 [DEBUG] received handled message Bar(bar)
 received a Bar: bar
+
+scala> ref ! Baz("baz")
 [DEBUG] received handled message Baz(baz)
-```
 received a Baz: baz
+```
 
 ```scala
 scala> ref ! SomeOtherMessage
@@ -319,7 +319,7 @@ scala> val ref = ActorOf(TypedActor[MyMessage] {
      |   case Foo(foo) => println(s"received a Foo: $foo")
      |   case Bar(bar) => println(s"received a Bar: $bar")
      | })
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$b#680397259]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$b#2007830832]
 ```
 
 
