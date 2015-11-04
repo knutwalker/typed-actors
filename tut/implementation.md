@@ -50,7 +50,7 @@ case class MyActor() extends TypedActor.Of[MyMessage] {
 
 ```scala
 scala> val ref = Typed[MyActor].create()
-ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-1857241499]
+ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#1768113564]
 
 scala> box.send(ref.untyped, MyMessage(42))
 ```
@@ -77,7 +77,7 @@ case class MyActor() extends TypedActor.Of[MyMessage] {
 
 ```scala
 scala> val ref = Typed[MyActor].create()
-ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$b#987281657]
+ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$b#-520478437]
 
 scala> ref ! MyMessage(42)(box.receiver.typed)
 

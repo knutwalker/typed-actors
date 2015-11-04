@@ -25,7 +25,7 @@ scala> class MyActor extends TypedActor.Of[MyMessage] {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#511942537]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#982122361]
 
 scala> ref ! Foo("foo")
 received a Foo: foo
@@ -70,13 +70,13 @@ scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-289570296]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#953413804]
 
 scala> otherRef ! Foo("foo")
 
 scala> otherRef ! Bar("bar")
-[DEBUG] received handled message Foo(foo)
 received a Foo: foo
+[DEBUG] received handled message Foo(foo)
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -285,21 +285,21 @@ scala> val props = PropsFor[MyActor]
 props: de.knutwalker.akka.typed.Props[MyActor#Message] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref = ActorOf(props)
-ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/$a#570642278]
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/$a#797169305]
 
 scala> ref ! Foo("foo")
 [DEBUG] received handled message Foo(foo)
-received a Foo: foo
 
 scala> ref ! Bar("bar")
-[DEBUG] received handled message Bar(bar)
-received a Bar: bar
+received a Foo: foo
 
 scala> ref ! Baz("baz")
+[DEBUG] received handled message Bar(bar)
+received a Bar: bar
 [DEBUG] received handled message Baz(baz)
-received a Baz: baz
 ```
 
+received a Baz: baz
 ```scala
 scala> ref ! SomeOtherMessage
 <console>:32: error: Cannot prove that message of type SomeOtherMessage.type is a member of ref.Message.
@@ -319,7 +319,7 @@ scala> val ref = ActorOf(TypedActor[MyMessage] {
      |   case Foo(foo) => println(s"received a Foo: $foo")
      |   case Bar(bar) => println(s"received a Bar: $bar")
      | })
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$b#2007830832]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$b#285039780]
 ```
 
 
