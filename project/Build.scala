@@ -3,7 +3,7 @@ import com.typesafe.sbt.git.JGit
 import sbt._
 import sbt.Keys._
 import de.knutwalker.sbt._
-import de.knutwalker.sbt.KSbtKeys._
+import de.knutwalker.sbt.KSbtKeys.{ akkaVersion ⇒ _, _ }
 import com.typesafe.tools.mima.plugin.MimaKeys.binaryIssueFilters
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
 import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifact
@@ -12,12 +12,14 @@ import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.{ Vcs, Version }
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ListMap
 
 object Build extends AutoPlugin {
   override def trigger = allRequirements
   override def requires = KSbtPlugin
 
   object autoImport {
+    lazy val akkaActorVersion = settingKey[String]("Version of akka-actor.")
     lazy val latestVersionTag = settingKey[Option[String]]("The latest tag describing a version number.")
     lazy val latestVersion = settingKey[String]("The latest version or the current one, if there is no previous version.")
     lazy val isAkka24 = settingKey[Boolean]("Whether the build is compiled against Akka 2.4.x.")
@@ -38,16 +40,16 @@ object Build extends AutoPlugin {
         githubProject := Github("knutwalker", "typed-actors"),
           description := "Compile time wrapper for more type safe actors",
          scalaVersion := "2.11.7",
-          akkaVersion := "2.4.0",
-             isAkka24 := akkaVersion.value.startsWith("2.4"),
-  libraryDependencies += "com.typesafe.akka" %% "akka-actor" % akkaVersion.value % "provided",
+     akkaActorVersion := "2.4.0",
+             isAkka24 := akkaActorVersion.value.startsWith("2.4"),
+  libraryDependencies += "com.typesafe.akka" %% "akka-actor" % akkaActorVersion.value % "provided",
           javaVersion := JavaVersion.Java17,
       autoAPIMappings := true,
      latestVersionTag := GitKeys.gitReader.value.withGit(g ⇒ findLatestVersion(g.asInstanceOf[JGit])),
         latestVersion := latestVersionTag.value.getOrElse(version.value),
      previousArtifact := latestVersionTag.value.map(v ⇒ organization.value %% name.value % v).filter(_ ⇒ publishArtifact.value),
   binaryIssueFilters ++= ignoredABIProblems,
-         apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value, akkaVersion.value),
+         apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value, akkaActorVersion.value),
            genModules := generateModules(state.value, sourceManaged.value, streams.value.cacheDirectory, thisProject.value.dependencies),
            makeReadme := mkReadme(state.value, buildReadmeContent.?.value.getOrElse(Nil), readmeFile.?.value, readmeFile.?.value),
          commitReadme := addAndCommitReadme(state.value, makeReadme.value, readmeCommitMessage.?.value, releaseVcs.value),
@@ -127,15 +129,32 @@ object Build extends AutoPlugin {
   val slugify = (title: String) ⇒ title.replaceAll(raw"\s+", "-").toLowerCase(java.util.Locale.ENGLISH)
   val withoutExtension = (name: String) ⇒ name.substring(0, name.lastIndexOf('.'))
 
-  def getTitles(srcs: Seq[(File,String)]): Map[String, String] = {
+  case class TutFile(title: String, file: File, content: List[String], index: Int)
+
+  def parseTutFiles(srcs: Seq[(File,String)]): Seq[TutFile] = {
     val sources = srcs.map(_._1)
-    sources.flatMap {f ⇒
-      val lines = IO.readLines(f)
-      val front = lines.dropWhile(_ == "---").takeWhile(_ != "---")
-      front.collectFirst {
-        case titleLine(t) ⇒ withoutExtension(f.getName) → t
-      }
-    }.toMap
+    sources.flatMap(parseFrontMatter).sortBy(_.index)
+  }
+
+  def getTitles(tuts: Seq[TutFile]): Map[String, String] =
+    ListMap(tuts.map(f ⇒ withoutExtension(f.file.getName) → f.title): _*)
+
+  def parseFrontMatter(file: File): Option[TutFile] = {
+    val lines = IO.readLines(file)
+    val (front, content) = lines.dropWhile(_ == "---").span(_ != "---")
+    for {
+      index ← front.collectFirst {case tutLine(idx) ⇒ idx.toInt}
+      title ← front.collectFirst {case titleLine(t) ⇒ t}
+    } yield TutFile(title, file, content, index)
+  }
+
+  def parseTutContent(latest: String, titles: Map[String, String])(tut: TutFile): List[String] = {
+    import tut._
+    val actualContent = content.drop(1).withFilter {
+      case directLink() ⇒ false
+      case _            ⇒ true
+    }.map(replaceLinks(latest, titles))
+    "" :: "## " + title :: "" :: actualContent
   }
 
   @tailrec
@@ -147,27 +166,13 @@ object Build extends AutoPlugin {
   }
 
   def mkReadme(state: State, srcs: Seq[(File,String)], tpl: Option[File], out: Option[File]): Option[File] = {
-    val titles = getTitles(srcs)
     tpl.filter(_.exists()).flatMap { template ⇒
       out.flatMap {outputFile ⇒
-        val sources = srcs.map(_._1)
         val extracted = Project.extract(state)
         val latest = extracted.get(latestVersion)
-        val files = sources.flatMap {f ⇒
-          val lines = IO.readLines(f)
-          val (front, content) = lines.dropWhile(_ == "---").span(_ != "---")
-          for {
-            index ← front.collectFirst {case tutLine(idx) ⇒ idx.toInt}
-            title ← front.collectFirst {case titleLine(t) ⇒ t}
-          } yield {
-            val actualContent = content.drop(1).withFilter {
-              case directLink() ⇒ false
-              case _            ⇒ true
-            }.map(replaceLinks(latest, titles))
-            (index, title, actualContent)
-          }
-        }
-        val lines = files.sortBy(_._1).flatMap(line ⇒ "" :: "## " + line._2 :: "" :: line._3)
+        val tuts = parseTutFiles(srcs)
+        val titles = getTitles(tuts)
+        val lines = tuts.flatMap(parseTutContent(latest, titles))
         Some(lines).filter(_.nonEmpty).map { ls ⇒
           val targetLines = IO.readLines(template)
           val (head, middle) = targetLines.span(_ != "<!--- TUT:START -->")
@@ -239,7 +244,7 @@ object Build extends AutoPlugin {
       val latest = extracted.get(latestVersion)
       val lines = mkLines(extracted, latest)
       IO.writeLines(tempModulesFile, lines)
-      IO.writeLines(tempVersionFile, s"version: $latestVersion" :: Nil)
+      IO.writeLines(tempVersionFile, s"version: $latest" :: Nil)
     }
 
     def cachedCopyOf(from: File, to: File): File = {

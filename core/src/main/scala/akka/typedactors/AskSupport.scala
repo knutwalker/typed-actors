@@ -17,12 +17,13 @@
 package akka.typedactors
 
 import akka.actor.InternalActorRef
-import akka.pattern.{ AskTimeoutException, PromiseActorRef }
+import akka.pattern.AskTimeoutException
 import akka.util.Timeout
 import de.knutwalker.akka.typed._
 
 import scala.concurrent.Future
 import scala.reflect.ClassTag
+
 
 /**
  * Support the ask pattern.
@@ -45,7 +46,7 @@ object AskSupport {
       if (timeout.duration.length <= 0) {
         Future.failed[B](new IllegalArgumentException(s"Timeout length must not be negative, question not sent to [${_ref}]. Sender[$sender] sent the message of type '${ctA.runtimeClass.getName}'."))
       } else {
-        val ref = PromiseActorRef(r.provider, timeout, targetName = _ref.toString())
+        val ref = PromiseRef(r, _ref, sender, timeout, ctA)
         val msg = f(ref)
         _ref.tell(msg, ref)
         ref.result.future.asInstanceOf[Future[B]]

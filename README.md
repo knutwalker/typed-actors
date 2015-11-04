@@ -1,5 +1,5 @@
-[![Travis CI][travis-img]][travis]
-[![Coverage][codecov-img]][codecov]
+[![Build Status][ci-img]][ci]
+[![Coverage][coverage-img]][coverage]
 [![Maven][maven-img]][maven]
 [![Gitter][gitter-img]][gitter]
 [![Apache License][license-img]][license]
@@ -14,21 +14,49 @@ The first version available for Akka 2.4 is `1.4.0`.
 <!--- TUT:START -->
 ```scala
 libraryDependencies ++= List(
-  "de.knutwalker" %% "typed-actors" % "1.4.0",
-  "de.knutwalker" %% "typed-actors-creator" % "1.4.0"
+  "de.knutwalker" %% "typed-actors" % "1.5.0",
+  "de.knutwalker" %% "typed-actors-creator" % "1.5.0"
 )
 ```
 
 
 ## [Documentation][docs]
 
-- [Comparison with Akka Typed](#comparison-with-akka-typed)
-- [Typed Creator](#typed-creator)
-- [Implementation Notes](#implementation-notes)
-- [Building Props](#building-props)
+- [Motivation](#motivation)
+- [Basic Usage](#basic-usage)
+- [Union typed actors](#union-typed-actors)
 - [Unsafe Usage](#unsafe-usage)
 - [TypedActor](#typedactor)
-- [Basic Usage](#basic-usage)
+- [Building Props](#building-props)
+- [Typed Creator](#typed-creator)
+- [Implementation Notes](#implementation-notes)
+- [Comparison with Akka Typed](#comparison-with-akka-typed)
+
+## Motivation
+
+
+One critique of Akka, that [comes](https://groups.google.com/d/msg/akka-user/rLKk7-D_jHQ/M_Anx7vRNhcJ) up [every](http://noelwelsh.com/programming/2013/03/04/why-i-dont-like-akka-actors/#akkas-actors-are-not-usefully-typed) [now](http://stew.vireo.org/posts/I-hate-akka/) and [then](http://stackoverflow.com/q/5547947/2996265) is the lack of type safety. Actors essentially represent a `PartialFunction[Any, Unit]` which is, from a type point of view, something of the worst you can have. It tells you nothing useful; Anything can go in, it might or might not be processed and if so, anything anywhere anytime can happen. It forgoes all the benefits of a statically typed language.
+There are many reasons for this though, amongst others: location transparency and `context.become`. While its true that only `Any` allows us to model _everything_ that _can_ happen, it doesn't mean that everything _will always_ happen. Not every actor gets moved around between different nodes and changes its behavior to something completely unrelated over and over again.
+
+So, why not tell the compiler that we know something about certain actors and have it help us? We're in a statically typed language after all. We're used to compiler support when it comes to refactoring, design and composition. Why forgo this for the sake of a feature I don't want to use.
+
+Hence, `Typed Actors`!
+
+Akka underwent some experiments itself, for example  from [typed-channels](http://doc.akka.io/docs/akka/2.2.0/scala/typed-channels.html) and [typed-actors](http://doc.akka.io/docs/akka/2.3.0/scala/typed-actors.html) to [akka-typed](http://doc.akka.io/docs/akka/2.4.0/scala/typed.html).
+Especially the last approach, `Akka Typed` is really nice and the benefit of having an `ActorRef[A]` lead to the creation of this library.
+
+`Typed Actors` has the following goals:
+
+- add a compile-time layer to existing `ActorRef`s with minimal runtime overhead
+- be compatible with all of the existing Akka modules, traits, and extensions in terms of composition and behavior
+
+and the following non-goals:
+
+- enforce an impenetrable mantle of types, don't fight the users knowledge about the actor system, those *are* dynamic after all
+- support Java
+
+So, let's dive in.
+
 
 ## Basic Usage
 
@@ -129,7 +157,7 @@ scala> ref ! SomeOtherMessage
 #### Ask pattern
 
 Typed actors support the ask pattern, `?`, without imports and the returned Future is properly typed.
-In order to achieve this, instead of sending an already instantiaded type, you send a function that, given the properly typed sender, will return the message.
+In order to achieve this, instead of sending an already instantiated type, you send a function that, given the properly typed sender, will return the message.
 This is usually achieved with a separate parameter list on a case class (message), typically called `replyTo`.
 
 ```scala
@@ -164,7 +192,111 @@ scala> val response = scala.concurrent.Await.result(future, 1.second)
 response: MyResponse = MyResponse(foo)
 ```
 
-Next up, learn how to interact with the less safer parts of Akka.
+Next up, learn how to mix multiple unrelated messages into the checked type.
+
+
+
+
+
+
+## Union typed actors
+
+
+
+
+
+
+
+#### Unrelated Messages
+
+The actor messages [before](index.html#actor-definition) were defined as a sealed trait so that the actor can deal with all subclasses of this trait. That way the actor can deal with multiple types of messages.
+This works great if you're in control of the messages, unfortunately this is not always the case. Sometimes you have to write an actor that receives multiple messages that are not part of the same sealed trait, possibly because you don't own said messages.
+To still use `Typed Actors`, you could use `Any`, which is just as bad as using untyped actors directly.
+Alternatively, you could use a [sum type](https://en.wikipedia.org/wiki/Sum_type) like `Either`, define the actor as `ActorRef[Either[A, B]]` and pattern match on the either in the receive block. This has some drawbacks though.
+First, listing more than 2 different messages with Either gets very tedious and you'll probably start writing specific custom sum types for each different set of messages and end up with sealed traits that do nothing but wrap other messages and are thus just noisy boilerplate.
+Second, there is a runtime overhead involved of wrapping and unwrapping the message in the sum type, i.e. you have to `apply` and `unapply` the `Left`/`Right` instances.
+Third, and probably the most disruptive one, you cannot send any of the summed types directly but have to wrap them at tellsite, coupling the actor to the chosen sum type. This also means, that you cannot write proxy-like actors that sit in-between other actors because you have to change the messages.
+
+`Typed Actors` offer an easy alternative, that solves all the aforementioned problems: **Union Types**.
+Both, `ActorRef[A]` and `Props[A]`, have a `or[B]` method, that turns those types into an `ActorRef[A | B]` or a `Props[A | B]`, respectively.
+`A | B` is a so called [union type](http://ktoso.github.io/scala-types-of-types/#union-type-span-style-color-red-span) (also sometimes called a disjoint or discriminated union) meaning it is either `A` or `B`. In this regard, it serves the same purpose as `Either[A, B]`, but it is a pure type-level construct. There is no runtime value possible for `A | B`, it is intended to be used a [phantom type](http://ktoso.github.io/scala-types-of-types/#phantom-type) to allow the compiler to apply specific constraints on certain methods.
+You, as a library user, needn't worry about this; just read `A | B` as `A or B`.
+As a side note, the implementation is different than the one provided by Miles, referenced in the link above and, dare I say, simpler; it's not based on Curry-Howard isomorphism and doesn't require unicode to type.
+
+You can call `or` multiple times, creating an ever-growing union type. For example `ActorRef[A].or[B].or[C].or[D]` yields `ActorRef[A | B | C | D]`, which just reads `A or B or C or D`. There is no restriction on the length (certainly not at 22), although compile times will suffer for very large union types.
+This solves the first problem, enumerating many types just works naturally. To be fair, this is mainly due to the infix notation. You could write `A Either B Either C` as well, but that's just weird while `A | B | C` comes naturally.
+As mentioned before, `|` is a pure typelevel construct—there is no runtime value, not event a simple wrapper. This fact solves both, the aforementioned second and third issue. Since there is not even a valid runtime representation, there can be no overhead and there is no wrapping required at tellsite.
+Okay, enough theory – lets see union types in action.
+
+#### Union types
+
+First, let's define some unrelated messages. Note that these are not part of a sealed trait hierarchy.
+
+```scala
+case class Foo(foo: String)
+case class Bar(bar: String)
+case class Baz(baz: String)
+case object SomeOtherMessage
+```
+
+Now, let's define an actor that receives all of these messages.
+
+```scala
+class MyActor extends Actor {
+  def receive = {
+    case Foo(foo) => println(s"received a Foo: $foo")
+    case Bar(bar) => println(s"received a Bar: $bar")
+    case Baz(baz) => println(s"received a Baz: $baz")
+  }
+}
+```
+
+Define a `Props` for one of those messages.
+
+```scala
+scala> val props: Props[Foo] = Props[Foo, MyActor]
+props: de.knutwalker.akka.typed.Props[Foo] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
+```
+
+Now just list the other message types using `or`, either on the `Props` or on a created `ActorRef`.
+
+```scala
+scala> val props2: Props[Foo | Bar] = props.or[Bar]
+props2: de.knutwalker.akka.typed.Props[de.knutwalker.akka.typed.|[Foo,Bar]] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
+
+scala> val ref2: ActorRef[Foo | Bar] = ActorOf(props2, name = "my-actor")
+ref2: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[Foo,Bar]] = Actor[akka://foo/user/my-actor#1473410450]
+
+scala> val ref: ActorRef[Foo | Bar | Baz] = ref2.or[Baz]
+ref: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]] = Actor[akka://foo/user/my-actor#1473410450]
+```
+
+Now you can send either one of the messages that are listed in the union type.
+
+```scala
+scala> ref ! Foo("foo")
+received a Foo: foo
+
+scala> ref ! Bar("bar")
+received a Bar: bar
+
+scala> ref ! Baz("baz")
+received a Baz: baz
+```
+
+And if you try to send a message that is not part of the type union, you will get a compile error.
+
+```scala
+scala> ref ! SomeOtherMessage
+<console>:32: error: Cannot prove that message of type SomeOtherMessage.type is a member of ref.Message.
+       ref ! SomeOtherMessage
+           ^
+```
+
+As you can see, there are no wrappers involved. When you send the message, the compiler checks that the message you want to send is part of the union and if this checks succeeds, the compiler will allow the call to `!` (by not failing to compile).
+Since there can be no runtime value of the union type, there is a clear distinction for the dispatch to the check if the message itself is the specified type or a subtype thereof and the check if the message is part of the specified union type.
+
+Union types will return later; for now, the next part is to learn how to interact with the less safer parts of Akka.
 
 
 
@@ -183,9 +315,9 @@ scala> val typedRef = ActorOf[MyMessage](props, name = "my-actor")
 typedRef: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-1040368688]
 ```
 
-#### Autoreceive Messages
+#### Autoreceived Messages
 
-Some messages are automatically handled by some actors and need or can not be provided in the actors type.
+Some messages are automatically handled by some actors and need or cannot be provided in the actors type.
 One example is `PoisonPill`. To sent those kind of messages anyway, use `unsafeTell`.
 
 ```scala
@@ -251,9 +383,9 @@ otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://fo
 
 scala> otherRef ! Foo("foo")
 [DEBUG] received handled message Foo(foo)
+received a Foo: foo
 
 scala> otherRef ! Bar("bar")
-received a Foo: foo
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -345,8 +477,8 @@ otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://fo
 scala> otherRef ! Foo("foo")
 
 scala> otherRef ! Bar("bar")
-[DEBUG] received handled message Foo(foo)
 received a Foo: foo
+[DEBUG] received handled message Foo(foo)
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -398,7 +530,7 @@ defined class MyOtherActor
 ```
 
 Please be aware of a ~~bug~~ feature that wouldn't fail on non-exhaustive checks.
-If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
+If you use guards in your matchers, the complete pattern is optimistically treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
 
 ```scala
 scala> val False = false
@@ -412,10 +544,151 @@ scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
 defined class MyOtherActor
 ```
 
-Unfortunately, this can not be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
+Unfortunately, this cannot be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
 
+#### Working with Union Types
+
+Union typed [before](#union-typed-actors) were declared on an already existing `Props` or `ActorRef` but how can we use union types together with `TypedActor`?
+
+```scala
+case class Foo(foo: String)
+case class Bar(bar: String)
+case class Baz(baz: String)
+case object SomeOtherMessage
+```
+
+(We're shadowing the previous definition of `Foo` and `Bar` here, they are reverted after this chapter).
+
+Since union types are implemented at the type-level, there is no runtime value possible that would allow us to discriminate between those subtypes when running the receive block.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = {
+     |     case Foo(foo) ⇒ println(s"received a Foo: $foo")
+     |     case Bar(bar) ⇒ println(s"received a Bar: $bar")
+     |     case Baz(baz) ⇒ println(s"received a Baz: $baz")
+     |   }
+     | }
+<console>:29: error: constructor cannot be instantiated to expected type;
+ found   : Foo
+ required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
+           case Foo(foo) ⇒ println(s"received a Foo: $foo")
+                ^
+<console>:30: error: constructor cannot be instantiated to expected type;
+ found   : Bar
+ required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
+           case Bar(bar) ⇒ println(s"received a Bar: $bar")
+                ^
+<console>:31: error: constructor cannot be instantiated to expected type;
+ found   : Baz
+ required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
+           case Baz(baz) ⇒ println(s"received a Baz: $baz")
+                ^
+```
+
+We have to do this discrimination at type-level as well. Don't worry, it's less complicated as that sound. As a side note, sum types like `Either` are sometimes referred to as tagged union, the tag being the thing that would help us to discrimite at runtime – our union type is an untagged union instead.
+
+The basics stay the same, you still extends `TypedActor.Of` and implement `typedReceive` but this time using either `Union` or `TotalUnion`. Use `Union` if you only cover some of the union types cases and `TotalUnion` if you want to cover _all_ cases. The compiler can perform exhaustiveness checks on the latter.
+Both methods return a builder-style object that has an `on` method that must be used to enumerate the individual subcases of the union type and you close with a call to `apply`.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+     |     .on[Bar]{ case Bar(bar) ⇒ println(s"received a Bar: $bar") }
+     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     |     .apply
+     | }
+defined class MyActor
+```
+
+You have to provide at least one case, you cannot define an empty behavior.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .apply
+     | }
+<console>:29: error: Cannot prove that de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.Empty =:= de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.NonEmpty.
+           .apply
+            ^
+```
+
+
+If you remove one of those cases it still compiles, since `Union` does not check for exhaustiveness.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     |     .apply
+     | }
+defined class MyActor
+```
+
+If you switch to `TotalUnion` you can see the compiler message telling that something is missing. Unfortunately it doesn't tell you _which_ case is missing exactly, although that might change in the future.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = TotalUnion
+     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     |     .apply
+     | }
+<console>:31: error: Cannot prove that de.knutwalker.akka.typed.|[Foo,Baz] contains the same members as de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz].
+           .apply
+            ^
+```
+
+As you can see, you basically provide a receive block for all relevant subtypes of the union. One such receive block is typed in its input, though you cannot use the `Total` helper as this one is fixed on the complete message type, the union type itself in this case.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .on[Foo](Total { case Foo(foo) ⇒ println(s"received a Foo: $foo") })
+     |     .apply
+     | }
+<console>:29: error: constructor cannot be instantiated to expected type;
+ found   : Foo
+ required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
+           .on[Foo](Total { case Foo(foo) ⇒ println(s"received a Foo: $foo") })
+                                 ^
+```
+
+At any rate, the `Props` and `ActorRef` from this `TypedActor` are union typed as well.
+
+```scala
+scala> val props = PropsFor[MyActor]
+props: de.knutwalker.akka.typed.Props[MyActor#Message] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
+
+scala> val ref = ActorOf(props)
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/$a#442721323]
+
+scala> ref ! Foo("foo")
+[DEBUG] received handled message Foo(foo)
+received a Foo: foo
+
+scala> ref ! Bar("bar")
+[DEBUG] received handled message Bar(bar)
+received a Bar: bar
+
+scala> ref ! Baz("baz")
+[DEBUG] received handled message Baz(baz)
+received a Baz: baz
+```
+
+```scala
+scala> ref ! SomeOtherMessage
+<console>:32: error: Cannot prove that message of type SomeOtherMessage.type is a member of ref.Message.
+       ref ! SomeOtherMessage
+           ^
+```
 
 #### Stateless actor from a total function
+
+
+
 
 The companion object `TypedActor` has an `apply` method that wraps a total function in an actor and returns a prop for this actor.
 
@@ -441,7 +714,7 @@ import scala.reflect.classTag
 
 scala> class MyTypedActor extends TypedActor {
      |   type Message = MyMessage
-     |   
+     | 
      |   def typedReceive = {
      |     case Foo(foo) =>
      |   }
@@ -454,10 +727,10 @@ You can even override the `receive` method, if you have to, using the `untypedFr
 ```scala
 scala> class MyTypedActor extends TypedActor {
      |   type Message = MyMessage
-     |   
+     | 
      |   override def receive =
      |     untypedFromTyped(typedReceive)
-     |   
+     | 
      |   def typedReceive = {
      |     case Foo(foo) =>
      |   }
@@ -496,7 +769,7 @@ defined class TypedPersistentActor
 #### Going back to untyped land
 
 Sometimes you have to receive messages that are outside of your protocol. A typical case is `Terminated`, but other modules and patterns have those messages as well.
-You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go.
+You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go. `Untyped` also works with union types without any special syntax.
 
 
 ```scala
@@ -630,7 +903,7 @@ Using shapeless, we can try to fix this issue.
 The types creator lives in a [separate module](http://search.maven.org/#search%7Cga%7C1%7Cg:%22de.knutwalker%22%20AND%20a:typed-actors-creator*) that you have to include first.
 
 ```scala
-libraryDependencies += "de.knutwalker" %% "typed-actors-creator" % "1.4.0"
+libraryDependencies += "de.knutwalker" %% "typed-actors-creator" % "1.5.0"
 ```
 
 Next, you _have_ to use the [`TypedActor`](#typedactor) trait and you _have_ to make your actor a `case class`.
@@ -686,7 +959,7 @@ scala> Typed[MyActor].create(42)
 
 Hooray, Benefit!
 
-As you can see, shapeless leakes in the error messages, but you can still easily see what parameters are wrong.
+As you can see, shapeless leaks in the error messages, but you can still easily see what parameters are wrong.
 This technique uses whitebox macros under the hood, which means that support from IDEs such as IntelliJ will be meager, so prepare for red, squiggly lines.
 If you open autocomplete on a `Typed[MyActor]`, you won't see the `create` or `props` methods but `createProduct` and `propsProduct`. This is a leaky implementation as well, better just ignore it and type against those IDE errors.
 
@@ -706,14 +979,18 @@ The next bits are about the internals and some good pratices..
 
 Typed Actors are implemented as a type tag, a structural type refinement.
 This is very similar to [`scalaz.@@`](https://github.com/scalaz/scalaz/blob/81e68e845e91b54450a4542b19c1378f06aea861/core/src/main/scala/scalaz/package.scala#L90-L101) and a little bit to [`shapeless.tag.@@`](https://github.com/milessabin/shapeless/blob/6c659d253ba004baf74e20d5d815729552677303/core/src/main/scala/shapeless/typeoperators.scala#L28-L29)
-The message type is put togehter with the surrounding type (`ActorRef` or `Props`) into a special type, that exists only at compile time.
+The message type is put together with the surrounding type (`ActorRef` or `Props`) into a special type, that exists only at compile time.
 It carries enough type information for the compiler reject certain calls to tell while not requiring any wrappers at runtime.
-The actual methods are provided by a implicit ops wrapper that extends AnyVal, so that there is no runtime overhead as well.
+
+The actual methods are provided by an implicit ops wrapper that extends AnyVal, so that there is no runtime overhead as well.
+
+The union type is inspired by shapeless' `HNil` or `Coproduct`. The main differences are: 1) There is no runtime, value-level representation and as such, there is no Inr/Inl/:: constructor, it's just the type `|` (instead of `::` or `:+:` for HList and Coproduct, respectively). 2) It doesn't have an end type, a base case like `HNil` or `CNil`. Other than that, the operations around the union type are similar to what you would write if you'd define a function for an HList: There is a typeclass representing the function and some implicit induction steps that recurse on the type.
+There are some other union type implementations out there, including the one that is offered by shapeless itself but they often just focus on offering membership testing as functionality, while `Typed Actors` also includes a union set comparison to check whether two union types cover the same elements without them being defined in the same order.
 
 #### Good Practices
 
 Typed Actors does not try to prevent you from doing fancy things and shooting yourself in the foot, it rather wants to give you a way so you can help yourself in keeping your sanity.
-That is, you can aways switch between untyped and typed actors, even if the type information is not actually corresponding to the actors implementation. It is up to you to decide how much safety you want to trade in for flexibility.
+That is, you can always switch between untyped and typed actors, even if the type information is not actually corresponding to the actors implementation. It is up to you to decide how much safety you want to trade in for flexibility.
 That being said, you get the most benefit by using the [TypedActor](#typedactor) with the [Typed Creator](#typed-creator) and only on the `typedReceive` and `typedBecome` methods with the `Total` wrapper. Depending on the situation, you can fairly fine-tune the amount of untypedness you want to have.
 
 One other thing that is frequently causing trouble is `sender()`.
@@ -807,18 +1084,20 @@ The `replyTo` pattern is also important in [Akka Typed](http://doc.akka.io/docs/
 
 The [`Akka Typed`](http://doc.akka.io/docs/akka/snapshot/scala/typed.html) project is a module of Akka (as of 2.4) which aims to provide typesafe actors as well.
 Akka typed takes a completely different approach, mirroring most of the untyped API and ultimately offering a completely new API to define your actors behavior. Currently, this implementation sits on top of untyped They are currently actors.
+Let me add that I really like Akka Typed and having worked with it for some time lead me to think about how to bring type safety to the rest of Akka.
 
-This is one important difference to; `Typed Actors` is a possibility to add some compile-time checking while `Akka Typed` is a completely new API.
+`Akka Typed` is not only about a typed `ActorRef[A]`, there's much more that's changed and is reason to use `Akka Typed`, both in general and over `Typed Actors`. It separates the behavior of your actors from its execution model, making them really easy to test; You can just use a synchronous stub execution model and you get to test just the behavior without concerning yourself about the how-to-test-this-async-thingy. The new behavior API is not just a convoluted `PartialFunction[A, Unit]` but allows you to split your behavior into nice little pieces and have them composed together. `Akka Typed`'s getting rid of some old (and bad) habits as well; `sender()` is gone, as are lifecycle methods that have to be overridden, even the `Actor` trait itself is gone. It's messages and behavior all the way down!
 
-`Akka Typed` is better at hiding their untyped implementation, nothing in the public API leads to the fact that something like an untyped actor could even exist.
-They removed `sender()` and, in fact, the whole `Actor` trait. The new `Behavior` API is really nice and gives you a great way to compose and change your behaviour and it really shines in tests, as behaviors can be easily tested in a synchronous fashion, unrelated to the whole actors thing.
+Those are all concerns that `Typed Actor` will never deal with, this is one important difference: `Typed Actors` is a possibility to add some compile-time checking while `Akka Typed` is a completely new API. Understandingly, `Akka Typed` is better at hiding their untyped implementation, nothing in the public API leads to the fact that something like an untyped actor could even exist.
 
 On the other hand, having `Akka Typed` as a separate module means it is difficult to use the typed API with other modules. Most APIs expect an `akka.actor.ActorRef` and you can't get one from a akka-typed actor (well, you can, but it's dirty). This also applies to things like `ActorLogging` and `Stash`.
 `Typed Actors` doesn't try to prevent you from going untyped and as there is no different runtime representation, it can be easily used with all existing akka modules.
-However, if you mix typed/untyped code too much, you run into unhandled messages or even runtime class cast exceptions.
+However, if you mix typed/untyped code too much, you run into unhandled messages or maybe even runtime class cast exceptions or match errors (which ought to be bugs then, really).
+
+`Typed Actors` makes it easy to deal with multiple types of messages, not just one `A` thanks to its [Union type](#union-typed-actors) support. Joining multiple behavior requires them to be of the same type, although you can get far with a little bit of type-fu. Basically, you can take advantage of the covariant nature of `ActorRef[-A]` (in `Typed Actors`, ActorRef is actually invariant) and create phantom intersection types (`A with B`) and upcast at tellsite. It is, however, something different whether you as the library user has to know how to fu or I as the library author know so you don't have to.
 
 Also, `Akka Typed` is concerned with Java interop, which `Typed Actors` is not.
-Nevertheless, `Akka Typed` is a &emdash; in my opinion &emdash; really nice project and its new API is a major improvement over the default `Actor`. The resulting patterns, like `replyTo` are a good idea to use with `Typed Actor`s as well.
+Nevertheless, `Akka Typed` is a – in my opinion – really nice project and its new API is a major improvement over the default `Actor`. The resulting patterns, like `replyTo` are a good idea to use with `Typed Actor`s as well.
 
 That concludes the Usage Guide. I guess the only thing left is to go on hAkking!
 <!--- TUT:END -->
@@ -828,14 +1107,14 @@ That concludes the Usage Guide. I guess the only thing left is to go on hAkking!
 This code is open source software licensed under the Apache 2.0 License.
 
 
-[travis-img]: https://img.shields.io/travis/knutwalker/typed-actors/develop.svg
-[codecov-img]: https://img.shields.io/codecov/c/github/knutwalker/typed-actors/develop.svg
+[ci-img]: https://img.shields.io/travis/knutwalker/typed-actors/master.svg
+[coverage-img]: https://img.shields.io/codecov/c/github/knutwalker/typed-actors/master.svg
 [maven-img]: https://img.shields.io/maven-central/v/de.knutwalker/typed-actors_2.11.svg?label=latest
 [gitter-img]: https://img.shields.io/badge/gitter-Join_Chat-1dce73.svg
 [license-img]: https://img.shields.io/badge/license-APACHE_2-green.svg
 
-[travis]: https://travis-ci.org/knutwalker/typed-actors
-[codecov]: https://codecov.io/github/knutwalker/typed-actors?branch=develop
+[ci]: https://travis-ci.org/knutwalker/typed-actors
+[coverage]: https://codecov.io/github/knutwalker/typed-actors
 [maven]: http://search.maven.org/#search|ga|1|g%3A%22de.knutwalker%22%20AND%20a%3Atyped-actors*_2.11
 [gitter]: https://gitter.im/knutwalker/typed-actors
 [license]: https://www.apache.org/licenses/LICENSE-2.0

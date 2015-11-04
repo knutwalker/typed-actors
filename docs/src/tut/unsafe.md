@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Unsafe Usage
-tut: 02
+tut: 103
 ---
 
 We will reuse the definitions and actors from the [&laquo; Basic Usage](index.html).
@@ -33,9 +33,9 @@ val props = Props[MyMessage, MyActor]
 val typedRef = ActorOf[MyMessage](props, name = "my-actor")
 ```
 
-#### Autoreceive Messages
+#### Autoreceived Messages
 
-Some messages are automatically handled by some actors and need or can not be provided in the actors type.
+Some messages are automatically handled by some actors and need or cannot be provided in the actors type.
 One example is `PoisonPill`. To sent those kind of messages anyway, use `unsafeTell`.
 
 ```tut

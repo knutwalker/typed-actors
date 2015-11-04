@@ -13,12 +13,12 @@ lazy val creator = project dependsOn core settings (
 lazy val tests = project dependsOn (core, creator) settings (
   dontRelease,
   libraryDependencies ++= List(
-    "org.specs2" %% "specs2-core"          % "3.6.4" % "test",
-    "org.specs2" %% "specs2-matcher-extra" % "3.6.4" % "test"))
+    "org.specs2" %% "specs2-core"          % "3.6.5" % "test",
+    "org.specs2" %% "specs2-matcher-extra" % "3.6.5" % "test"))
 
 lazy val examples = project dependsOn (core, creator, tests % "test->test") settings (
   dontRelease,
-  libraryDependencies += akkaPersistence(akkaVersion.value)
+  libraryDependencies += akkaPersistence(akkaActorVersion.value)
 )
 
 lazy val docs = project dependsOn (core, creator) settings (
@@ -27,7 +27,7 @@ lazy val docs = project dependsOn (core, creator) settings (
   site.settings,
   ghpages.settings,
   tutSettings,
-  libraryDependencies += akkaPersistence(akkaVersion.value),
+  libraryDependencies += akkaPersistence(akkaActorVersion.value),
   tutSourceDirectory := sourceDirectory.value / "tut",
   buildReadmeContent := tut.value,
   readmeFile := baseDirectory.value / ".." / "README.md",
@@ -53,4 +53,4 @@ lazy val docs = project dependsOn (core, creator) settings (
 
 lazy val parent = project in file(".") dependsOn (core, creator) aggregate (core, creator, tests, examples) settings dontRelease
 
-addCommandAlias("travis", ";clean;coverage;test;coverageReport;coverageAggregate")
+addCommandAlias("travis", ";clean;coverage;testOnly -- timefactor 3;coverageReport;coverageAggregate")

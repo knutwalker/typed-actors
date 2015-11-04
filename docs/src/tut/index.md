@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Basic Usage
-tut: 01
+tut: 101
 ---
 
 To use **Typed Actors**, import the following:
@@ -81,7 +81,7 @@ ref ! SomeOtherMessage
 #### Ask pattern
 
 Typed actors support the ask pattern, `?`, without imports and the returned Future is properly typed.
-In order to achieve this, instead of sending an already instantiaded type, you send a function that, given the properly typed sender, will return the message.
+In order to achieve this, instead of sending an already instantiated type, you send a function that, given the properly typed sender, will return the message.
 This is usually achieved with a separate parameter list on a case class (message), typically called `replyTo`.
 
 ```tut:silent
@@ -111,9 +111,9 @@ val future = ref ? MyMessage("foo")
 val response = scala.concurrent.Await.result(future, 1.second)
 ```
 
-Next up, learn how to interact with the less safer parts of Akka.
+Next up, learn how to mix multiple unrelated messages into the checked type.
 
-##### [&raquo; Unsafe Usage](unsafe.html)
+##### [&raquo; Union Types](union.html)
 
 
 ```tut:invisible

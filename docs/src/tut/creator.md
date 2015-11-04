@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Typed Creator
-tut: 05
+tut: 106
 ---
 
 ```tut:invisible
@@ -63,7 +63,7 @@ Typed[MyActor].create(42)
 
 Hooray, Benefit!
 
-As you can see, shapeless leakes in the error messages, but you can still easily see what parameters are wrong.
+As you can see, shapeless leaks in the error messages, but you can still easily see what parameters are wrong.
 This technique uses whitebox macros under the hood, which means that support from IDEs such as IntelliJ will be meager, so prepare for red, squiggly lines.
 If you open autocomplete on a `Typed[MyActor]`, you won't see the `create` or `props` methods but `createProduct` and `propsProduct`. This is a leaky implementation as well, better just ignore it and type against those IDE errors.
 

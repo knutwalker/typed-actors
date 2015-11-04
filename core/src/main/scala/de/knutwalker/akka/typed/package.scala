@@ -21,6 +21,7 @@ import _root_.akka.routing.RouterConfig
 import akka.typedactors.AskSupport
 import akka.util.Timeout
 
+import scala.annotation.implicitNotFound
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 
@@ -274,6 +275,13 @@ package object typed {
      */
     def untyped: UntypedProps =
       untag(props)
+
+    /**
+      * Build a union typed Props out of this Props.
+      * The resulting props may accept either `A` or `B` as message.
+      */
+    def or[B]: Props[A | B] =
+      retag(props)
   }
 
   implicit final class ActorRefOps[A](val ref: ActorRef[A]) extends AnyVal {
@@ -330,6 +338,45 @@ package object typed {
      */
     def untyped: UntypedActorRef =
       untag(ref)
+
+    /**
+      * Build a union typed ActorRef out of this ActorRef.
+      * The resulting actor may accept either `A` or `B` as message.
+      */
+    def or[B]: ActorRef[A | B] =
+      retag(ref)
+  }
+
+  implicit final class ActorRefUnionedOps[U <: Union](val ref: ActorRef[U]) extends AnyVal {
+
+    /**
+      * Sends a typed message asynchronously.
+      *
+      * @see [[akka.actor.ActorRef#tell]]
+      */
+    def ![A](msg: A)(implicit ev: A isPartOf U, sender: UntypedActorRef = Actor.noSender): Unit =
+      untag(ref) ! msg
+
+    /**
+      * Ask a typed question asynchronously.
+      * This signature enforces the `replyTo` pattern for keeping type safety.
+      *
+      * Instead of sending a message of `Any` and replying to an untyped `sender()`,
+      * you supply a function that, given a typed sender, will return the message.
+      * This is typically done with a second parameter list of a case class.
+      *
+      * {{{
+      * case class MyMessage(payload: String)(val replyTo: ActorRef[MyResponse])
+      *
+      * class MyActor extends Actor {
+      *   def receive = {
+      *     case m@MyMessage(payload) => m.replyTo ! MyResponse(payload)
+      *   }
+      * }
+      * }}}
+      */
+    def ?[A, B](f: ActorRef[B] ⇒ A)(implicit ev: A isPartOf U, timeout: Timeout, ctA: ClassTag[A], sender: UntypedActorRef = Actor.noSender): Future[B] =
+      AskSupport.ask[A, B](retag(ref), f, timeout, ctA, sender)
   }
 
   implicit final class UntypedPropsOps(val untyped: UntypedProps) extends AnyVal {
@@ -366,4 +413,76 @@ package object typed {
 
   @inline private[typed] def untag[A, T](t: Tagged[A, T]): A =
     t.asInstanceOf[A]
+
+  @inline private[this] def retag[A, B, T](a: Tagged[T, A]): Tagged[T, B] =
+    a.asInstanceOf[Tagged[T, B]]
+}
+
+/**
+ * Everything in here is is considered an INTERNAL API!
+ *
+ * Union type implementation follows. The only thing concerning the user is the
+ * `|` type which should be fairly self explanatory. The rest are type classes
+ * and provers to implement the type-level constraints for the union types.
+ */
+package typed {
+
+  sealed trait Union
+  sealed trait |[+A, +B] extends Union
+
+  @implicitNotFound("Cannot prove that ${A} is a union type.")
+  sealed trait IsUnion[-A] {
+    type Out <: Union
+  }
+
+  object IsUnion {
+    type Aux[-A0, U0 <: Union] = IsUnion[A0] { type Out = U0 }
+    implicit def isUnion[A <: Union]: Aux[A, A] =
+      new IsUnion[A] {
+        type Out = A
+      }
+  }
+
+  @implicitNotFound("Cannot prove that message of type ${A} is a member of ${U}.")
+  sealed trait isPartOf[A, U <: Union]
+  object isPartOf extends IsPartOf0 {
+    implicit def leftPart[A, ∅](implicit ev: A isNotA Union): isPartOf[A, A | ∅] =
+      null
+  }
+  sealed trait IsPartOf0 extends IsPartOf1 {
+    implicit def rightPart[∅, B](implicit ev: B isNotA Union): isPartOf[B, ∅ | B] =
+      null
+  }
+  sealed trait IsPartOf1 {
+    implicit def tailPart[H, A, T <: Union](implicit partOfTl: A isPartOf T): isPartOf[A, T | H] =
+      null
+  }
+
+  @implicitNotFound("Cannot prove that ${U} contains some members of ${T}.")
+  sealed trait containsSomeOf[U <: Union, T <: Union]
+  object containsSomeOf extends ContainsSomeOf0 {
+    implicit def tailPart0[A, B, T <: Union](implicit evA: A isPartOf T, evB: B isPartOf T): containsSomeOf[A | B, T] =
+      null
+  }
+  sealed trait ContainsSomeOf0 {
+    implicit def tailPart1[A, U <: Union, T <: Union](implicit ev: A isPartOf T, tailAligns: U containsSomeOf T): containsSomeOf[U | A, T] =
+      null
+  }
+
+  @implicitNotFound("Cannot prove that ${U} contains the same members as ${T}.")
+  sealed trait containsAllOf[U <: Union, T <: Union]
+  object containsAllOf {
+    implicit def uContainsAllOfT[U <: Union, T <: Union](implicit evA: U containsSomeOf T, evB: T containsSomeOf U): containsAllOf[U, T] =
+      null
+  }
+
+  // @annotation.implicitAmbiguous("${A} must not be <: ${B}")
+  sealed trait isNotA[A, B]
+  object isNotA {
+    implicit def nsub[A, B]: A isNotA B = null
+    // $COVERAGE-OFF$
+    implicit def nsubAmbig1[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
+    implicit def nsubAmbig2[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
+    // $COVERAGE-ON$
+  }
 }

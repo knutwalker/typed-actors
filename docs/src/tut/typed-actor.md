@@ -1,7 +1,7 @@
 ---
 layout: page
 title: TypedActor
-tut: 03
+tut: 104
 ---
 
 We will reuse the definitions and actors from the [&laquo; Unsafe Usage](unsafe.html).
@@ -112,7 +112,7 @@ class MyOtherActor extends TypedActor.Of[MyMessage] {
 ```
 
 Please be aware of a ~~bug~~ feature that wouldn't fail on non-exhaustive checks.
-If you use guards in your matchers, the complete pattern is optimisiticaly treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
+If you use guards in your matchers, the complete pattern is optimistically treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
 
 ```tut
 val False = false
@@ -123,10 +123,112 @@ class MyOtherActor extends TypedActor.Of[MyMessage] {
 }
 ```
 
-Unfortunately, this can not be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
+Unfortunately, this cannot be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
 
+#### Working with Union Types
+
+Union typed [before](union.html) were declared on an already existing `Props` or `ActorRef` but how can we use union types together with `TypedActor`?
+
+```tut:silent
+case class Foo(foo: String)
+case class Bar(bar: String)
+case class Baz(baz: String)
+case object SomeOtherMessage
+```
+
+(We're shadowing the previous definition of `Foo` and `Bar` here, they are reverted after this chapter).
+
+Since union types are implemented at the type-level, there is no runtime value possible that would allow us to discriminate between those subtypes when running the receive block.
+
+```tut:fail
+class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+  def typedReceive: TypedReceive = {
+    case Foo(foo) ⇒ println(s"received a Foo: $foo")
+    case Bar(bar) ⇒ println(s"received a Bar: $bar")
+    case Baz(baz) ⇒ println(s"received a Baz: $baz")
+  }
+}
+```
+
+We have to do this discrimination at type-level as well. Don't worry, it's less complicated as that sound. As a side note, sum types like `Either` are sometimes referred to as tagged union, the tag being the thing that would help us to discrimite at runtime – our union type is an untagged union instead.
+
+The basics stay the same, you still extends `TypedActor.Of` and implement `typedReceive` but this time using either `Union` or `TotalUnion`. Use `Union` if you only cover some of the union types cases and `TotalUnion` if you want to cover _all_ cases. The compiler can perform exhaustiveness checks on the latter.
+Both methods return a builder-style object that has an `on` method that must be used to enumerate the individual subcases of the union type and you close with a call to `apply`.
+
+```tut
+class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+  def typedReceive: TypedReceive = Union
+    .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+    .on[Bar]{ case Bar(bar) ⇒ println(s"received a Bar: $bar") }
+    .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+    .apply
+}
+```
+
+You have to provide at least one case, you cannot define an empty behavior.
+
+```tut:fail
+class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+  def typedReceive: TypedReceive = Union
+    .apply
+}
+```
+
+
+If you remove one of those cases it still compiles, since `Union` does not check for exhaustiveness.
+
+```tut
+class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+  def typedReceive: TypedReceive = Union
+    .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+    .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+    .apply
+}
+```
+
+If you switch to `TotalUnion` you can see the compiler message telling that something is missing. Unfortunately it doesn't tell you _which_ case is missing exactly, although that might change in the future.
+
+```tut:fail
+class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+  def typedReceive: TypedReceive = TotalUnion
+    .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+    .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+    .apply
+}
+```
+
+As you can see, you basically provide a receive block for all relevant subtypes of the union. One such receive block is typed in its input, though you cannot use the `Total` helper as this one is fixed on the complete message type, the union type itself in this case.
+
+```tut:fail
+class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+  def typedReceive: TypedReceive = Union
+    .on[Foo](Total { case Foo(foo) ⇒ println(s"received a Foo: $foo") })
+    .apply
+}
+```
+
+At any rate, the `Props` and `ActorRef` from this `TypedActor` are union typed as well.
+
+```tut
+val props = PropsFor[MyActor]
+val ref = ActorOf(props)
+
+ref ! Foo("foo")
+ref ! Bar("bar")
+ref ! Baz("baz")
+```
+
+```tut:fail
+ref ! SomeOtherMessage
+```
 
 #### Stateless actor from a total function
+
+```tut:invisible
+sealed trait MyMessage
+case class Foo(foo: String) extends MyMessage
+case class Bar(bar: String) extends MyMessage
+```
 
 The companion object `TypedActor` has an `apply` method that wraps a total function in an actor and returns a prop for this actor.
 
@@ -149,7 +251,7 @@ For normal use-case, extending `TypedActor.Of[_]` is encouraged.
 import scala.reflect.classTag
 class MyTypedActor extends TypedActor {
   type Message = MyMessage
-  
+
   def typedReceive = {
     case Foo(foo) =>
   }
@@ -161,10 +263,10 @@ You can even override the `receive` method, if you have to, using the `untypedFr
 ```tut
 class MyTypedActor extends TypedActor {
   type Message = MyMessage
-  
+
   override def receive =
     untypedFromTyped(typedReceive)
-  
+
   def typedReceive = {
     case Foo(foo) =>
   }
@@ -200,7 +302,7 @@ class TypedPersistentActor extends TypedActor with PersistentActor with ActorLog
 #### Going back to untyped land
 
 Sometimes you have to receive messages that are outside of your protocol. A typical case is `Terminated`, but other modules and patterns have those messages as well.
-You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go.
+You can use `Untyped` to specify a regular untyped receive block, just as if `receive` were actually the way to go. `Untyped` also works with union types without any special syntax.
 
 
 ```tut
