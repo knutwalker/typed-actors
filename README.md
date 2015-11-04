@@ -14,8 +14,8 @@ The first version available for Akka 2.4 is `1.4.0`.
 <!--- TUT:START -->
 ```scala
 libraryDependencies ++= List(
-  "de.knutwalker" %% "typed-actors" % "1.4.0",
-  "de.knutwalker" %% "typed-actors-creator" % "1.4.0"
+  "de.knutwalker" %% "typed-actors" % "1.5.0",
+  "de.knutwalker" %% "typed-actors-creator" % "1.5.0"
 )
 ```
 
@@ -383,9 +383,9 @@ otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://fo
 
 scala> otherRef ! Foo("foo")
 [DEBUG] received handled message Foo(foo)
+received a Foo: foo
 
 scala> otherRef ! Bar("bar")
-received a Foo: foo
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -477,8 +477,8 @@ otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://fo
 scala> otherRef ! Foo("foo")
 
 scala> otherRef ! Bar("bar")
-[DEBUG] received handled message Foo(foo)
 received a Foo: foo
+[DEBUG] received handled message Foo(foo)
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -639,29 +639,6 @@ scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
 <console>:31: error: Cannot prove that de.knutwalker.akka.typed.|[Foo,Baz] contains the same members as de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz].
            .apply
             ^
-```
-
-You can even leave out the call to `apply`.
-
-```scala
-scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
-     |   def typedReceive: TypedReceive = Union
-     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
-     | }
-defined class MyActor
-```
-
-Which is true for `TotalUnion` as well.
-
-```scala
-scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
-     |   def typedReceive: TypedReceive = TotalUnion
-     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-     |     .on[Bar]{ case Bar(bar) ⇒ println(s"received a Bar: $bar") }
-     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
-     | }
-defined class MyActor
 ```
 
 As you can see, you basically provide a receive block for all relevant subtypes of the union. One such receive block is typed in its input, though you cannot use the `Total` helper as this one is fixed on the complete message type, the union type itself in this case.
@@ -926,7 +903,7 @@ Using shapeless, we can try to fix this issue.
 The types creator lives in a [separate module](http://search.maven.org/#search%7Cga%7C1%7Cg:%22de.knutwalker%22%20AND%20a:typed-actors-creator*) that you have to include first.
 
 ```scala
-libraryDependencies += "de.knutwalker" %% "typed-actors-creator" % "1.4.0"
+libraryDependencies += "de.knutwalker" %% "typed-actors-creator" % "1.5.0"
 ```
 
 Next, you _have_ to use the [`TypedActor`](#typedactor) trait and you _have_ to make your actor a `case class`.
@@ -1004,7 +981,11 @@ Typed Actors are implemented as a type tag, a structural type refinement.
 This is very similar to [`scalaz.@@`](https://github.com/scalaz/scalaz/blob/81e68e845e91b54450a4542b19c1378f06aea861/core/src/main/scala/scalaz/package.scala#L90-L101) and a little bit to [`shapeless.tag.@@`](https://github.com/milessabin/shapeless/blob/6c659d253ba004baf74e20d5d815729552677303/core/src/main/scala/shapeless/typeoperators.scala#L28-L29)
 The message type is put together with the surrounding type (`ActorRef` or `Props`) into a special type, that exists only at compile time.
 It carries enough type information for the compiler reject certain calls to tell while not requiring any wrappers at runtime.
+
 The actual methods are provided by an implicit ops wrapper that extends AnyVal, so that there is no runtime overhead as well.
+
+The union type is inspired by shapeless' `HNil` or `Coproduct`. The main differences are: 1) There is no runtime, value-level representation and as such, there is no Inr/Inl/:: constructor, it's just the type `|` (instead of `::` or `:+:` for HList and Coproduct, respectively). 2) It doesn't have an end type, a base case like `HNil` or `CNil`. Other than that, the operations around the union type are similar to what you would write if you'd define a function for an HList: There is a typeclass representing the function and some implicit induction steps that recurse on the type.
+There are some other union type implementations out there, including the one that is offered by shapeless itself but they often just focus on offering membership testing as functionality, while `Typed Actors` also includes a union set comparison to check whether two union types cover the same elements without them being defined in the same order.
 
 #### Good Practices
 
