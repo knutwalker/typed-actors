@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>TypedActor - typed-actors 1.4.0 - de.knutwalker.akka.typed.TypedActor</title>
-          <meta name="description" content="TypedActor - typed - actors 1.4.0 - de.knutwalker.akka.typed.TypedActor" />
-          <meta name="keywords" content="TypedActor typed actors 1.4.0 de.knutwalker.akka.typed.TypedActor" />
+          <title>TypedActor - typed-actors 1.5.0 - de.knutwalker.akka.typed.TypedActor</title>
+          <meta name="description" content="TypedActor - typed - actors 1.5.0 - de.knutwalker.akka.typed.TypedActor" />
+          <meta name="keywords" content="TypedActor typed actors 1.5.0 de.knutwalker.akka.typed.TypedActor" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -92,7 +92,84 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="de.knutwalker.akka.typed.TypedActor.Of" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+              <ol><li name="de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="MkPartialUnionReceive[U&lt;:de.knutwalker.akka.typed.Union,S&lt;:de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.State]extendsAnyVal"></a>
+      <a id="MkPartialUnionReceive[U&lt;:Union,S&lt;:State]:MkPartialUnionReceive[U,S]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="TypedActor$$MkPartialUnionReceive.html"><span class="name">MkPartialUnionReceive</span></a><span class="tparams">[<span name="U">U &lt;: <a href="Union.html" class="extype" name="de.knutwalker.akka.typed.Union">Union</a></span>, <span name="S">S &lt;: <a href="TypedActor$$MkPartialUnionReceive$$State.html" class="extype" name="de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.State">State</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@MkPartialUnionReceive[U&lt;:de.knutwalker.akka.typed.Union,S&lt;:de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.State]extendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Builder API for creating total union matchers.</p><div class="fullcomment"><div class="comment cmt"><p>Builder API for creating total union matchers.
+</p></div><dl class="paramcmts block"><dt class="tparam">U</dt><dd class="cmt"><p>the union type that provided the possible sub cases</p></dd><dt class="tparam">S</dt><dd class="cmt"><p>phantom type to ensure at least one case is provided</p></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="TypedActor.html#Union(implicitev:de.knutwalker.akka.typed.IsUnion[TypedActor.this.Message]):de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive[ev.Out,de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.Empty]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#Union">TypedActor.Union</a></p></span></dd></dl></div>
+    </li><li name="de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceive" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="MkTotalUnionReceive[U&lt;:de.knutwalker.akka.typed.Union,T&lt;:de.knutwalker.akka.typed.Union]extendsAnyRef"></a>
+      <a id="MkTotalUnionReceive[U&lt;:Union,T&lt;:Union]:MkTotalUnionReceive[U,T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="TypedActor$$MkTotalUnionReceive.html"><span class="name">MkTotalUnionReceive</span></a><span class="tparams">[<span name="U">U &lt;: <a href="Union.html" class="extype" name="de.knutwalker.akka.typed.Union">Union</a></span>, <span name="T">T &lt;: <a href="Union.html" class="extype" name="de.knutwalker.akka.typed.Union">Union</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@MkTotalUnionReceive[U&lt;:de.knutwalker.akka.typed.Union,T&lt;:de.knutwalker.akka.typed.Union]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Builder API for creating total union matchers.</p><div class="fullcomment"><div class="comment cmt"><p>Builder API for creating total union matchers.
+This is the final step, when a covered union is given.
+Cannot be an <code>AnyVal</code> as this would expose the final receive function.
+</p></div><dl class="paramcmts block"><dt class="tparam">U</dt><dd class="cmt"><p>the union type that provided the possible sub cases</p></dd><dt class="tparam">T</dt><dd class="cmt"><p>the union type of all the alrady given cases</p></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="TypedActor.html#TotalUnion(implicitev:de.knutwalker.akka.typed.IsUnion[TypedActor.this.Message]):de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveEmpty[ev.Out]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#TotalUnion">TypedActor.TotalUnion</a></p></span></dd></dl></div>
+    </li><li name="de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveEmpty" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="MkTotalUnionReceiveEmpty[U&lt;:de.knutwalker.akka.typed.Union]extendsAnyVal"></a>
+      <a id="MkTotalUnionReceiveEmpty[U&lt;:Union]:MkTotalUnionReceiveEmpty[U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="TypedActor$$MkTotalUnionReceiveEmpty.html"><span class="name">MkTotalUnionReceiveEmpty</span></a><span class="tparams">[<span name="U">U &lt;: <a href="Union.html" class="extype" name="de.knutwalker.akka.typed.Union">Union</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@MkTotalUnionReceiveEmpty[U&lt;:de.knutwalker.akka.typed.Union]extendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Builder API for creating total union matchers.</p><div class="fullcomment"><div class="comment cmt"><p>Builder API for creating total union matchers.
+This is step 1 when no sub case was given.
+</p></div><dl class="paramcmts block"><dt class="tparam">U</dt><dd class="cmt"><p>the union type that provided the possible sub cases</p></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="TypedActor.html#TotalUnion(implicitev:de.knutwalker.akka.typed.IsUnion[TypedActor.this.Message]):de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveEmpty[ev.Out]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#TotalUnion">TypedActor.TotalUnion</a></p></span></dd></dl></div>
+    </li><li name="de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveHalfEmpty" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="MkTotalUnionReceiveHalfEmpty[U&lt;:de.knutwalker.akka.typed.Union,B]extendsAnyRef"></a>
+      <a id="MkTotalUnionReceiveHalfEmpty[U&lt;:Union,B]:MkTotalUnionReceiveHalfEmpty[U,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="TypedActor$$MkTotalUnionReceiveHalfEmpty.html"><span class="name">MkTotalUnionReceiveHalfEmpty</span></a><span class="tparams">[<span name="U">U &lt;: <a href="Union.html" class="extype" name="de.knutwalker.akka.typed.Union">Union</a></span>, <span name="B">B</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@MkTotalUnionReceiveHalfEmpty[U&lt;:de.knutwalker.akka.typed.Union,B]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Builder API for creating total union matchers.</p><div class="fullcomment"><div class="comment cmt"><p>Builder API for creating total union matchers.
+This is step 2 when the first sub case was given.
+Cannot be an <code>AnyVal</code> as this would expose the final receive function.
+</p></div><dl class="paramcmts block"><dt class="tparam">U</dt><dd class="cmt"><p>the union type that provided the possible sub cases</p></dd><dt class="tparam">B</dt><dd class="cmt"><p>the type of the first sub case</p></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="TypedActor.html#TotalUnion(implicitev:de.knutwalker.akka.typed.IsUnion[TypedActor.this.Message]):de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveEmpty[ev.Out]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#TotalUnion">TypedActor.TotalUnion</a></p></span></dd></dl></div>
+    </li><li name="de.knutwalker.akka.typed.TypedActor.Of" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="Of[A]extendsTypedActor"></a>
       <a id="Of[A]:Of[A]"></a>
       <h4 class="signature">
@@ -171,8 +248,25 @@ you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MkPartialUnionReceive"></a>
+      <a id="MkPartialUnionReceive:MkPartialUnionReceive"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TypedActor$$MkPartialUnionReceive$.html"><span class="name">MkPartialUnionReceive</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@MkPartialUnionReceive" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="de.knutwalker.akka.typed.TypedActor#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply[A](f:A=&gt;Unit)(implicitevidence$2:scala.reflect.ClassTag[A]):de.knutwalker.akka.typed.Props[A]"></a>
+      <a id="apply[A](f:A=&gt;Unit)(implicitevidence$1:scala.reflect.ClassTag[A]):de.knutwalker.akka.typed.Props[A]"></a>
       <a id="apply[A]((A)⇒Unit)(ClassTag[A]):Props[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -183,7 +277,7 @@ you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.
         <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="de.knutwalker.akka.typed.TypedActor.apply.A">A</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="de.knutwalker.akka.typed.TypedActor.apply.A">A</span>]</span>)</span><span class="result">: <a href="package.html#Props[A]=de.knutwalker.akka.typed.package.Tagged[de.knutwalker.akka.typed.package.UntypedProps,A]" class="extmbr" name="de.knutwalker.akka.typed.Props">Props</a>[<span class="extype" name="de.knutwalker.akka.typed.TypedActor.apply.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@apply[A](f:A=&gt;Unit)(implicitevidence$2:scala.reflect.ClassTag[A]):de.knutwalker.akka.typed.Props[A]" title="Permalink" target="_top">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@apply[A](f:A=&gt;Unit)(implicitevidence$1:scala.reflect.ClassTag[A]):de.knutwalker.akka.typed.Props[A]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

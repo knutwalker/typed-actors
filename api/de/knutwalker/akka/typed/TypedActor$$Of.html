@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>Of - typed-actors 1.4.0 - de.knutwalker.akka.typed.TypedActor.Of</title>
-          <meta name="description" content="Of - typed - actors 1.4.0 - de.knutwalker.akka.typed.TypedActor.Of" />
-          <meta name="keywords" content="Of typed actors 1.4.0 de.knutwalker.akka.typed.TypedActor.Of" />
+          <title>Of - typed-actors 1.5.0 - de.knutwalker.akka.typed.TypedActor.Of</title>
+          <meta name="description" content="Of - typed - actors 1.5.0 - de.knutwalker.akka.typed.TypedActor.Of" />
+          <meta name="keywords" content="Of typed actors 1.5.0 de.knutwalker.akka.typed.TypedActor.Of" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -97,7 +97,7 @@ you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="de.knutwalker.akka.typed.TypedActor.Of#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;()(implicitevidence$1:scala.reflect.ClassTag[A]):de.knutwalker.akka.typed.TypedActor.Of[A]"></a>
+      <a id="&lt;init&gt;():de.knutwalker.akka.typed.TypedActor.Of[A]"></a>
       <a id="&lt;init&gt;:Of[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -105,10 +105,10 @@ you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Of</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="de.knutwalker.akka.typed.TypedActor.Of.A">A</span>]</span>)</span>
+        <span class="name">Of</span><span class="params">()</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$$Of@&lt;init&gt;()(implicitevidence$1:scala.reflect.ClassTag[A]):de.knutwalker.akka.typed.TypedActor.Of[A]" title="Permalink" target="_top">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$$Of@&lt;init&gt;():de.knutwalker.akka.typed.TypedActor.Of[A]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -270,6 +270,55 @@ Use this to get exhaustiveness checking for your receive block.</p><pre><span cl
 <span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypedActor.Of[<span class="std">Option</span>[<span class="std">String</span>]] {
   <span class="kw">def</span> typedReceive: TypedReceive = Total {
     <span class="kw">case</span> <span class="std">Some</span>(<span class="lit">"foo"</span>) ⇒
+  }
+}</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a></dd></dl></div>
+    </li><li name="de.knutwalker.akka.typed.TypedActor#TotalUnion" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TotalUnion(implicitev:de.knutwalker.akka.typed.IsUnion[TypedActor.this.Message]):de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveEmpty[ev.Out]"></a>
+      <a id="TotalUnion(IsUnion[Message]):MkTotalUnionReceiveEmpty[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TotalUnion</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="IsUnion.html" class="extype" name="de.knutwalker.akka.typed.IsUnion">IsUnion</a>[<a href="#Message=A" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.Of.Message">Message</a>]</span>)</span><span class="result">: <a href="TypedActor$$MkTotalUnionReceiveEmpty.html" class="extype" name="de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveEmpty">MkTotalUnionReceiveEmpty</a>[<a href="IsUnion.html#Out&lt;:de.knutwalker.akka.typed.Union" class="extmbr" name="de.knutwalker.akka.typed.IsUnion.Out">Out</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$$Of@TotalUnion(implicitev:de.knutwalker.akka.typed.IsUnion[TypedActor.this.Message]):de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveEmpty[ev.Out]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Builds final receive out of sub-receives if this TypedActor is for a Union message type.</p><div class="fullcomment"><div class="comment cmt"><p>Builds final receive out of sub-receives if this TypedActor is for a Union message type.
+This mirrors a <a href="TypedActor.html#Total(f:TypedActor.this.Message=&gt;Unit)(implicitct:scala.reflect.ClassTag[TypedActor.this.Message]):TypedActor.this.TypedReceive" class="extmbr" name="de.knutwalker.akka.typed.TypedActor#Total">Total</a> receive, i.e. you must provide all cases.</p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypedActor.Of[Foo | Bar | Baz] {
+  <span class="kw">def</span> typedReceive: TypedReceive = TotalUnion
+    .on[Foo]{ <span class="kw">case</span> Foo() <span class="kw">=&gt;</span> println(<span class="lit">"foo"</span>) }
+    .on[Bar]{ <span class="kw">case</span> Bar() <span class="kw">=&gt;</span> println(<span class="lit">"bar"</span>) }
+    .on[Bax]{ <span class="kw">case</span> Bax() <span class="kw">=&gt;</span> println(<span class="lit">"bax"</span>) }
+    .apply
+  }
+}</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a></dd></dl></div>
+    </li><li name="de.knutwalker.akka.typed.TypedActor#Union" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Union(implicitev:de.knutwalker.akka.typed.IsUnion[TypedActor.this.Message]):de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive[ev.Out,de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.Empty]"></a>
+      <a id="Union(IsUnion[Message]):MkPartialUnionReceive[Out,Empty]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Union</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="IsUnion.html" class="extype" name="de.knutwalker.akka.typed.IsUnion">IsUnion</a>[<a href="#Message=A" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.Of.Message">Message</a>]</span>)</span><span class="result">: <a href="TypedActor$$MkPartialUnionReceive.html" class="extype" name="de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive">MkPartialUnionReceive</a>[<a href="IsUnion.html#Out&lt;:de.knutwalker.akka.typed.Union" class="extmbr" name="de.knutwalker.akka.typed.IsUnion.Out">Out</a>, <a href="TypedActor$$MkPartialUnionReceive$$Empty.html" class="extype" name="de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.Empty">Empty</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$$Of@Union(implicitev:de.knutwalker.akka.typed.IsUnion[TypedActor.this.Message]):de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive[ev.Out,de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.Empty]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Builds final receive out of sub-receives if this TypedActor is for a Union message type.</p><div class="fullcomment"><div class="comment cmt"><p>Builds final receive out of sub-receives if this TypedActor is for a Union message type.
+This mirrors a <a href="TypedActor.html#TypedReceive=PartialFunction[TypedActor.this.Message,Unit]" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.TypedReceive">TypedReceive</a>, i.e. you must not cover all cases.</p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypedActor.Of[Foo | Bar | Baz] {
+  <span class="kw">def</span> typedReceive: TypedReceive = Union
+    .on[Foo]{ <span class="kw">case</span> Foo() <span class="kw">=&gt;</span> println(<span class="lit">"foo"</span>) }
+    .on[Bar]{ <span class="kw">case</span> Bar() <span class="kw">=&gt;</span> println(<span class="lit">"bar"</span>) }
+    .apply
   }
 }</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TypedActor.html" class="extype" name="de.knutwalker.akka.typed.TypedActor">TypedActor</a></dd></dl></div>
     </li><li name="de.knutwalker.akka.typed.TypedActor#Untyped" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">

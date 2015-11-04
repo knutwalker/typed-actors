@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Typed Creator
-tut: 05
+tut: 06
 ---
 
 
@@ -42,10 +42,10 @@ scala> Typed[MyActor].props("Bernd")
 res0: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class akka.actor.TypedCreatorFunctionConsumer,List(class MyActor, <function0>))
 
 scala> Typed[MyActor].create("Bernd")
-res1: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-1028727995]
+res1: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#405662147]
 
 scala> ActorOf(Typed[MyActor].props("Bernd"), "typed-bernd")
-res2: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/typed-bernd#1106139770]
+res2: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/typed-bernd#-419002911]
 ```
 
 Wrong invocations are greeted with a compile error instead of a runtime error!
@@ -75,7 +75,7 @@ scala> Typed[MyActor].create(42)
 
 Hooray, Benefit!
 
-As you can see, shapeless leakes in the error messages, but you can still easily see what parameters are wrong.
+As you can see, shapeless leaks in the error messages, but you can still easily see what parameters are wrong.
 This technique uses whitebox macros under the hood, which means that support from IDEs such as IntelliJ will be meager, so prepare for red, squiggly lines.
 If you open autocomplete on a `Typed[MyActor]`, you won't see the `create` or `props` methods but `createProduct` and `propsProduct`. This is a leaky implementation as well, better just ignore it and type against those IDE errors.
 

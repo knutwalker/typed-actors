@@ -55,7 +55,7 @@ scala> val props = Props[MyMessage, MyActor]
 props: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref = ActorOf(props, name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#1450547208]
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#2040626276]
 ```
 
 This will give you an `ActorRef[MyMessage]`.
@@ -100,7 +100,7 @@ scala> ref ! SomeOtherMessage
 #### Ask pattern
 
 Typed actors support the ask pattern, `?`, without imports and the returned Future is properly typed.
-In order to achieve this, instead of sending an already instantiaded type, you send a function that, given the properly typed sender, will return the message.
+In order to achieve this, instead of sending an already instantiated type, you send a function that, given the properly typed sender, will return the message.
 This is usually achieved with a separate parameter list on a case class (message), typically called `replyTo`.
 
 ```scala
@@ -126,18 +126,18 @@ implicit val timeout: Timeout = 1.second
 
 ```scala
 scala> val ref = ActorOf(Props[MyMessage, MyActor])
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#498387814]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#1900676816]
 
 scala> val future = ref ? MyMessage("foo")
-future: scala.concurrent.Future[MyResponse] = scala.concurrent.impl.Promise$DefaultPromise@3a9ae9c1
+future: scala.concurrent.Future[MyResponse] = scala.concurrent.impl.Promise$DefaultPromise@7c04d0f8
 
 scala> val response = scala.concurrent.Await.result(future, 1.second)
 response: MyResponse = MyResponse(foo)
 ```
 
-Next up, learn how to interact with the less safer parts of Akka.
+Next up, learn how to mix multiple unrelated messages into the checked type.
 
-##### [&raquo; Unsafe Usage](unsafe.html)
+##### [&raquo; Union Types](union.html)
 
 
 
