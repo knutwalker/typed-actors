@@ -16,10 +16,10 @@
 
 package de.knutwalker.akka.typed
 
-import _root_.akka.actor.Actor
+import _root_.akka.actor.{ ActorContext, Actor }
 import _root_.akka.event.LoggingReceive
 import akka.actor.Actor.Receive
-import de.knutwalker.akka.typed.TypedActor.{ MkTotalUnionReceiveEmpty, MkPartialUnionReceive, Downcast, TypedReceiver }
+import de.knutwalker.akka.typed.TypedActor.{ TypedBecomeOnAux, MkTotalUnionReceiveEmpty, MkPartialUnionReceive, Downcast, TypedReceiver }
 
 import scala.reflect.ClassTag
 
@@ -70,6 +70,10 @@ trait TypedActor extends Actor {
   /** Typed variant of `context.become`. */
   final def typedBecome(f: TypedReceive): Unit =
     context become untypedFromTyped(f)
+
+  /** `context.become` for a given subtype if this actor is of a union type. */
+  final def unionBecome(implicit ev: IsUnion[Message]): TypedBecomeOnAux[ev.Out] =
+    new TypedBecomeOnAux[ev.Out](context)
 
   /**
    * Wraps a total receiver function and returns it as a [[TypedReceive]].
@@ -266,6 +270,18 @@ object TypedActor {
     /** Returns the final receive function */
     implicit def apply(implicit ev: T containsAllOf U): PartialFunction[U, Unit] =
       finalPf
+  }
+
+  /** Helper to define a new become behavior for a union sub type */
+  final class TypedBecomeOnAux[U <: Union] private[TypedActor] (val context: ActorContext) extends AnyVal {
+
+    /** become this new partial behavior */
+    def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): Unit =
+      context become LoggingReceive(new TypedReceiver(f))(context)
+
+    /** become this new total behavior */
+    def total[A](f: A ⇒ Unit)(implicit ev: A isPartOf U, ct: ClassTag[A]): Unit =
+      on[A](new Downcast[A](ct.runtimeClass.asInstanceOf[Class[A]])(f))
   }
 
   private class Downcast[A](cls: Class[A])(f: A ⇒ Unit) extends Receive {
