@@ -243,6 +243,28 @@ ref ! Baz("baz")
 ref ! SomeOtherMessage
 ```
 
+
+If you want to `context.become` with a union type there are some options.
+
+1. You can use the `Union`/`TotalUnion` helper as described earlier.
+2. You can use `unionBecome` if you only want to cover _one_ particular case.
+   It is a shortcut for `typedBecome(Union.on[Msg]{ case ... }.apply)`
+
+
+```tut
+class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+  def typedReceive: TypedReceive = Union
+    .on[Foo]{
+       case Foo(foo) =>
+       unionBecome.on[Bar] {
+         case Bar(bar) => println(s"received a Boo: $bar")
+       }
+    }
+    .apply
+}
+```
+
+
 #### Stateless actor from a total function
 
 ```tut:invisible
