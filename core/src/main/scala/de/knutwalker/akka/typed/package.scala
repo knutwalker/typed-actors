@@ -377,6 +377,10 @@ package object typed {
       */
     def ?[A, B](f: ActorRef[B] ⇒ A)(implicit ev: A isPartOf U, timeout: Timeout, ctA: ClassTag[A], sender: UntypedActorRef = Actor.noSender): Future[B] =
       AskSupport.ask[A, B](retag(ref), f, timeout, ctA, sender)
+
+    /** Returns an ActorRef that only handles a subpart of the given union type. */
+    def only[A](implicit ev: A isPartOf U): ActorRef[A] =
+      retag(ref)
   }
 
   implicit final class UntypedPropsOps(val untyped: UntypedProps) extends AnyVal {

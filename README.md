@@ -296,6 +296,29 @@ scala> ref ! SomeOtherMessage
 As you can see, there are no wrappers involved. When you send the message, the compiler checks that the message you want to send is part of the union and if this checks succeeds, the compiler will allow the call to `!` (by not failing to compile).
 Since there can be no runtime value of the union type, there is a clear distinction for the dispatch to the check if the message itself is the specified type or a subtype thereof and the check if the message is part of the specified union type.
 
+You can turn an actor that accepts an union type into of its subcases with `only`:
+
+```scala
+scala> ref.only[Foo]
+res4: de.knutwalker.akka.typed.package.ActorRef[Foo] = Actor[akka://foo/user/my-actor#310685349]
+
+scala> ref.only[Bar]
+res5: de.knutwalker.akka.typed.package.ActorRef[Bar] = Actor[akka://foo/user/my-actor#310685349]
+
+scala> ref.only[Baz]
+res6: de.knutwalker.akka.typed.package.ActorRef[Baz] = Actor[akka://foo/user/my-actor#310685349]
+```
+
+Which checks the untion type as well.
+
+```scala
+scala> ref.only[SomeOtherMessage]
+<console>:31: error: not found: type SomeOtherMessage
+       ref.only[SomeOtherMessage]
+                ^
+```
+
+
 Union types will return later; for now, the next part is to learn how to interact with the less safer parts of Akka.
 
 

@@ -94,6 +94,21 @@ ref ! SomeOtherMessage
 As you can see, there are no wrappers involved. When you send the message, the compiler checks that the message you want to send is part of the union and if this checks succeeds, the compiler will allow the call to `!` (by not failing to compile).
 Since there can be no runtime value of the union type, there is a clear distinction for the dispatch to the check if the message itself is the specified type or a subtype thereof and the check if the message is part of the specified union type.
 
+You can turn an actor that accepts an union type into of its subcases with `only`:
+
+```tut
+ref.only[Foo]
+ref.only[Bar]
+ref.only[Baz]
+```
+
+Which checks the untion type as well.
+
+```tut:fail
+ref.only[SomeOtherMessage]
+```
+
+
 Union types will return later; for now, the next part is to learn how to interact with the less safer parts of Akka.
 
 ##### [&raquo; Unsafe Usage](unsafe.html)
