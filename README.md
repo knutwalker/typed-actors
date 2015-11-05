@@ -14,8 +14,8 @@ The first version available for Akka 2.4 is `1.4.0`.
 <!--- TUT:START -->
 ```scala
 libraryDependencies ++= List(
-  "de.knutwalker" %% "typed-actors" % "1.5.0",
-  "de.knutwalker" %% "typed-actors-creator" % "1.5.0"
+  "de.knutwalker" %% "typed-actors" % "1.5.1",
+  "de.knutwalker" %% "typed-actors-creator" % "1.5.1"
 )
 ```
 
@@ -112,7 +112,7 @@ scala> val props = Props[MyMessage, MyActor]
 props: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref = ActorOf(props, name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#-676349988]
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#-1261662037]
 ```
 
 This will give you an `ActorRef[MyMessage]`.
@@ -183,10 +183,10 @@ implicit val timeout: Timeout = 1.second
 
 ```scala
 scala> val ref = ActorOf(Props[MyMessage, MyActor])
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-1285645404]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#1495680038]
 
 scala> val future = ref ? MyMessage("foo")
-future: scala.concurrent.Future[MyResponse] = scala.concurrent.impl.Promise$DefaultPromise@621703d
+future: scala.concurrent.Future[MyResponse] = scala.concurrent.impl.Promise$DefaultPromise@25535cf9
 
 scala> val response = scala.concurrent.Await.result(future, 1.second)
 response: MyResponse = MyResponse(foo)
@@ -265,10 +265,10 @@ scala> val props2: Props[Foo | Bar] = props.or[Bar]
 props2: de.knutwalker.akka.typed.Props[de.knutwalker.akka.typed.|[Foo,Bar]] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref2: ActorRef[Foo | Bar] = ActorOf(props2, name = "my-actor")
-ref2: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[Foo,Bar]] = Actor[akka://foo/user/my-actor#1473410450]
+ref2: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[Foo,Bar]] = Actor[akka://foo/user/my-actor#1744042739]
 
 scala> val ref: ActorRef[Foo | Bar | Baz] = ref2.or[Baz]
-ref: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]] = Actor[akka://foo/user/my-actor#1473410450]
+ref: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]] = Actor[akka://foo/user/my-actor#1744042739]
 ```
 
 Now you can send either one of the messages that are listed in the union type.
@@ -296,6 +296,29 @@ scala> ref ! SomeOtherMessage
 As you can see, there are no wrappers involved. When you send the message, the compiler checks that the message you want to send is part of the union and if this checks succeeds, the compiler will allow the call to `!` (by not failing to compile).
 Since there can be no runtime value of the union type, there is a clear distinction for the dispatch to the check if the message itself is the specified type or a subtype thereof and the check if the message is part of the specified union type.
 
+You can turn an actor that accepts an union type into of its subcases with `only`:
+
+```scala
+scala> ref.only[Foo]
+res4: de.knutwalker.akka.typed.package.ActorRef[Foo] = Actor[akka://foo/user/my-actor#1744042739]
+
+scala> ref.only[Bar]
+res5: de.knutwalker.akka.typed.package.ActorRef[Bar] = Actor[akka://foo/user/my-actor#1744042739]
+
+scala> ref.only[Baz]
+res6: de.knutwalker.akka.typed.package.ActorRef[Baz] = Actor[akka://foo/user/my-actor#1744042739]
+```
+
+Which checks the untion type as well.
+
+```scala
+scala> ref.only[SomeOtherMessage]
+<console>:31: error: not found: type SomeOtherMessage
+       ref.only[SomeOtherMessage]
+                ^
+```
+
+
 Union types will return later; for now, the next part is to learn how to interact with the less safer parts of Akka.
 
 
@@ -312,7 +335,7 @@ Union types will return later; for now, the next part is to learn how to interac
 
 ```scala
 scala> val typedRef = ActorOf[MyMessage](props, name = "my-actor")
-typedRef: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-1040368688]
+typedRef: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-96751380]
 ```
 
 #### Autoreceived Messages
@@ -331,7 +354,7 @@ You can easily turn your typed actor into an untyped one bu using `untyped`.
 
 ```scala
 scala> val untypedRef = typedRef.untyped
-untypedRef: de.knutwalker.akka.typed.package.UntypedActorRef = Actor[akka://foo/user/my-actor#-1040368688]
+untypedRef: de.knutwalker.akka.typed.package.UntypedActorRef = Actor[akka://foo/user/my-actor#-96751380]
 ```
 
 For convenience, `akka.actor.ActorRef` is type aliased as `de.knutwalker.akka.typed.UntypedActorRef`.
@@ -339,14 +362,14 @@ Similarly, you can turn any untyped ref into a typed one using `typed`.
 
 ```scala
 scala> val typedAgain = untypedRef.typed[MyMessage]
-typedAgain: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-1040368688]
+typedAgain: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-96751380]
 ```
 
 As scala tends to infer `Nothing` as the most specific bottom type, you want to make sure to always provide a useful type.
 
 ```scala
 scala> untypedRef.typed
-res1: de.knutwalker.akka.typed.package.ActorRef[Nothing] = Actor[akka://foo/user/my-actor#-1040368688]
+res1: de.knutwalker.akka.typed.package.ActorRef[Nothing] = Actor[akka://foo/user/my-actor#-96751380]
 ```
 
 #### Compiletime only
@@ -379,13 +402,13 @@ scala> class MyOtherActor extends Actor {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#1861913463]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#1688637899]
 
 scala> otherRef ! Foo("foo")
 [DEBUG] received handled message Foo(foo)
-received a Foo: foo
 
 scala> otherRef ! Bar("bar")
+received a Foo: foo
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -427,7 +450,7 @@ scala> class MyActor extends TypedActor.Of[MyMessage] {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#1080835611]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-631719844]
 
 scala> ref ! Foo("foo")
 received a Foo: foo
@@ -472,7 +495,7 @@ scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-1956143584]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-457273436]
 
 scala> otherRef ! Foo("foo")
 
@@ -663,17 +686,16 @@ scala> val props = PropsFor[MyActor]
 props: de.knutwalker.akka.typed.Props[MyActor#Message] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref = ActorOf(props)
-ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/$a#442721323]
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/$a#-1085260741]
 
 scala> ref ! Foo("foo")
 [DEBUG] received handled message Foo(foo)
 received a Foo: foo
 
 scala> ref ! Bar("bar")
-[DEBUG] received handled message Bar(bar)
-received a Bar: bar
 
 scala> ref ! Baz("baz")
+[DEBUG] received unhandled message Bar(bar)
 [DEBUG] received handled message Baz(baz)
 received a Baz: baz
 ```
@@ -697,7 +719,7 @@ scala> val ref = ActorOf(TypedActor[MyMessage] {
      |   case Foo(foo) => println(s"received a Foo: $foo")
      |   case Bar(bar) => println(s"received a Bar: $bar")
      | })
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-2111156869]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$b#-428379138]
 ```
 
 
@@ -903,7 +925,7 @@ Using shapeless, we can try to fix this issue.
 The types creator lives in a [separate module](http://search.maven.org/#search%7Cga%7C1%7Cg:%22de.knutwalker%22%20AND%20a:typed-actors-creator*) that you have to include first.
 
 ```scala
-libraryDependencies += "de.knutwalker" %% "typed-actors-creator" % "1.5.0"
+libraryDependencies += "de.knutwalker" %% "typed-actors-creator" % "1.5.1"
 ```
 
 Next, you _have_ to use the [`TypedActor`](#typedactor) trait and you _have_ to make your actor a `case class`.
@@ -926,10 +948,10 @@ scala> Typed[MyActor].props("Bernd")
 res0: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class akka.actor.TypedCreatorFunctionConsumer,List(class MyActor, <function0>))
 
 scala> Typed[MyActor].create("Bernd")
-res1: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-650500778]
+res1: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-2010306347]
 
 scala> ActorOf(Typed[MyActor].props("Bernd"), "typed-bernd")
-res2: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/typed-bernd#1638266135]
+res2: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/typed-bernd#-544347750]
 ```
 
 Wrong invocations are greeted with a compile error instead of a runtime error!
@@ -1020,7 +1042,7 @@ case class MyActor() extends TypedActor.Of[MyMessage] {
 
 ```scala
 scala> val ref = Typed[MyActor].create()
-ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-466014441]
+ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#2073521533]
 
 scala> box.send(ref.untyped, MyMessage(42))
 ```
@@ -1030,7 +1052,7 @@ Note that there already is a bug, as the return message was not wrapped in `MyRe
 ```scala
 scala> val MyResponse(response) = box.receive()
 scala.MatchError: 42 (of class java.lang.String)
-  ... 374 elided
+  ... 390 elided
 ```
 
 Here's how that looks using the `replyTo` pattern.
@@ -1047,7 +1069,7 @@ case class MyActor() extends TypedActor.Of[MyMessage] {
 
 ```scala
 scala> val ref = Typed[MyActor].create()
-ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$b#-940617015]
+ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$b#1670502778]
 
 scala> ref ! MyMessage(42)(box.receiver.typed)
 

@@ -8,6 +8,15 @@ Tools to support binary compatibility might be introduced in the future.
 
 
 ## [Unreleased][unreleased]
+
+
+## [1.5.1][1.5.1] - 2015-11-05
+
+### Added
+- `only` method to union typed actors to gain a view into a specific subcase of the union 
+
+
+## [1.5.0][1.5.0] - 2015-11-04
 **This release is source compatible with the previous release, but not binary compatible.**
 
 ### Fixed
@@ -86,7 +95,9 @@ Tools to support binary compatibility might be introduced in the future.
 - Initial release, basic typed actors
 
 
-[unreleased]: https://github.com/knutwalker/typed-actors/compare/v1.4.0...develop
+[unreleased]: https://github.com/knutwalker/typed-actors/compare/v1.5.1...develop
+[1.5.1]: https://github.com/knutwalker/typed-actors/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/knutwalker/typed-actors/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/knutwalker/typed-actors/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/knutwalker/typed-actors/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/knutwalker/typed-actors/compare/v1.2.0...v1.3.0
