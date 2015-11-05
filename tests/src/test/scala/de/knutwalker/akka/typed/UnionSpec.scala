@@ -81,6 +81,26 @@ object UnionSpec extends Specification with AfterAll {
       implicit val timeout: Timeout = (100 * ee.timeFactor).millis
       (ref ? Baz("foo")) must be_==(SomeOtherMessage("foo")).await
     }
+
+    "support retagging to a different type" >> {
+
+      "if it is a subtype of the defined union" >> {
+        ref.only[Foo] ! Foo("foo")
+        inbox.receive(1.second) === Foo("Bernd: foo")
+      }
+
+      "which disables all other subcases" >> {
+        typecheck {
+          """ ref.only[Foo] ! Bar """
+        } must not succeed
+      }
+
+      "fails if the type is unrelated" >> {
+        typecheck {
+          """ ref.only[SomeOtherMessage] ! Bar """
+        } must not succeed
+      }
+    }
   }
 
   "A unioned TypedActor" should {
