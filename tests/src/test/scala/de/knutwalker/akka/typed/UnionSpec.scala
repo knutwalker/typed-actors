@@ -344,6 +344,25 @@ object UnionSpec extends Specification with AfterAll {
           """
         } must failWith(Regex.quote("match may not be exhaustive.\nIt would fail on the following inputs: None, Some(_)"))
       }.pendingUntilFixed("succeeds... possibly missing fatal warnings or similar")
+
+      "not fail when the unoinBecome.total doesnt match everything" >> {implicit ee: ExecutionEnv ⇒
+        class MyActor extends TypedActor.Of[Foo | Bar.type] {
+          def typedReceive: TypedReceive = Union.on[Bar.type] {
+            case Bar ⇒
+              inboxRef ! Bar
+              unionBecome.total[Foo] {
+                case Foo("foo") ⇒ inboxRef ! Foo("foo")
+              }
+          }.apply
+        }
+        val ref = ActorOf(PropsFor(new MyActor))
+
+        ref ! Bar
+        expectMsg(Bar)
+
+        ref ! Foo("baz")
+        expectUnhandled(Foo("baz"), ref)
+      }
     }
   }
 
