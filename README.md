@@ -1147,6 +1147,23 @@ Nevertheless, `Akka Typed` is a – in my opinion – really nice project and it
 That concludes the Usage Guide. I guess the only thing left is to go on hAkking!
 <!--- TUT:END -->
 
+## Disclaimer
+
+Typed Actor is operating on a best-effort basis to catch unsafe usages of actors at compile time, as such, it may fail to succeed in this effort.
+It is no replacement for tests and some interoperability issue when combining multiple scala features can lead to code that should not compile, but passes anyway;
+Therefore the author disclaims all warranty or liability of any kind.
+
+
+### Know unpleasantries
+
+Due to `PartialFunction` being contravariant in its input, `Receive <: TypedReceive` is true.
+If you have a receive block that is statically known to be a `Receive` it can be passed without any warning to `typedReceive` or other methods that actually accept a `TypedReceive`.
+This is a failed compiler check, there is no runtime error (if it is, it's a bug).
+
+Scala sometime fails to perform exhaustiveness checks for total functions an various grounds. For example, `val f: String => Unit = { case "foo" => () }` compiles just fine.
+The exhaustiveness guarantees of various `total` combinators rely soley on scalac for their checks. Therefore, if scalac doesn't warn, Typed Actors also doesn't warn.
+
+
 ## License
 
 This code is open source software licensed under the Apache 2.0 License.
