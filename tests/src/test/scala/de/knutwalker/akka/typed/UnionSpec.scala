@@ -152,6 +152,24 @@ object UnionSpec extends Specification with AfterAll {
         } must failWith(Regex.quote("Cannot prove that message of type String is a member of de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]."))
       }
 
+      "not require apply" >> {
+        class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+          val typedReceive: TypedReceive = Union
+            .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+        }
+        ActorOf(PropsFor(new MyActor("Bernd"))) must not beNull
+      }
+
+      "not infer apply when not all requirement are met" >> {
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = Union
+            }
+          """
+        } must failWith("required: .*TypedReceive")
+      }
+
       "accept a foo message" >> {
         ref ! Foo("foo")
         inbox.receive(1.second) === Foo("Bernd: foo")
@@ -252,6 +270,28 @@ object UnionSpec extends Specification with AfterAll {
             }
           """
         } must failWith(Regex.quote("Cannot prove that message of type String is a member of de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]."))
+      }
+
+      "not require apply" >> {
+        class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+          val typedReceive: TypedReceive = TotalUnion
+            .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+            .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
+            .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
+        }
+        ActorOf(PropsFor(new MyActor("Bernd"))) must not beNull
+      }
+
+      "not infer apply when not all requirement are met" >> {
+        typecheck {
+          """
+            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+              def typedReceive: TypedReceive = TotalUnion
+                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+                .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
+            }
+          """
+        } must failWith("required: .*TypedReceive")
       }
 
       "accept a foo message" >> {

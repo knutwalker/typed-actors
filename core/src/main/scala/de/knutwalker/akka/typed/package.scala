@@ -484,7 +484,7 @@ package typed {
   sealed trait isNotA[A, B]
   object isNotA {
     implicit def nsub[A, B]: A isNotA B = null
-    // $COVERAGE-OFF$
+    // $COVERAGE-OFF$Code only exists to prove non-equality and is expected to never execute
     implicit def nsubAmbig1[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
     implicit def nsubAmbig2[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
     // $COVERAGE-ON$

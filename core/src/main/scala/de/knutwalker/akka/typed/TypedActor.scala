@@ -203,13 +203,16 @@ object TypedActor {
     }
 
     /** Returns the final receive function */
-    implicit def apply(implicit ev: S =:= MkPartialUnionReceive.NonEmpty): PartialFunction[U, Unit] =
+    def apply(implicit ev: S =:= MkPartialUnionReceive.NonEmpty): PartialFunction[U, Unit] =
       finalPf.get
   }
   object MkPartialUnionReceive {
     sealed trait State extends Any
     sealed trait Empty extends State
     sealed trait NonEmpty extends State
+
+    implicit def buildReceive[U <: Union, S <: State](mk: MkPartialUnionReceive[U, S])(implicit ev: S =:= NonEmpty): PartialFunction[U, Unit] =
+      mk.apply
   }
 
   /**
@@ -264,8 +267,12 @@ object TypedActor {
     }
 
     /** Returns the final receive function */
-    implicit def apply(implicit ev: T containsAllOf U): PartialFunction[U, Unit] =
+    def apply(implicit ev: T containsAllOf U): PartialFunction[U, Unit] =
       finalPf
+  }
+  object MkTotalUnionReceive {
+    implicit def buildReceive[U <: Union, T <: Union](mk: MkTotalUnionReceive[U, T])(implicit ev: T containsAllOf U): PartialFunction[U, Unit] =
+      mk.apply
   }
 
   private class Downcast[A](cls: Class[A])(f: A ⇒ Unit) extends Receive {
