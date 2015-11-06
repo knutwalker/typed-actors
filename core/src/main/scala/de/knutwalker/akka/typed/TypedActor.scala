@@ -211,7 +211,7 @@ object TypedActor {
     sealed trait Empty extends State
     sealed trait NonEmpty extends State
 
-    implicit def buildReceive[U <: Union, S <: MkPartialUnionReceive.State](mk: MkPartialUnionReceive[U, S])(implicit ev: S =:= MkPartialUnionReceive.NonEmpty): PartialFunction[U, Unit] =
+    implicit def buildReceive[U <: Union, S <: State](mk: MkPartialUnionReceive[U, S])(implicit ev: S =:= NonEmpty): PartialFunction[U, Unit] =
       mk.apply
   }
 
