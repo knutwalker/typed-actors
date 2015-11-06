@@ -153,14 +153,11 @@ object UnionSpec extends Specification with AfterAll {
       }
 
       "not require apply" >> {
-        typecheck {
-          """
-            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = Union
-                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-            }
-          """
-        } must succeed
+        class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+          val typedReceive: TypedReceive = Union
+            .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+        }
+        ActorOf(PropsFor(new MyActor("Bernd"))) must not beNull
       }
 
       "not infer apply when not all requirement are met" >> {
@@ -276,16 +273,13 @@ object UnionSpec extends Specification with AfterAll {
       }
 
       "not require apply" >> {
-        typecheck {
-          """
-            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = TotalUnion
-                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-                .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
-                .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
-            }
-          """
-        } must succeed
+        class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+          val typedReceive: TypedReceive = TotalUnion
+            .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+            .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
+            .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
+        }
+        ActorOf(PropsFor(new MyActor("Bernd"))) must not beNull
       }
 
       "not infer apply when not all requirement are met" >> {
