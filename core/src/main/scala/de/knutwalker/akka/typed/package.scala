@@ -448,28 +448,33 @@ package typed {
   }
 
   @implicitNotFound("Cannot prove that message of type ${A} is a member of ${U}.")
-  sealed trait isPartOf[A, U <: Union]
+  sealed trait isPartOf[A, +U <: Union]
   object isPartOf extends IsPartOf0 {
-    implicit def leftPart[A, ∅](implicit ev: A isNotA Union): isPartOf[A, A | ∅] =
+    implicit def leftPart[A](implicit ev: A isNotA Union): isPartOf[A, A | Nothing] =
+      null
+
+    implicit def rightPart[A](implicit ev: A isNotA Union): isPartOf[A, Nothing | A] =
       null
   }
-  sealed trait IsPartOf0 extends IsPartOf1 {
-    implicit def rightPart[∅, B](implicit ev: B isNotA Union): isPartOf[B, ∅ | B] =
+  sealed trait IsPartOf0 {
+    implicit def tailPart1[A, U <: Union](implicit partOfTl: A isPartOf U): isPartOf[A, U | Nothing] =
       null
-  }
-  sealed trait IsPartOf1 {
-    implicit def tailPart[H, A, T <: Union](implicit partOfTl: A isPartOf T): isPartOf[A, T | H] =
+
+    implicit def tailPart2[A, U <: Union](implicit partOfTl: A isPartOf U): isPartOf[A, Nothing | U] =
       null
   }
 
   @implicitNotFound("Cannot prove that ${U} contains some members of ${T}.")
   sealed trait containsSomeOf[U <: Union, T <: Union]
   object containsSomeOf extends ContainsSomeOf0 {
-    implicit def tailPart0[A, B, T <: Union](implicit evA: A isPartOf T, evB: B isPartOf T): containsSomeOf[A | B, T] =
+    implicit def headPart[A, B, T <: Union](implicit evA: A isPartOf T, evB: B isPartOf T): containsSomeOf[A | B, T] =
       null
   }
   sealed trait ContainsSomeOf0 {
-    implicit def tailPart1[A, U <: Union, T <: Union](implicit ev: A isPartOf T, tailAligns: U containsSomeOf T): containsSomeOf[U | A, T] =
+    implicit def tailPart0[A, U <: Union, T <: Union](implicit ev: A isPartOf T, tailAligns: U containsSomeOf T): containsSomeOf[U | A, T] =
+      null
+
+    implicit def tailPart1[A, U <: Union, T <: Union](implicit ev: A isPartOf T, tailAligns: U containsSomeOf T): containsSomeOf[A | U, T] =
       null
   }
 
