@@ -143,9 +143,9 @@ Since union types are implemented at the type-level, there is no runtime value p
 ```tut:fail
 class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
   def typedReceive: TypedReceive = {
-    case Foo(foo) ⇒ println(s"received a Foo: $foo")
-    case Bar(bar) ⇒ println(s"received a Bar: $bar")
-    case Baz(baz) ⇒ println(s"received a Baz: $baz")
+    case Foo(foo) => println(s"received a Foo: $foo")
+    case Bar(bar) => println(s"received a Bar: $bar")
+    case Baz(baz) => println(s"received a Baz: $baz")
   }
 }
 ```
@@ -158,9 +158,21 @@ Both methods return a builder-style object that has an `on` method that must be 
 ```tut
 class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
   def typedReceive: TypedReceive = Union
-    .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-    .on[Bar]{ case Bar(bar) ⇒ println(s"received a Bar: $bar") }
-    .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+    .on[Foo]{ case Foo(foo) => println(s"received a Foo: $foo") }
+    .on[Bar]{ case Bar(bar) => println(s"received a Bar: $bar") }
+    .on[Baz]{ case Baz(baz) => println(s"received a Baz: $baz") }
+    .apply
+}
+```
+
+Or if you have a total function for the cases, there is a shortcut:
+
+```tut
+class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+  def typedReceive: TypedReceive = Union
+    .total[Foo]{ foo ⇒ println(s"received a Foo: $foo.foo") }
+    .total[Bar]{ bar ⇒ println(s"received a Bar: $bar.bar") }
+    .total[Baz]{ baz ⇒ println(s"received a Baz: $baz.baz") }
     .apply
 }
 ```
@@ -180,8 +192,8 @@ If you remove one of those cases it still compiles, since `Union` does not check
 ```tut
 class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
   def typedReceive: TypedReceive = Union
-    .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-    .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+    .on[Foo]{ case Foo(foo) => println(s"received a Foo: $foo") }
+    .on[Baz]{ case Baz(baz) => println(s"received a Baz: $baz") }
     .apply
 }
 ```
@@ -191,8 +203,8 @@ If you switch to `TotalUnion` you can see the compiler message telling that some
 ```tut:fail
 class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
   def typedReceive: TypedReceive = TotalUnion
-    .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-    .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+    .on[Foo]{ case Foo(foo) => println(s"received a Foo: $foo") }
+    .on[Baz]{ case Baz(baz) => println(s"received a Baz: $baz") }
     .apply
 }
 ```
@@ -223,7 +235,7 @@ As you can see, you basically provide a receive block for all relevant subtypes 
 ```tut:fail
 class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
   def typedReceive: TypedReceive = Union
-    .on[Foo](Total { case Foo(foo) ⇒ println(s"received a Foo: $foo") })
+    .on[Foo](Total { case Foo(foo) => println(s"received a Foo: $foo") })
     .apply
 }
 ```
@@ -242,6 +254,28 @@ ref ! Baz("baz")
 ```tut:fail
 ref ! SomeOtherMessage
 ```
+
+
+If you want to `context.become` with a union type there are some options.
+
+1. You can use the `Union`/`TotalUnion` helper as described earlier.
+2. You can use `unionBecome` if you only want to cover _one_ particular case.
+   It is a shortcut for `typedBecome(Union.on[Msg]{ case ... }.apply)`
+
+
+```tut
+class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+  def typedReceive: TypedReceive = Union
+    .on[Foo]{
+       case Foo(foo) =>
+       unionBecome.on[Bar] {
+         case Bar(bar) => println(s"received a Boo: $bar")
+       }
+    }
+    .apply
+}
+```
+
 
 #### Stateless actor from a total function
 
@@ -307,7 +341,7 @@ class TypedPersistentActor extends TypedActor with PersistentActor with ActorLog
   val receiveRecover: Receive = akka.actor.Actor.emptyBehavior
 
   val typedReceive: TypedReceive = {
-    case foo: Foo ⇒
+    case foo: Foo =>
       persist(foo)(f => context.system.eventStream.publish(foo))
   }
 
