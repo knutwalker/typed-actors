@@ -587,25 +587,25 @@ Since union types are implemented at the type-level, there is no runtime value p
 ```scala
 scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
      |   def typedReceive: TypedReceive = {
-     |     case Foo(foo) ⇒ println(s"received a Foo: $foo")
-     |     case Bar(bar) ⇒ println(s"received a Bar: $bar")
-     |     case Baz(baz) ⇒ println(s"received a Baz: $baz")
+     |     case Foo(foo) => println(s"received a Foo: $foo")
+     |     case Bar(bar) => println(s"received a Bar: $bar")
+     |     case Baz(baz) => println(s"received a Baz: $baz")
      |   }
      | }
 <console>:29: error: constructor cannot be instantiated to expected type;
  found   : Foo
  required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
-           case Foo(foo) ⇒ println(s"received a Foo: $foo")
+           case Foo(foo) => println(s"received a Foo: $foo")
                 ^
 <console>:30: error: constructor cannot be instantiated to expected type;
  found   : Bar
  required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
-           case Bar(bar) ⇒ println(s"received a Bar: $bar")
+           case Bar(bar) => println(s"received a Bar: $bar")
                 ^
 <console>:31: error: constructor cannot be instantiated to expected type;
  found   : Baz
  required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
-           case Baz(baz) ⇒ println(s"received a Baz: $baz")
+           case Baz(baz) => println(s"received a Baz: $baz")
                 ^
 ```
 
@@ -617,9 +617,22 @@ Both methods return a builder-style object that has an `on` method that must be 
 ```scala
 scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
      |   def typedReceive: TypedReceive = Union
-     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-     |     .on[Bar]{ case Bar(bar) ⇒ println(s"received a Bar: $bar") }
-     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     |     .on[Foo]{ case Foo(foo) => println(s"received a Foo: $foo") }
+     |     .on[Bar]{ case Bar(bar) => println(s"received a Bar: $bar") }
+     |     .on[Baz]{ case Baz(baz) => println(s"received a Baz: $baz") }
+     |     .apply
+     | }
+defined class MyActor
+```
+
+Or if you have a total function for the cases, there is a shortcut:
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .total[Foo]{ foo ⇒ println(s"received a Foo: $foo.foo") }
+     |     .total[Bar]{ bar ⇒ println(s"received a Bar: $bar.bar") }
+     |     .total[Baz]{ baz ⇒ println(s"received a Baz: $baz.baz") }
      |     .apply
      | }
 defined class MyActor
@@ -643,8 +656,8 @@ If you remove one of those cases it still compiles, since `Union` does not check
 ```scala
 scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
      |   def typedReceive: TypedReceive = Union
-     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     |     .on[Foo]{ case Foo(foo) => println(s"received a Foo: $foo") }
+     |     .on[Baz]{ case Baz(baz) => println(s"received a Baz: $baz") }
      |     .apply
      | }
 defined class MyActor
@@ -655,8 +668,8 @@ If you switch to `TotalUnion` you can see the compiler message telling that some
 ```scala
 scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
      |   def typedReceive: TypedReceive = TotalUnion
-     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     |     .on[Foo]{ case Foo(foo) => println(s"received a Foo: $foo") }
+     |     .on[Baz]{ case Baz(baz) => println(s"received a Baz: $baz") }
      |     .apply
      | }
 <console>:31: error: Cannot prove that de.knutwalker.akka.typed.|[Foo,Baz] contains the same members as de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz].
@@ -692,13 +705,13 @@ As you can see, you basically provide a receive block for all relevant subtypes 
 ```scala
 scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
      |   def typedReceive: TypedReceive = Union
-     |     .on[Foo](Total { case Foo(foo) ⇒ println(s"received a Foo: $foo") })
+     |     .on[Foo](Total { case Foo(foo) => println(s"received a Foo: $foo") })
      |     .apply
      | }
 <console>:29: error: constructor cannot be instantiated to expected type;
  found   : Foo
  required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
-           .on[Foo](Total { case Foo(foo) ⇒ println(s"received a Foo: $foo") })
+           .on[Foo](Total { case Foo(foo) => println(s"received a Foo: $foo") })
                                  ^
 ```
 
@@ -729,6 +742,29 @@ scala> ref ! SomeOtherMessage
        ref ! SomeOtherMessage
            ^
 ```
+
+
+If you want to `context.become` with a union type there are some options.
+
+1. You can use the `Union`/`TotalUnion` helper as described earlier.
+2. You can use `unionBecome` if you only want to cover _one_ particular case.
+   It is a shortcut for `typedBecome(Union.on[Msg]{ case ... }.apply)`
+
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .on[Foo]{
+     |        case Foo(foo) =>
+     |        unionBecome.on[Bar] {
+     |          case Bar(bar) => println(s"received a Boo: $bar")
+     |        }
+     |     }
+     |     .apply
+     | }
+defined class MyActor
+```
+
 
 #### Stateless actor from a total function
 
@@ -797,7 +833,7 @@ scala> class TypedPersistentActor extends TypedActor with PersistentActor with A
      |   val receiveRecover: Receive = akka.actor.Actor.emptyBehavior
      | 
      |   val typedReceive: TypedReceive = {
-     |     case foo: Foo ⇒
+     |     case foo: Foo =>
      |       persist(foo)(f => context.system.eventStream.publish(foo))
      |   }
      | 
