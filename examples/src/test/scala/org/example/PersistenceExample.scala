@@ -94,6 +94,7 @@ object PersistenceExample extends App {
       import context.dispatcher
       super.preStart()
       context.system.scheduler.scheduleOnce(600.millis)(Shutdown(system))
+      ()
     }
   }
 
