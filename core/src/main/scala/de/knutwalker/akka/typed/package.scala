@@ -284,7 +284,7 @@ package object typed {
       retag(props)
   }
 
-  implicit final class ActorRefOps[A](val ref: ActorRef[A]) extends AnyVal {
+  implicit final class ActorRefOps[A](private val ref: ActorRef[A]) extends AnyVal {
 
     /**
      * Sends a typed message asynchronously.
@@ -347,7 +347,7 @@ package object typed {
       retag(ref)
   }
 
-  implicit final class ActorRefUnionedOps[U <: Union](val ref: ActorRef[U]) extends AnyVal {
+  implicit final class ActorRefUnionedOps[U <: Union](private val ref: ActorRef[U]) extends AnyVal {
 
     /**
       * Sends a typed message asynchronously.
@@ -383,7 +383,7 @@ package object typed {
       retag(ref)
   }
 
-  implicit final class UntypedPropsOps(val untyped: UntypedProps) extends AnyVal {
+  implicit final class UntypedPropsOps(private val untyped: UntypedProps) extends AnyVal {
 
     /**
      * Returns this Props as a typed [[Props]].
@@ -395,7 +395,7 @@ package object typed {
       tag(untyped)
   }
 
-  implicit final class UntypedActorRefOps(val untyped: UntypedActorRef) extends AnyVal {
+  implicit final class UntypedActorRefOps(private val untyped: UntypedActorRef) extends AnyVal {
 
     /**
      * Returns this Props as a typed [[ActorRef]].
