@@ -21,6 +21,10 @@ guesses based on [mima](https://github.com/typesafehub/migration-manager) report
 
 
 ## [Unreleased][unreleased]
+
+
+
+## [1.6.0][1.6.0] - 2016-01-16
 **This release is source compatible with the previous release, but not binary compatible.**
 
 ### Added
@@ -116,7 +120,8 @@ guesses based on [mima](https://github.com/typesafehub/migration-manager) report
 - Initial release, basic typed actors
 
 
-[unreleased]: https://github.com/knutwalker/typed-actors/compare/v1.5.1...develop
+[unreleased]: https://github.com/knutwalker/typed-actors/compare/v1.6.0...develop
+[1.6.0]: https://github.com/knutwalker/typed-actors/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/knutwalker/typed-actors/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/knutwalker/typed-actors/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/knutwalker/typed-actors/compare/v1.3.1...v1.4.0
