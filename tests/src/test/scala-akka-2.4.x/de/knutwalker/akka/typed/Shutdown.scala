@@ -24,8 +24,10 @@ import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
 
 object Shutdown {
-  def apply(system: ActorSystem): Unit =
+  def apply(system: ActorSystem): Unit = {
     Await.result(system.terminate(), Duration.Inf)
+    ()
+  }
 }
 
 object TimeoutMessage {
