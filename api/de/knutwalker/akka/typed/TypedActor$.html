@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>TypedActor - typed-actors 1.5.1 - de.knutwalker.akka.typed.TypedActor</title>
-          <meta name="description" content="TypedActor - typed - actors 1.5.1 - de.knutwalker.akka.typed.TypedActor" />
-          <meta name="keywords" content="TypedActor typed actors 1.5.1 de.knutwalker.akka.typed.TypedActor" />
+          <title>TypedActor - typed-actors 1.6.0 - de.knutwalker.akka.typed.TypedActor</title>
+          <meta name="description" content="TypedActor - typed - actors 1.6.0 - de.knutwalker.akka.typed.TypedActor" />
+          <meta name="keywords" content="TypedActor typed actors 1.6.0 de.knutwalker.akka.typed.TypedActor" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -93,7 +93,7 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="MkPartialUnionReceive[U&lt;:de.knutwalker.akka.typed.Union,S&lt;:de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.State]extendsAnyVal"></a>
+      <a id="MkPartialUnionReceive[U&lt;:de.knutwalker.akka.typed.Union,S&lt;:de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.State]extendsAnyRef"></a>
       <a id="MkPartialUnionReceive[U&lt;:Union,S&lt;:State]:MkPartialUnionReceive[U,S]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -101,10 +101,10 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="TypedActor$$MkPartialUnionReceive.html"><span class="name">MkPartialUnionReceive</span></a><span class="tparams">[<span name="U">U &lt;: <a href="Union.html" class="extype" name="de.knutwalker.akka.typed.Union">Union</a></span>, <span name="S">S &lt;: <a href="TypedActor$$MkPartialUnionReceive$$State.html" class="extype" name="de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.State">State</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+        <a href="TypedActor$$MkPartialUnionReceive.html"><span class="name">MkPartialUnionReceive</span></a><span class="tparams">[<span name="U">U &lt;: <a href="Union.html" class="extype" name="de.knutwalker.akka.typed.Union">Union</a></span>, <span name="S">S &lt;: <a href="TypedActor$$MkPartialUnionReceive$$State.html" class="extype" name="de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.State">State</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@MkPartialUnionReceive[U&lt;:de.knutwalker.akka.typed.Union,S&lt;:de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.State]extendsAnyVal" title="Permalink" target="_top">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@MkPartialUnionReceive[U&lt;:de.knutwalker.akka.typed.Union,S&lt;:de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.State]extendsAnyRef" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -190,6 +190,23 @@ If you want to have the message type provided as a type parameter,
 you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">scala.reflect.ClassTag</a>.</p><pre><span class="kw">class</span> ExampleActor <span class="kw">extends</span> TypeActor.Of[ExampleProtocol] {
   <span class="cmt">// ...</span>
 }</pre></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the message type this actor is receiving</p></dd></dl></div>
+    </li><li name="de.knutwalker.akka.typed.TypedActor.TypedBecomeOnAux" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TypedBecomeOnAux[U&lt;:de.knutwalker.akka.typed.Union]extendsAnyVal"></a>
+      <a id="TypedBecomeOnAux[U&lt;:Union]:TypedBecomeOnAux[U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="TypedActor$$TypedBecomeOnAux.html"><span class="name">TypedBecomeOnAux</span></a><span class="tparams">[<span name="U">U &lt;: <a href="Union.html" class="extype" name="de.knutwalker.akka.typed.Union">Union</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@TypedBecomeOnAux[U&lt;:de.knutwalker.akka.typed.Union]extendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Helper to define a new become behavior for a union sub type</p>
     </li></ol>
             </div>
 
@@ -261,6 +278,23 @@ you have to add a context bound for <a href="http://www.scala-lang.org/api/2.11.
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@MkPartialUnionReceive" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceive" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MkTotalUnionReceive"></a>
+      <a id="MkTotalUnionReceive:MkTotalUnionReceive"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TypedActor$$MkTotalUnionReceive$.html"><span class="name">MkTotalUnionReceive</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor$@MkTotalUnionReceive" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

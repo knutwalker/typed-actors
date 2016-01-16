@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>TypedActor - typed-actors 1.5.1 - de.knutwalker.akka.typed.TypedActor</title>
-          <meta name="description" content="TypedActor - typed - actors 1.5.1 - de.knutwalker.akka.typed.TypedActor" />
-          <meta name="keywords" content="TypedActor typed actors 1.5.1 de.knutwalker.akka.typed.TypedActor" />
+          <title>TypedActor - typed-actors 1.6.0 - de.knutwalker.akka.typed.TypedActor</title>
+          <meta name="description" content="TypedActor - typed - actors 1.6.0 - de.knutwalker.akka.typed.TypedActor" />
+          <meta name="keywords" content="TypedActor typed actors 1.6.0 de.knutwalker.akka.typed.TypedActor" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -888,6 +888,23 @@ Use this to match for messages that are outside of your protocol, e.g. <a href="
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+    </li><li name="de.knutwalker.akka.typed.TypedActor#unionBecome" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="unionBecome(implicitev:de.knutwalker.akka.typed.IsUnion[TypedActor.this.Message]):de.knutwalker.akka.typed.TypedActor.TypedBecomeOnAux[ev.Out]"></a>
+      <a id="unionBecome(IsUnion[Message]):TypedBecomeOnAux[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">unionBecome</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="IsUnion.html" class="extype" name="de.knutwalker.akka.typed.IsUnion">IsUnion</a>[<a href="#Message" class="extmbr" name="de.knutwalker.akka.typed.TypedActor.Message">Message</a>]</span>)</span><span class="result">: <a href="TypedActor$$TypedBecomeOnAux.html" class="extype" name="de.knutwalker.akka.typed.TypedActor.TypedBecomeOnAux">TypedBecomeOnAux</a>[<a href="IsUnion.html#Out&lt;:de.knutwalker.akka.typed.Union" class="extmbr" name="de.knutwalker.akka.typed.IsUnion.Out">Out</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#de.knutwalker.akka.typed.TypedActor@unionBecome(implicitev:de.knutwalker.akka.typed.IsUnion[TypedActor.this.Message]):de.knutwalker.akka.typed.TypedActor.TypedBecomeOnAux[ev.Out]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"><code>context.become</code> for a given subtype if this actor is of a union type.</p>
     </li><li name="de.knutwalker.akka.typed.TypedActor#untypedFromTyped" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="untypedFromTyped(f:TypedActor.this.TypedReceive):TypedActor.this.Receive"></a>
       <a id="untypedFromTyped(TypedReceive):Receive"></a>

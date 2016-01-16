@@ -50,7 +50,7 @@ case class MyActor() extends TypedActor.Of[MyMessage] {
 
 ```scala
 scala> val ref = Typed[MyActor].create()
-ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#2121908423]
+ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#1064104289]
 
 scala> box.send(ref.untyped, MyMessage(42))
 ```
@@ -60,7 +60,7 @@ Note that there already is a bug, as the return message was not wrapped in `MyRe
 ```scala
 scala> val MyResponse(response) = box.receive()
 scala.MatchError: 42 (of class java.lang.String)
-  ... 390 elided
+  ... 394 elided
 ```
 
 Here's how that looks using the `replyTo` pattern.
@@ -77,7 +77,7 @@ case class MyActor() extends TypedActor.Of[MyMessage] {
 
 ```scala
 scala> val ref = Typed[MyActor].create()
-ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$b#250623325]
+ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$b#1913276494]
 
 scala> ref ! MyMessage(42)(box.receiver.typed)
 

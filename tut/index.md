@@ -55,7 +55,7 @@ scala> val props = Props[MyMessage, MyActor]
 props: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref = ActorOf(props, name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#1746821787]
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#-2098030163]
 ```
 
 This will give you an `ActorRef[MyMessage]`.
@@ -126,10 +126,10 @@ implicit val timeout: Timeout = 1.second
 
 ```scala
 scala> val ref = ActorOf(Props[MyMessage, MyActor])
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#97644768]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#1685525040]
 
 scala> val future = ref ? MyMessage("foo")
-future: scala.concurrent.Future[MyResponse] = scala.concurrent.impl.Promise$DefaultPromise@6c16f5e
+future: scala.concurrent.Future[MyResponse] = scala.concurrent.impl.Promise$DefaultPromise@5a583af5
 
 scala> val response = scala.concurrent.Await.result(future, 1.second)
 response: MyResponse = MyResponse(foo)

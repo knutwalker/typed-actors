@@ -68,10 +68,10 @@ scala> val props2: Props[Foo | Bar] = props.or[Bar]
 props2: de.knutwalker.akka.typed.Props[de.knutwalker.akka.typed.|[Foo,Bar]] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref2: ActorRef[Foo | Bar] = ActorOf(props2, name = "my-actor")
-ref2: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[Foo,Bar]] = Actor[akka://foo/user/my-actor#2027051274]
+ref2: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[Foo,Bar]] = Actor[akka://foo/user/my-actor#1528390225]
 
 scala> val ref: ActorRef[Foo | Bar | Baz] = ref2.or[Baz]
-ref: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]] = Actor[akka://foo/user/my-actor#2027051274]
+ref: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]] = Actor[akka://foo/user/my-actor#1528390225]
 ```
 
 Now you can send either one of the messages that are listed in the union type.
@@ -103,13 +103,13 @@ You can turn an actor that accepts an union type into of its subcases with `only
 
 ```scala
 scala> ref.only[Foo]
-res4: de.knutwalker.akka.typed.package.ActorRef[Foo] = Actor[akka://foo/user/my-actor#2027051274]
+res4: de.knutwalker.akka.typed.package.ActorRef[Foo] = Actor[akka://foo/user/my-actor#1528390225]
 
 scala> ref.only[Bar]
-res5: de.knutwalker.akka.typed.package.ActorRef[Bar] = Actor[akka://foo/user/my-actor#2027051274]
+res5: de.knutwalker.akka.typed.package.ActorRef[Bar] = Actor[akka://foo/user/my-actor#1528390225]
 
 scala> ref.only[Baz]
-res6: de.knutwalker.akka.typed.package.ActorRef[Baz] = Actor[akka://foo/user/my-actor#2027051274]
+res6: de.knutwalker.akka.typed.package.ActorRef[Baz] = Actor[akka://foo/user/my-actor#1528390225]
 ```
 
 Which checks the untion type as well.
