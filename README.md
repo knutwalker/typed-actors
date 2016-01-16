@@ -14,8 +14,8 @@ The first version available for Akka 2.4 is `1.4.0`.
 <!--- TUT:START -->
 ```scala
 libraryDependencies ++= List(
-  "de.knutwalker" %% "typed-actors" % "1.5.1",
-  "de.knutwalker" %% "typed-actors-creator" % "1.5.1"
+  "de.knutwalker" %% "typed-actors" % "1.6.0",
+  "de.knutwalker" %% "typed-actors-creator" % "1.6.0"
 )
 ```
 
@@ -112,7 +112,7 @@ scala> val props = Props[MyMessage, MyActor]
 props: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref = ActorOf(props, name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#-1261662037]
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/my-actor#-260681439]
 ```
 
 This will give you an `ActorRef[MyMessage]`.
@@ -183,10 +183,10 @@ implicit val timeout: Timeout = 1.second
 
 ```scala
 scala> val ref = ActorOf(Props[MyMessage, MyActor])
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#1495680038]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-1898850520]
 
 scala> val future = ref ? MyMessage("foo")
-future: scala.concurrent.Future[MyResponse] = scala.concurrent.impl.Promise$DefaultPromise@25535cf9
+future: scala.concurrent.Future[MyResponse] = scala.concurrent.impl.Promise$DefaultPromise@75cf45c8
 
 scala> val response = scala.concurrent.Await.result(future, 1.second)
 response: MyResponse = MyResponse(foo)
@@ -265,10 +265,10 @@ scala> val props2: Props[Foo | Bar] = props.or[Bar]
 props2: de.knutwalker.akka.typed.Props[de.knutwalker.akka.typed.|[Foo,Bar]] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref2: ActorRef[Foo | Bar] = ActorOf(props2, name = "my-actor")
-ref2: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[Foo,Bar]] = Actor[akka://foo/user/my-actor#1744042739]
+ref2: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[Foo,Bar]] = Actor[akka://foo/user/my-actor#-1800143858]
 
 scala> val ref: ActorRef[Foo | Bar | Baz] = ref2.or[Baz]
-ref: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]] = Actor[akka://foo/user/my-actor#1744042739]
+ref: de.knutwalker.akka.typed.ActorRef[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]] = Actor[akka://foo/user/my-actor#-1800143858]
 ```
 
 Now you can send either one of the messages that are listed in the union type.
@@ -300,13 +300,13 @@ You can turn an actor that accepts an union type into of its subcases with `only
 
 ```scala
 scala> ref.only[Foo]
-res4: de.knutwalker.akka.typed.package.ActorRef[Foo] = Actor[akka://foo/user/my-actor#1744042739]
+res4: de.knutwalker.akka.typed.package.ActorRef[Foo] = Actor[akka://foo/user/my-actor#-1800143858]
 
 scala> ref.only[Bar]
-res5: de.knutwalker.akka.typed.package.ActorRef[Bar] = Actor[akka://foo/user/my-actor#1744042739]
+res5: de.knutwalker.akka.typed.package.ActorRef[Bar] = Actor[akka://foo/user/my-actor#-1800143858]
 
 scala> ref.only[Baz]
-res6: de.knutwalker.akka.typed.package.ActorRef[Baz] = Actor[akka://foo/user/my-actor#1744042739]
+res6: de.knutwalker.akka.typed.package.ActorRef[Baz] = Actor[akka://foo/user/my-actor#-1800143858]
 ```
 
 Which checks the untion type as well.
@@ -335,7 +335,7 @@ Union types will return later; for now, the next part is to learn how to interac
 
 ```scala
 scala> val typedRef = ActorOf[MyMessage](props, name = "my-actor")
-typedRef: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-96751380]
+typedRef: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-760225152]
 ```
 
 #### Autoreceived Messages
@@ -354,7 +354,7 @@ You can easily turn your typed actor into an untyped one bu using `untyped`.
 
 ```scala
 scala> val untypedRef = typedRef.untyped
-untypedRef: de.knutwalker.akka.typed.package.UntypedActorRef = Actor[akka://foo/user/my-actor#-96751380]
+untypedRef: de.knutwalker.akka.typed.package.UntypedActorRef = Actor[akka://foo/user/my-actor#-760225152]
 ```
 
 For convenience, `akka.actor.ActorRef` is type aliased as `de.knutwalker.akka.typed.UntypedActorRef`.
@@ -362,14 +362,14 @@ Similarly, you can turn any untyped ref into a typed one using `typed`.
 
 ```scala
 scala> val typedAgain = untypedRef.typed[MyMessage]
-typedAgain: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-96751380]
+typedAgain: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-760225152]
 ```
 
 As scala tends to infer `Nothing` as the most specific bottom type, you want to make sure to always provide a useful type.
 
 ```scala
 scala> untypedRef.typed
-res1: de.knutwalker.akka.typed.package.ActorRef[Nothing] = Actor[akka://foo/user/my-actor#-96751380]
+res1: de.knutwalker.akka.typed.package.ActorRef[Nothing] = Actor[akka://foo/user/my-actor#-760225152]
 ```
 
 #### Compiletime only
@@ -402,13 +402,13 @@ scala> class MyOtherActor extends Actor {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#1688637899]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#253923972]
 
 scala> otherRef ! Foo("foo")
 [DEBUG] received handled message Foo(foo)
 
-scala> otherRef ! Bar("bar")
 received a Foo: foo
+scala> otherRef ! Bar("bar")
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -450,7 +450,7 @@ scala> class MyActor extends TypedActor.Of[MyMessage] {
 defined class MyActor
 
 scala> val ref = ActorOf(Props[MyMessage, MyActor], name = "my-actor")
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-631719844]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-actor#-685633214]
 
 scala> ref ! Foo("foo")
 received a Foo: foo
@@ -495,13 +495,13 @@ scala> class MyOtherActor extends TypedActor.Of[MyMessage] {
 defined class MyOtherActor
 
 scala> val otherRef = ActorOf(Props[MyMessage, MyOtherActor], "my-other-actor")
-otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-457273436]
+otherRef: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/my-other-actor#-1609403868]
 
 scala> otherRef ! Foo("foo")
 
 scala> otherRef ! Bar("bar")
-received a Foo: foo
 [DEBUG] received handled message Foo(foo)
+received a Foo: foo
 [DEBUG] received handled message Bar(bar)
 
 scala> otherRef ! Foo("baz")
@@ -587,25 +587,25 @@ Since union types are implemented at the type-level, there is no runtime value p
 ```scala
 scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
      |   def typedReceive: TypedReceive = {
-     |     case Foo(foo) ⇒ println(s"received a Foo: $foo")
-     |     case Bar(bar) ⇒ println(s"received a Bar: $bar")
-     |     case Baz(baz) ⇒ println(s"received a Baz: $baz")
+     |     case Foo(foo) => println(s"received a Foo: $foo")
+     |     case Bar(bar) => println(s"received a Bar: $bar")
+     |     case Baz(baz) => println(s"received a Baz: $baz")
      |   }
      | }
 <console>:29: error: constructor cannot be instantiated to expected type;
  found   : Foo
  required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
-           case Foo(foo) ⇒ println(s"received a Foo: $foo")
+           case Foo(foo) => println(s"received a Foo: $foo")
                 ^
 <console>:30: error: constructor cannot be instantiated to expected type;
  found   : Bar
  required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
-           case Bar(bar) ⇒ println(s"received a Bar: $bar")
+           case Bar(bar) => println(s"received a Bar: $bar")
                 ^
 <console>:31: error: constructor cannot be instantiated to expected type;
  found   : Baz
  required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
-           case Baz(baz) ⇒ println(s"received a Baz: $baz")
+           case Baz(baz) => println(s"received a Baz: $baz")
                 ^
 ```
 
@@ -617,9 +617,22 @@ Both methods return a builder-style object that has an `on` method that must be 
 ```scala
 scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
      |   def typedReceive: TypedReceive = Union
-     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-     |     .on[Bar]{ case Bar(bar) ⇒ println(s"received a Bar: $bar") }
-     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     |     .on[Foo]{ case Foo(foo) => println(s"received a Foo: $foo") }
+     |     .on[Bar]{ case Bar(bar) => println(s"received a Bar: $bar") }
+     |     .on[Baz]{ case Baz(baz) => println(s"received a Baz: $baz") }
+     |     .apply
+     | }
+defined class MyActor
+```
+
+Or if you have a total function for the cases, there is a shortcut:
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .total[Foo]{ foo ⇒ println(s"received a Foo: $foo.foo") }
+     |     .total[Bar]{ bar ⇒ println(s"received a Bar: $bar.bar") }
+     |     .total[Baz]{ baz ⇒ println(s"received a Baz: $baz.baz") }
      |     .apply
      | }
 defined class MyActor
@@ -643,8 +656,8 @@ If you remove one of those cases it still compiles, since `Union` does not check
 ```scala
 scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
      |   def typedReceive: TypedReceive = Union
-     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     |     .on[Foo]{ case Foo(foo) => println(s"received a Foo: $foo") }
+     |     .on[Baz]{ case Baz(baz) => println(s"received a Baz: $baz") }
      |     .apply
      | }
 defined class MyActor
@@ -655,8 +668,8 @@ If you switch to `TotalUnion` you can see the compiler message telling that some
 ```scala
 scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
      |   def typedReceive: TypedReceive = TotalUnion
-     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     |     .on[Foo]{ case Foo(foo) => println(s"received a Foo: $foo") }
+     |     .on[Baz]{ case Baz(baz) => println(s"received a Baz: $baz") }
      |     .apply
      | }
 <console>:31: error: Cannot prove that de.knutwalker.akka.typed.|[Foo,Baz] contains the same members as de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz].
@@ -664,18 +677,41 @@ scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
             ^
 ```
 
+You can even leave out the call to `apply`.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     | }
+defined class MyActor
+```
+
+Which is true for `TotalUnion` as well.
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = TotalUnion
+     |     .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
+     |     .on[Bar]{ case Bar(bar) ⇒ println(s"received a Bar: $bar") }
+     |     .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
+     | }
+defined class MyActor
+```
+
 As you can see, you basically provide a receive block for all relevant subtypes of the union. One such receive block is typed in its input, though you cannot use the `Total` helper as this one is fixed on the complete message type, the union type itself in this case.
 
 ```scala
 scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
      |   def typedReceive: TypedReceive = Union
-     |     .on[Foo](Total { case Foo(foo) ⇒ println(s"received a Foo: $foo") })
+     |     .on[Foo](Total { case Foo(foo) => println(s"received a Foo: $foo") })
      |     .apply
      | }
 <console>:29: error: constructor cannot be instantiated to expected type;
  found   : Foo
  required: de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[Foo,Bar],Baz]
-           .on[Foo](Total { case Foo(foo) ⇒ println(s"received a Foo: $foo") })
+           .on[Foo](Total { case Foo(foo) => println(s"received a Foo: $foo") })
                                  ^
 ```
 
@@ -686,16 +722,17 @@ scala> val props = PropsFor[MyActor]
 props: de.knutwalker.akka.typed.Props[MyActor#Message] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class MyActor,List())
 
 scala> val ref = ActorOf(props)
-ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/$a#-1085260741]
+ref: de.knutwalker.akka.typed.package.ActorRef[props.Message] = Actor[akka://foo/user/$a#222597801]
 
 scala> ref ! Foo("foo")
 [DEBUG] received handled message Foo(foo)
 received a Foo: foo
 
 scala> ref ! Bar("bar")
+[DEBUG] received handled message Bar(bar)
+received a Bar: bar
 
 scala> ref ! Baz("baz")
-[DEBUG] received unhandled message Bar(bar)
 [DEBUG] received handled message Baz(baz)
 received a Baz: baz
 ```
@@ -706,6 +743,29 @@ scala> ref ! SomeOtherMessage
        ref ! SomeOtherMessage
            ^
 ```
+
+
+If you want to `context.become` with a union type there are some options.
+
+1. You can use the `Union`/`TotalUnion` helper as described earlier.
+2. You can use `unionBecome` if you only want to cover _one_ particular case.
+   It is a shortcut for `typedBecome(Union.on[Msg]{ case ... }.apply)`
+
+
+```scala
+scala> class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
+     |   def typedReceive: TypedReceive = Union
+     |     .on[Foo]{
+     |        case Foo(foo) =>
+     |        unionBecome.on[Bar] {
+     |          case Bar(bar) => println(s"received a Boo: $bar")
+     |        }
+     |     }
+     |     .apply
+     | }
+defined class MyActor
+```
+
 
 #### Stateless actor from a total function
 
@@ -719,7 +779,7 @@ scala> val ref = ActorOf(TypedActor[MyMessage] {
      |   case Foo(foo) => println(s"received a Foo: $foo")
      |   case Bar(bar) => println(s"received a Bar: $bar")
      | })
-ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$b#-428379138]
+ref: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/$b#509742201]
 ```
 
 
@@ -774,7 +834,7 @@ scala> class TypedPersistentActor extends TypedActor with PersistentActor with A
      |   val receiveRecover: Receive = akka.actor.Actor.emptyBehavior
      | 
      |   val typedReceive: TypedReceive = {
-     |     case foo: Foo ⇒
+     |     case foo: Foo =>
      |       persist(foo)(f => context.system.eventStream.publish(foo))
      |   }
      | 
@@ -925,7 +985,7 @@ Using shapeless, we can try to fix this issue.
 The types creator lives in a [separate module](http://search.maven.org/#search%7Cga%7C1%7Cg:%22de.knutwalker%22%20AND%20a:typed-actors-creator*) that you have to include first.
 
 ```scala
-libraryDependencies += "de.knutwalker" %% "typed-actors-creator" % "1.5.1"
+libraryDependencies += "de.knutwalker" %% "typed-actors-creator" % "1.6.0"
 ```
 
 Next, you _have_ to use the [`TypedActor`](#typedactor) trait and you _have_ to make your actor a `case class`.
@@ -948,10 +1008,10 @@ scala> Typed[MyActor].props("Bernd")
 res0: de.knutwalker.akka.typed.Props[MyMessage] = Props(Deploy(,Config(SimpleConfigObject({})),NoRouter,NoScopeGiven,,),class akka.actor.TypedCreatorFunctionConsumer,List(class MyActor, <function0>))
 
 scala> Typed[MyActor].create("Bernd")
-res1: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-2010306347]
+res1: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#-228053190]
 
 scala> ActorOf(Typed[MyActor].props("Bernd"), "typed-bernd")
-res2: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/typed-bernd#-544347750]
+res2: de.knutwalker.akka.typed.package.ActorRef[MyMessage] = Actor[akka://foo/user/typed-bernd#1603161306]
 ```
 
 Wrong invocations are greeted with a compile error instead of a runtime error!
@@ -1042,7 +1102,7 @@ case class MyActor() extends TypedActor.Of[MyMessage] {
 
 ```scala
 scala> val ref = Typed[MyActor].create()
-ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#2073521533]
+ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$a#466697111]
 
 scala> box.send(ref.untyped, MyMessage(42))
 ```
@@ -1052,7 +1112,7 @@ Note that there already is a bug, as the return message was not wrapped in `MyRe
 ```scala
 scala> val MyResponse(response) = box.receive()
 scala.MatchError: 42 (of class java.lang.String)
-  ... 390 elided
+  ... 394 elided
 ```
 
 Here's how that looks using the `replyTo` pattern.
@@ -1069,7 +1129,7 @@ case class MyActor() extends TypedActor.Of[MyMessage] {
 
 ```scala
 scala> val ref = Typed[MyActor].create()
-ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$b#1670502778]
+ref: de.knutwalker.akka.typed.ActorRef[MyMessage] = Actor[akka://foo/user/$b#1300424475]
 
 scala> ref ! MyMessage(42)(box.receiver.typed)
 
@@ -1123,6 +1183,23 @@ Nevertheless, `Akka Typed` is a – in my opinion – really nice project and it
 
 That concludes the Usage Guide. I guess the only thing left is to go on hAkking!
 <!--- TUT:END -->
+
+## Disclaimer
+
+Typed Actor is operating on a best-effort basis to catch unsafe usages of actors at compile time, as such, it may fail to succeed in this effort.
+It is no replacement for tests and some interoperability issue when combining multiple scala features can lead to code that should not compile, but passes anyway;
+Therefore the author disclaims all warranty or liability of any kind.
+
+
+### Know unpleasantries
+
+Due to `PartialFunction` being contravariant in its input, `Receive <: TypedReceive` is true.
+If you have a receive block that is statically known to be a `Receive` it can be passed without any warning to `typedReceive` or other methods that actually accept a `TypedReceive`.
+This is a failed compiler check, there is no runtime error (if it is, it's a bug).
+
+Scala sometime fails to perform exhaustiveness checks for total functions an various grounds. For example, `val f: String => Unit = { case "foo" => () }` compiles just fine.
+The exhaustiveness guarantees of various `total` combinators rely soley on scalac for their checks. Therefore, if scalac doesn't warn, Typed Actors also doesn't warn.
+
 
 ## License
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Paul Horn
+ * Copyright 2015 – 2016 Paul Horn
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -284,7 +284,7 @@ package object typed {
       retag(props)
   }
 
-  implicit final class ActorRefOps[A](val ref: ActorRef[A]) extends AnyVal {
+  implicit final class ActorRefOps[A](private val ref: ActorRef[A]) extends AnyVal {
 
     /**
      * Sends a typed message asynchronously.
@@ -347,7 +347,7 @@ package object typed {
       retag(ref)
   }
 
-  implicit final class ActorRefUnionedOps[U <: Union](val ref: ActorRef[U]) extends AnyVal {
+  implicit final class ActorRefUnionedOps[U <: Union](private val ref: ActorRef[U]) extends AnyVal {
 
     /**
       * Sends a typed message asynchronously.
@@ -383,7 +383,7 @@ package object typed {
       retag(ref)
   }
 
-  implicit final class UntypedPropsOps(val untyped: UntypedProps) extends AnyVal {
+  implicit final class UntypedPropsOps(private val untyped: UntypedProps) extends AnyVal {
 
     /**
      * Returns this Props as a typed [[Props]].
@@ -395,7 +395,7 @@ package object typed {
       tag(untyped)
   }
 
-  implicit final class UntypedActorRefOps(val untyped: UntypedActorRef) extends AnyVal {
+  implicit final class UntypedActorRefOps(private val untyped: UntypedActorRef) extends AnyVal {
 
     /**
      * Returns this Props as a typed [[ActorRef]].
@@ -448,28 +448,33 @@ package typed {
   }
 
   @implicitNotFound("Cannot prove that message of type ${A} is a member of ${U}.")
-  sealed trait isPartOf[A, U <: Union]
+  sealed trait isPartOf[A, +U <: Union]
   object isPartOf extends IsPartOf0 {
-    implicit def leftPart[A, ∅](implicit ev: A isNotA Union): isPartOf[A, A | ∅] =
+    implicit def leftPart[A](implicit ev: A isNotA Union): isPartOf[A, A | Nothing] =
+      null
+
+    implicit def rightPart[A](implicit ev: A isNotA Union): isPartOf[A, Nothing | A] =
       null
   }
-  sealed trait IsPartOf0 extends IsPartOf1 {
-    implicit def rightPart[∅, B](implicit ev: B isNotA Union): isPartOf[B, ∅ | B] =
+  sealed trait IsPartOf0 {
+    implicit def tailPart1[A, U <: Union](implicit partOfTl: A isPartOf U): isPartOf[A, U | Nothing] =
       null
-  }
-  sealed trait IsPartOf1 {
-    implicit def tailPart[H, A, T <: Union](implicit partOfTl: A isPartOf T): isPartOf[A, T | H] =
+
+    implicit def tailPart2[A, U <: Union](implicit partOfTl: A isPartOf U): isPartOf[A, Nothing | U] =
       null
   }
 
   @implicitNotFound("Cannot prove that ${U} contains some members of ${T}.")
   sealed trait containsSomeOf[U <: Union, T <: Union]
   object containsSomeOf extends ContainsSomeOf0 {
-    implicit def tailPart0[A, B, T <: Union](implicit evA: A isPartOf T, evB: B isPartOf T): containsSomeOf[A | B, T] =
+    implicit def headPart[A, B, T <: Union](implicit evA: A isPartOf T, evB: B isPartOf T): containsSomeOf[A | B, T] =
       null
   }
   sealed trait ContainsSomeOf0 {
-    implicit def tailPart1[A, U <: Union, T <: Union](implicit ev: A isPartOf T, tailAligns: U containsSomeOf T): containsSomeOf[U | A, T] =
+    implicit def tailPart0[A, U <: Union, T <: Union](implicit ev: A isPartOf T, tailAligns: U containsSomeOf T): containsSomeOf[U | A, T] =
+      null
+
+    implicit def tailPart1[A, U <: Union, T <: Union](implicit ev: A isPartOf T, tailAligns: U containsSomeOf T): containsSomeOf[A | U, T] =
       null
   }
 
@@ -484,7 +489,7 @@ package typed {
   sealed trait isNotA[A, B]
   object isNotA {
     implicit def nsub[A, B]: A isNotA B = null
-    // $COVERAGE-OFF$
+    // $COVERAGE-OFF$Code only exists to prove non-equality and is expected to never execute
     implicit def nsubAmbig1[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
     implicit def nsubAmbig2[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
     // $COVERAGE-ON$

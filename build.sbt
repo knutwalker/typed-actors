@@ -1,13 +1,8 @@
-import sbt._, Keys._
-import com.typesafe.sbt.SbtSite.SiteKeys._
-import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
-import sbtunidoc.Plugin.UnidocKeys.{ unidoc, unidocProjectFilter }
 import Build.autoImport._ // screw you, IntelliJ
 
 lazy val core = project settings (name := "typed-actors")
 
 lazy val creator = project dependsOn core settings (
-  name := "typed-actors-creator",
   libraryDependencies += "com.chuusai" %% "shapeless" % "2.2.5")
 
 lazy val tests = project dependsOn (core, creator) settings (
@@ -22,35 +17,9 @@ lazy val examples = project dependsOn (core, creator, tests % "test->test") sett
 )
 
 lazy val docs = project dependsOn (core, creator) settings (
-  dontRelease,
-  unidocSettings,
-  site.settings,
-  ghpages.settings,
-  tutSettings,
-  libraryDependencies += akkaPersistence(akkaActorVersion.value),
-  tutSourceDirectory := sourceDirectory.value / "tut",
-  buildReadmeContent := tut.value,
-  readmeFile := baseDirectory.value / ".." / "README.md",
-  readmeCommitMessage := "Update README",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(core, creator),
-  site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "api"),
-  site.addMappingsToSiteDir(tut, "tut"),
-  site.addMappingsToSiteDir(genModules, "_data"),
-  ghpagesNoJekyll := false,
-  scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
-    "-doc-source-url", scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
-    "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath,
-    "-doc-title", githubProject.value.repo,
-    "-doc-version", version.value,
-    "-diagrams",
-    "-groups"
-  ),
-  git.remoteRepo := s"git@github.com:${githubProject.value.org}/${githubProject.value.repo}.git",
-  includeFilter in makeSite ~= (_ || "*.yml" || "*.md" || "*.scss"),
-  tutScalacOptions ~= (_.filterNot(Set("-Xfatal-warnings", "-Ywarn-unused-import", "-Ywarn-dead-code"))),
-  watchSources <++= (tutSourceDirectory, siteSourceDirectory, includeFilter in makeSite) map { (t, s, f) ⇒ (t ** "*.md").get ++ (s ** f).get }
-)
+  tutsSettings(core, creator),
+  libraryDependencies += akkaPersistence(akkaActorVersion.value))
 
-lazy val parent = project in file(".") dependsOn (core, creator) aggregate (core, creator, tests, examples) settings dontRelease
+lazy val parent = project in file(".") dependsOn (core, creator) aggregate (core, creator, tests, examples) settings parentSettings()
 
-addCommandAlias("travis", ";clean;coverage;testOnly -- timefactor 3;coverageReport;coverageAggregate")
+addCommandAlias("travis", ";clean;coverage;testOnly -- timefactor 3;coverageReport;coverageAggregate;docs/makeSite")

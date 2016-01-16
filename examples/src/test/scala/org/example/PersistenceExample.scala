@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Paul Horn
+ * Copyright 2015 – 2016 Paul Horn
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,6 +94,7 @@ object PersistenceExample extends App {
       import context.dispatcher
       super.preStart()
       context.system.scheduler.scheduleOnce(600.millis)(Shutdown(system))
+      ()
     }
   }
 

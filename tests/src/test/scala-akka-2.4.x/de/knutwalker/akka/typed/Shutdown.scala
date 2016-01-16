@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Paul Horn
+ * Copyright 2015 – 2016 Paul Horn
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,10 @@ import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
 
 object Shutdown {
-  def apply(system: ActorSystem): Unit =
+  def apply(system: ActorSystem): Unit = {
     Await.result(system.terminate(), Duration.Inf)
+    ()
+  }
 }
 
 object TimeoutMessage {

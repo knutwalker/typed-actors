@@ -3,11 +3,32 @@
 ## Versioning
 
 This project tries to follows [Semantic Versioning](http://semver.org/),
-although this is currently on a basis of educated guesses wrt binary compatibility.
-Tools to support binary compatibility might be introduced in the future.
+adopted for Scala/ABI changes. Concretely, that means:
+
+- a MAJOR increase breaks source compability
+    - it introduces, removes and modifies public API
+- a MINOR increase breaks binary compability
+    - it may add new features to the public API
+    - it may deprecate but never remove parts of the public API
+    - it may, without warning or deprecation phase, remove and alter private API
+- a PATCH increase is binary and source compatible with regards to its accompanying MINOR version
+    - it may fix bugs, optimise performance
+    - it may add new features  
+
+In all fairness, claims to binary compability are not guaranteed but rather educated 
+guesses based on [mima](https://github.com/typesafehub/migration-manager) reports.
+
 
 
 ## [Unreleased][unreleased]
+**This release is source compatible with the previous release, but not binary compatible.**
+
+### Added
+- `unionBecome` to change behavior when the actor is of a union type
+- `apply` on union receive builders can be inferred
+
+### Fixed
+- Provers for union type membership were unnecessarily left-biased, see #8
 
 
 ## [1.5.1][1.5.1] - 2015-11-05

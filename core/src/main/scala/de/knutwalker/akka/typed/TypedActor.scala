@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Paul Horn
+ * Copyright 2015 – 2016 Paul Horn
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package de.knutwalker.akka.typed
 import _root_.akka.actor.Actor
 import _root_.akka.event.LoggingReceive
 import akka.actor.Actor.Receive
-import de.knutwalker.akka.typed.TypedActor.{ MkTotalUnionReceiveEmpty, MkPartialUnionReceive, Downcast, TypedReceiver }
+import de.knutwalker.akka.typed.TypedActor.{ TypedBecomeOnAux, MkTotalUnionReceiveEmpty, MkPartialUnionReceive, Downcast, TypedReceiver }
 
 import scala.reflect.ClassTag
 
@@ -71,6 +71,10 @@ trait TypedActor extends Actor {
   final def typedBecome(f: TypedReceive): Unit =
     context become untypedFromTyped(f)
 
+  /** `context.become` for a given subtype if this actor is of a union type. */
+  final def unionBecome(implicit ev: IsUnion[Message]): TypedBecomeOnAux[ev.Out] =
+    new TypedBecomeOnAux[ev.Out](this)
+
   /**
    * Wraps a total receiver function and returns it as a [[TypedReceive]].
    * Use this to get exhaustiveness checking for your receive block.
@@ -85,7 +89,7 @@ trait TypedActor extends Actor {
    * }}}
    */
   final def Total(f: Message ⇒ Unit)(implicit ct: ClassTag[Message]): TypedReceive =
-    new Downcast[Message](ct.runtimeClass.asInstanceOf[Class[Message]])(f)
+    new Downcast[Message](this, ct.runtimeClass.asInstanceOf[Class[Message]])(f)
 
   /**
    * Wraps an untyped receiver and returns it as a [[TypedReceive]].
@@ -117,7 +121,7 @@ trait TypedActor extends Actor {
     * }}}
     */
   final def Union(implicit ev: IsUnion[Message]): MkPartialUnionReceive[ev.Out, MkPartialUnionReceive.Empty] =
-    new MkPartialUnionReceive(None)
+    new MkPartialUnionReceive(this, None)
 
   /**
     * Builds final receive out of sub-receives if this TypedActor is for a Union message type.
@@ -194,22 +198,27 @@ object TypedActor {
    * @tparam U the union type that provided the possible sub cases
    * @tparam S phantom type to ensure at least one case is provided
    */
-  final class MkPartialUnionReceive[U <: Union, S <: MkPartialUnionReceive.State] private[TypedActor] (val finalPf: Option[PartialFunction[U, Unit]]) extends AnyVal {
+  final class MkPartialUnionReceive[U <: Union, S <: MkPartialUnionReceive.State] private[TypedActor] (self: Actor, val finalPf: Option[PartialFunction[U, Unit]]) {
 
     /** Adds a case to the final receive function */
     def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty] = {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
-      new MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty](Some(finalPf.fold(pf)(_ orElse pf)))
+      new MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty](self, Some(finalPf.fold(pf)(_ orElse pf)))
     }
+    def total[A](f: A => Unit)(implicit ev: A isPartOf U, ct: ClassTag[A]): MkPartialUnionReceive[U, MkPartialUnionReceive.NonEmpty] =
+      on[A](new Downcast[A](self, ct.runtimeClass.asInstanceOf[Class[A]])(f))
 
     /** Returns the final receive function */
-    implicit def apply(implicit ev: S =:= MkPartialUnionReceive.NonEmpty): PartialFunction[U, Unit] =
+    def apply(implicit ev: S =:= MkPartialUnionReceive.NonEmpty): PartialFunction[U, Unit] =
       finalPf.get
   }
   object MkPartialUnionReceive {
     sealed trait State extends Any
     sealed trait Empty extends State
     sealed trait NonEmpty extends State
+
+    implicit def buildReceive[U <: Union, S <: State](mk: MkPartialUnionReceive[U, S])(implicit ev: S =:= NonEmpty): PartialFunction[U, Unit] =
+      mk.apply
   }
 
   /**
@@ -224,6 +233,7 @@ object TypedActor {
     /** Adds a case to the final receive function */
     def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): MkTotalUnionReceiveHalfEmpty[U, A] =
       new MkTotalUnionReceiveHalfEmpty[U, A](new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]])
+    def total[A](f: A => Unit)(implicit ev: A isPartOf U): MkTotalUnionReceiveHalfEmpty[U, A] = on(PartialFunction(f))
   }
 
   /**
@@ -243,6 +253,7 @@ object TypedActor {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
       new MkTotalUnionReceive[U, B | A](finalPf orElse pf)
     }
+    def total[A](f: A => Unit)(implicit ev: A isPartOf U): MkTotalUnionReceive[U, B | A] = on[A](PartialFunction(f))
   }
 
   /**
@@ -262,15 +273,34 @@ object TypedActor {
       val pf = new TypedReceiver[A](f).asInstanceOf[PartialFunction[U, Unit]]
       new MkTotalUnionReceive[U, T | A](finalPf orElse pf)
     }
+    def total[A](f: A => Unit)(implicit ev: A isPartOf U): MkTotalUnionReceive[U, T | A] = on(PartialFunction(f))
 
     /** Returns the final receive function */
-    implicit def apply(implicit ev: T containsAllOf U): PartialFunction[U, Unit] =
+    def apply(implicit ev: T containsAllOf U): PartialFunction[U, Unit] =
       finalPf
   }
+  object MkTotalUnionReceive {
+    implicit def buildReceive[U <: Union, T <: Union](mk: MkTotalUnionReceive[U, T])(implicit ev: T containsAllOf U): PartialFunction[U, Unit] =
+      mk.apply
+  }
 
-  private class Downcast[A](cls: Class[A])(f: A ⇒ Unit) extends Receive {
+  /** Helper to define a new become behavior for a union sub type */
+  final class TypedBecomeOnAux[U <: Union] private[TypedActor] (val self: Actor) extends AnyVal {
+
+    /** become this new partial behavior */
+    def on[A](f: PartialFunction[A, Unit])(implicit ev: A isPartOf U): Unit =
+      self.context become LoggingReceive(new TypedReceiver(f))(self.context)
+
+    /** become this new total behavior */
+    def total[A](f: A ⇒ Unit)(implicit ev: A isPartOf U, ct: ClassTag[A]): Unit =
+      on[A](new Downcast[A](self, ct.runtimeClass.asInstanceOf[Class[A]])(f))
+  }
+
+  private class Downcast[A](actor: Actor, cls: Class[A])(f: A ⇒ Unit) extends Receive {
     def isDefinedAt(x: Any): Boolean = cls.isInstance(x)
-    def apply(v1: Any): Unit = f(cls.cast(v1))
+    def apply(v1: Any): Unit = try f(cls.cast(v1)) catch {
+      case _: MatchError ⇒ actor.unhandled(v1)
+    }
   }
 
   private class TypedReceiver[A](f: PartialFunction[A, Unit]) extends Receive {
