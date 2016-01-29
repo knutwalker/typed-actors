@@ -15,6 +15,7 @@ object Build extends AutoPlugin {
     lazy val akkaActorVersion = settingKey[String]("Version of akka-actor.")
     lazy val isAkka24 = settingKey[Boolean]("Whether the build is compiled against Akka 2.4.x.")
     lazy val akkaPersistence = akkaPersistenceDependency
+    lazy val akkaActor = akkaDependency
   }
   import autoImport._
 
@@ -28,7 +29,6 @@ object Build extends AutoPlugin {
          scalaVersion := "2.11.7",
      akkaActorVersion := "2.3.14",
              isAkka24 := akkaActorVersion.value.startsWith("2.4"),
-  libraryDependencies += "com.typesafe.akka" %% "akka-actor" % akkaActorVersion.value % "provided",
           javaVersion := JavaVersion.Java17,
          apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value, akkaActorVersion.value),
        releaseProcess := getReleaseSteps(isAkka24.value),
@@ -43,6 +43,10 @@ object Build extends AutoPlugin {
   val akkaPersistenceDependency = (_: String) match {
     case x if x.startsWith("2.4") ⇒ "com.typesafe.akka" %% "akka-persistence" % x % "provided"
     case otherwise                ⇒ "com.typesafe.akka" %% "akka-persistence-experimental" % otherwise % "provided"
+  }
+  val akkaDependency = (_: String) match {
+    case x if x.startsWith("2.4") ⇒ "com.typesafe.akka" %% "akka-actor" % x % "provided"
+    case otherwise                ⇒ "com.typesafe.akka" %% "akka-actor" % otherwise % "provided"
   }
 
   def getReleaseSteps(isAkka24: Boolean) = {

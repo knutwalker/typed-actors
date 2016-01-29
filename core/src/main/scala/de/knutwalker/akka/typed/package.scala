@@ -234,7 +234,6 @@ package object typed {
   def ActorOf[A](p: Props[A])(implicit factory: ActorRefFactory): ActorRef[A] =
     tag(factory.actorOf(untag(p)))
 
-
   implicit final class PropsOps[A](private val props: Props[A]) extends AnyVal {
 
     /** @see [[akka.actor.Props#dispatcher]] */
