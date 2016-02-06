@@ -5,13 +5,13 @@ lazy val core = project settings (name := "typed-actors")
 lazy val creator = project dependsOn core settings (
   libraryDependencies += "com.chuusai" %% "shapeless" % "2.2.5")
 
-lazy val tests = project dependsOn (core, creator) settings (
+lazy val tests = project dependsOn (core % "test->test", creator) settings (
   dontRelease,
   libraryDependencies ++= List(
     "org.specs2" %% "specs2-core"          % "3.6.5" % "test",
     "org.specs2" %% "specs2-matcher-extra" % "3.6.5" % "test"))
 
-lazy val examples = project dependsOn (core, creator, tests % "test->test") settings (
+lazy val examples = project dependsOn (core % "test->test", creator) settings (
   dontRelease,
   libraryDependencies += akkaPersistence(akkaActorVersion.value)
 )
