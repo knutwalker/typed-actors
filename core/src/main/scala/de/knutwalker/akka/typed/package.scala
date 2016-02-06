@@ -284,6 +284,13 @@ package object typed {
       retag(props)
   }
 
+  implicit final class PropsUnionedOps[U <: Union](private val props: Props[U]) extends AnyVal {
+
+    /** Returns a Props that only handles a subpart of the given union type. */
+    def only[A](implicit ev: A isPartOf U): Props[A] =
+      retag(props)
+  }
+
   implicit final class ActorRefOps[A](private val ref: ActorRef[A]) extends AnyVal {
 
     /**
