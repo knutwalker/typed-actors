@@ -1,10 +1,10 @@
 import de.knutwalker.sbt._
 import de.knutwalker.sbt.KSbtKeys._
-import de.knutwalker.sbt.KReleaseSteps.{inquireVersions => _, setReleaseVersion => _, _}
+import de.knutwalker.sbt.KReleaseSteps._
 import sbt.Keys._
 import sbt._
 import sbtrelease.ReleasePlugin.autoImport._
-import sbtrelease.ReleaseStateTransformations._
+import sbtrelease.ReleaseStateTransformations.{inquireVersions => _, setReleaseVersion => _, _}
 
 
 object Build extends AutoPlugin {

@@ -1,1 +1,1 @@
-version in ThisBuild := "1.6.1-SNAPSHOT"
+git.baseVersion in ThisBuild := "2.0.0"
