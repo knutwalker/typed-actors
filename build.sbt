@@ -8,8 +8,8 @@ lazy val creator = project dependsOn core settings (
 lazy val tests = project dependsOn (core % "test->test", creator) settings (
   dontRelease,
   libraryDependencies ++= List(
-    "org.specs2" %% "specs2-core"          % "3.6.5" % "test",
-    "org.specs2" %% "specs2-matcher-extra" % "3.6.5" % "test"))
+    "org.specs2" %% "specs2-core"          % "3.7" % "test",
+    "org.specs2" %% "specs2-matcher-extra" % "3.7" % "test"))
 
 lazy val examples = project dependsOn (core % "test->test", creator) settings (
   dontRelease,
