@@ -16,6 +16,8 @@
 
 package de.knutwalker.union
 
+import de.knutwalker.TripleArrow
+
 import org.specs2.execute.Typecheck._
 import org.specs2.execute._
 import org.specs2.matcher.TypecheckMatchers._
@@ -24,7 +26,7 @@ import org.specs2.specification.core.Fragment
 import shapeless.test.illTyped
 
 
-object UnionSpec extends Specification {
+object UnionSpec extends Specification with TripleArrow {
   final val X  = 1337
   final val XS = "1337"
   val y  = 4242
@@ -328,13 +330,6 @@ object UnionSpec extends Specification {
         illTyped("""Union[Option[Int] | Either[Boolean, String]].run { case Left(s: String) ⇒ true }""")
         illTyped("""Union[Option[Int] | Either[Boolean, String]].run { case Right(b: Boolean) ⇒ true }""")
       }
-    }
-  }
-
-  implicit final class SpecStringOps(val msg: String) extends AnyVal {
-    def >>>[A](block: ⇒ A): Fragment = msg >> {
-      block
-      true ==== true
     }
   }
 

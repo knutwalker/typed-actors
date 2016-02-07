@@ -16,6 +16,9 @@
 
 package de.knutwalker.akka.typed
 
+import de.knutwalker.TripleArrow
+import de.knutwalker.union._
+
 import akka.actor.{ UnhandledMessage, ActorSystem }
 import akka.util.Timeout
 import org.specs2.concurrent.ExecutionEnv
@@ -31,7 +34,7 @@ import scala.util.matching.Regex
 import java.util.concurrent.TimeUnit
 
 
-object UnionSpec extends Specification with AfterAll {
+object UnionSpec extends Specification with AfterAll with TripleArrow {
   sequential
 
   case class Foo(msg: String)
@@ -110,83 +113,58 @@ object UnionSpec extends Specification with AfterAll {
     "the Union helper" should {
 
       class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-        def typedReceive: TypedReceive = Union
-        .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-        .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
-        .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
-        .apply
+        def typedReceive: TypedReceive = Union {
+          case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg")
+          case Bar      ⇒ inboxRef ! Bar
+          case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg)
+        }
       }
 
       val props: Props[Foo | Bar.type | Baz] = PropsFor(new MyActor("Bernd"))
       val ref: ActorRef[Foo | Bar.type | Baz] = ActorOf(props)
 
-      "allow partial definition" >> {
-        typecheck {
-          """
-            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = Union
-                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-                .apply
-            }
-          """
-        } must succeed
+      "allow partial definition" >>> {
+        class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+          def typedReceive: TypedReceive = Union {
+            case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg")
+          }
+        }
       }
 
-      "allow using total handler" >> {
-        val ct = implicitly[ClassTag[Foo]]
-        typecheck {
-          """
-            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = Union
-                .total[Foo]{ foo ⇒ inboxRef ! Foo(s"$name: $foo.msg") }(implicitly, ct)
-                .apply
-            }
-          """
-        } must succeed
+      "allow using total handler" >>> {
+        class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+          def typedReceive: TypedReceive = Union.total[Foo]{
+            case foo: Foo ⇒ inboxRef ! Foo(s"$name: ${foo.msg}")
+          }
+        }
       }
 
-      "allow using two total handlers" >> {
-        val ctFoo = implicitly[ClassTag[Foo]]
-        val ctBar = implicitly[ClassTag[Bar.type]]
-        typecheck {
-          """
-            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = Union
-                .total[Foo]{ foo ⇒ inboxRef ! Foo(s"$name: $foo.msg") }(implicitly, ctFoo)
-                .total[Bar.type] ( inboxRef ! _ )(implicitly, ctBar)
-                .apply
-            }
-          """
-        } must succeed
-      }
-
-      "require at least one sub path" >> {
-        typecheck {
-          """
-            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = Union
-                .apply
-            }
-          """
-        } must failWith(Regex.quote("Cannot prove that de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.Empty =:= de.knutwalker.akka.typed.TypedActor.MkPartialUnionReceive.NonEmpty."))
+      "allow using two total handlers" >>> {
+        class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+          def typedReceive: TypedReceive = Union.total[Foo | Bar.type]{
+            case foo: Foo ⇒ inboxRef ! Foo(s"$name: ${foo.msg}")
+            case Bar      ⇒ inboxRef ! Bar
+          }
+        }
       }
 
       "only allow defined parts" >> {
         typecheck {
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = Union
-                .on[String]{ case msg ⇒ inboxRef ! Foo(s"$name: $msg") }
-                .apply
+              def typedReceive: TypedReceive = Union {
+                case msg: String ⇒ inboxRef ! Foo(s"$name: $msg")
+              }
             }
           """
-        } must failWith(Regex.quote("Cannot prove that message of type String is a member of de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]."))
+        } must failWith(Regex.quote("Pattern involving [String] is not covered by union {de.knutwalker.akka.typed.UnionSpec.Foo | de.knutwalker.akka.typed.UnionSpec.Bar.type | de.knutwalker.akka.typed.UnionSpec.Baz}."))
       }
 
       "not require apply" >> {
         class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-          val typedReceive: TypedReceive = Union
-            .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
+          val typedReceive: TypedReceive = Union {
+            case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg")
+          }
         }
         ActorOf(PropsFor(new MyActor("Bernd"))) must not beNull
       }
@@ -228,24 +206,22 @@ object UnionSpec extends Specification with AfterAll {
       }
 
       "fail to compile when total handler is not exhaustive" >> {
-        val ct = implicitly[ClassTag[Option[Foo]]]
         typecheck {
           """
-            class MyActor extends TypedActor.Of[Option[Foo] | Bar.type] {
-              def typedReceive: TypedReceive = Union
-                .total[Option[Foo]] {
-                  case Some(Foo("foo")) => ()
-                }
+          class MyActor extends TypedActor.Of[Option[Foo] | Bar.type] {
+            def typedReceive: TypedReceive = Union.total[Option[Foo]] {
+              case Some(Foo("foo")) => ()
             }
+          }
           """
-        } must failWith(Regex.quote("match may not be exhaustive.\nIt would fail on the following inputs: None, Some(_)"))
-      }.pendingUntilFixed("succeeds... possibly missing fatal warnings or similar")
+        } must failWith(Regex.quote("The patterns for Option[de.knutwalker.akka.typed.UnionSpec.Foo] are not exhaustive; It would fail on the following inputs: None, Some(_)."))
+      }
 
       "not fail when the total doesn't match everything" >> {implicit ee: ExecutionEnv ⇒
         class MyActor extends TypedActor.Of[Foo | Bar.type] {
           def typedReceive: TypedReceive = Union.total[Foo] {
             case Foo("foo") ⇒ inboxRef ! Foo("foo")
-          }.apply
+          }
         }
         val ref = ActorOf(PropsFor(new MyActor))
 
@@ -260,126 +236,92 @@ object UnionSpec extends Specification with AfterAll {
     "the TotalUnion helper" should {
 
       class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-        def typedReceive: TypedReceive = TotalUnion
-        .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-        .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
-        .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
-        .apply
+        def typedReceive: TypedReceive = TotalUnion {
+          case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg")
+          case Bar      ⇒ inboxRef ! Bar
+          case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg)
+        }
       }
 
       val props: Props[Foo | Bar.type | Baz] = PropsFor(new MyActor("Bernd"))
       val ref: ActorRef[Foo | Bar.type | Baz] = ActorOf(props)
 
-      "allow total definition" >> {
-        typecheck {
-          """
-            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = TotalUnion
-                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-                .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
-                .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
-                .apply
-            }
-          """
-        } must succeed
+      "allow total definition" >>> {
+        class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+          def typedReceive: TypedReceive = TotalUnion {
+            case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg")
+            case Bar      ⇒ inboxRef ! Bar
+            case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg)
+          }
+        }
       }
 
-      "allow one total handler" >> {
-        typecheck {
-          """
-            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = TotalUnion
-                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-                .total[Bar.type]{ inboxRef ! _ }
-                .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
-                .apply
-            }
-          """
-        } must succeed
+      "allow one total handler" >>> {
+        class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+          def typedReceive: TypedReceive = TotalUnion.total[Bar.type] {
+            case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg")
+            case Bar      ⇒ inboxRef ! Bar
+            case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg)
+          }
+        }
       }
 
-      "allow all total handlers" >> {
-        typecheck {
-          """
-            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = TotalUnion
-                .total[Foo]{ case Foo(msg) => inboxRef ! Foo(s"$name: foo.msg") }
-                .total[Bar.type]( inboxRef ! _ )
-                .total[Baz]{ m => m.replyTo ! SomeOtherMessage(m.msg) }
-                .apply
-            }
-          """
-        } must succeed
-      }
-
-      "fail without any parts" >> {
-        typecheck {
-          """
-            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = TotalUnion
-                .apply
-            }
-          """
-        } must failWith(Regex.quote("value apply is not a member of de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveEmpty[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]]"))
+      "allow all total handlers" >>> {
+        class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+          def typedReceive: TypedReceive = TotalUnion.total {
+            case Foo(msg) ⇒ inboxRef ! Foo(s"$name: foo.msg")
+            case Bar      ⇒ inboxRef ! Bar
+            case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg)
+          }
+        }
       }
 
       "fail with just one part" >> {
         typecheck {
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = TotalUnion
-                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-                .apply
+              def typedReceive: TypedReceive = TotalUnion {
+                case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg")
+              }
             }
           """
-        } must failWith(Regex.quote("value apply is not a member of de.knutwalker.akka.typed.TypedActor.MkTotalUnionReceiveHalfEmpty[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz],de.knutwalker.akka.typed.UnionSpec.Foo]"))
+        } must failWith(Regex.quote("The partial function fails to match on these types: {de.knutwalker.akka.typed.UnionSpec.Bar.type | de.knutwalker.akka.typed.UnionSpec.Baz}."))
       }
 
       "require all definitions" >> {
         typecheck {
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = TotalUnion
-                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-                .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
-                .apply
+              def typedReceive: TypedReceive = TotalUnion {
+                case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg")
+                case Bar ⇒ inboxRef ! Bar
+              }
             }
           """
-        } must failWith(Regex.quote("Cannot prove that de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type] contains the same members as de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]."))
+        } must failWith(Regex.quote("The partial function fails to match on de.knutwalker.akka.typed.UnionSpec.Baz."))
       }
 
       "only allow defined parts" >> {
         typecheck {
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = TotalUnion
-                .on[String]{ case msg ⇒ inboxRef ! Foo(s"$name: $msg") }
-                .apply
+              def typedReceive: TypedReceive = TotalUnion {
+                case msg: String ⇒ inboxRef ! Foo(s"$name: $msg")
+              }
             }
           """
-        } must failWith(Regex.quote("Cannot prove that message of type String is a member of de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]."))
+        } must failWith(Regex.quote("Pattern involving [String] is not covered by union {de.knutwalker.akka.typed.UnionSpec.Foo | de.knutwalker.akka.typed.UnionSpec.Bar.type | de.knutwalker.akka.typed.UnionSpec.Baz}."))
       }
 
       "not require apply" >> {
         class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-          val typedReceive: TypedReceive = TotalUnion
-            .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-            .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
-            .on[Baz]{ case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg) }
+          val typedReceive: TypedReceive = TotalUnion {
+            case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg")
+            case Bar      ⇒ inboxRef ! Bar
+            case m: Baz   ⇒ m.replyTo ! SomeOtherMessage(m.msg)
+          }
         }
         ActorOf(PropsFor(new MyActor("Bernd"))) must not beNull
-      }
-
-      "not infer apply when not all requirement are met" >> {
-        typecheck {
-          """
-            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = TotalUnion
-                .on[Foo]{ case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg") }
-                .on[Bar.type]{ case Bar ⇒ inboxRef ! Bar }
-            }
-          """
-        } must failWith("required: .*TypedReceive")
       }
 
       "accept a foo message" >> {
@@ -412,17 +354,17 @@ object UnionSpec extends Specification with AfterAll {
     "unionBecome for subcase of union types" should {
 
       class MyActor extends TypedActor.Of[Foo | Bar.type | Baz] {
-        def typedReceive: TypedReceive = Union.on[Foo]{
+        def typedReceive: TypedReceive = Union {
           case Foo(msg) ⇒
             inboxRef ! s"foo: $msg"
-            unionBecome.on[Bar.type] {
+            typedBecome(Union {
               case Bar ⇒
                 inboxRef ! Bar
-                unionBecome.total[Baz] {
-                  baz ⇒ baz.replyTo ! SomeOtherMessage(baz.msg)
-                }
-            }
-        }.apply
+                typedBecome(Union {
+                  case baz: Baz ⇒ baz.replyTo ! SomeOtherMessage(baz.msg)
+                })
+            })
+        }
       }
       val ref = ActorOf(PropsFor(new MyActor))
 
@@ -465,40 +407,39 @@ object UnionSpec extends Specification with AfterAll {
         typecheck {
           """
             class MyActor extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = Union.on[Foo]{
-                case Foo(msg) ⇒ unionBecome.on[SomeOtherMessage] {
-                  case x => ()
-                }
-              }.apply
+              def typedReceive: TypedReceive = Union {
+                case Foo(msg) ⇒ typedBecome(Union {
+                  case x: SomeOtherMessage => ()
+                })
+              }
              }
           """
-        } must failWith(Regex.quote("Cannot prove that message of type de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is a member of de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.|[de.knutwalker.akka.typed.UnionSpec.Foo,de.knutwalker.akka.typed.UnionSpec.Bar.type],de.knutwalker.akka.typed.UnionSpec.Baz]."))
+        } must failWith(Regex.quote("Pattern involving [de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage] is not covered by union {de.knutwalker.akka.typed.UnionSpec.Foo | de.knutwalker.akka.typed.UnionSpec.Bar.type | de.knutwalker.akka.typed.UnionSpec.Baz}."))
       }
 
       "fail to compile when total handler is not exhaustive" >> {
-        val ct = implicitly[ClassTag[Option[Foo]]]
         typecheck {
           """
             class MyActor extends TypedActor.Of[Option[Foo] | Bar.type] {
-              def typedReceive: TypedReceive = Union.on[Bar.type]{
-                case Bar ⇒ unionBecome.total[Option[Foo]]({
+              def typedReceive: TypedReceive = Union {
+                case Bar ⇒ typedBecome(Union.total[Option[Foo]] {
                   case Some(Foo("foo")) => ()
-                })(implicitly, ct)
-              }.apply
-             }
+                })
+              }
+            }
           """
-        } must failWith(Regex.quote("match may not be exhaustive.\nIt would fail on the following inputs: None, Some(_)"))
-      }.pendingUntilFixed("succeeds... possibly missing fatal warnings or similar")
+        } must failWith(Regex.quote("The patterns for Option[de.knutwalker.akka.typed.UnionSpec.Foo] are not exhaustive; It would fail on the following inputs: None, Some(_)."))
+      }
 
       "not fail when the unoinBecome.total doesnt match everything" >> {implicit ee: ExecutionEnv ⇒
         class MyActor extends TypedActor.Of[Foo | Bar.type] {
-          def typedReceive: TypedReceive = Union.on[Bar.type] {
+          def typedReceive: TypedReceive = Union {
             case Bar ⇒
               inboxRef ! Bar
-              unionBecome.total[Foo] {
+              typedBecome(Union {
                 case Foo("foo") ⇒ inboxRef ! Foo("foo")
-              }
-          }.apply
+              })
+          }
         }
         val ref = ActorOf(PropsFor(new MyActor))
 

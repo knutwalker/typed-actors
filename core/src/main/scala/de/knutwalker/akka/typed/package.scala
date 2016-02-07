@@ -16,14 +16,16 @@
 
 package de.knutwalker.akka
 
+import de.knutwalker.union._
+
 import _root_.akka.actor.{ Actor, ActorContext, ActorPath, ActorRefFactory, Deploy }
 import _root_.akka.routing.RouterConfig
 import akka.typedactors.AskSupport
 import akka.util.Timeout
 
-import scala.annotation.implicitNotFound
 import scala.concurrent.Future
 import scala.reflect.ClassTag
+
 
 /**
  * Compile-time wrapper for akka.actor.ActorRef to allow for same degree of
@@ -426,78 +428,4 @@ package object typed {
 
   @inline private[this] def retag[A, B, T](a: Tagged[T, A]): Tagged[T, B] =
     a.asInstanceOf[Tagged[T, B]]
-}
-
-/**
- * Everything in here is is considered an INTERNAL API!
- *
- * Union type implementation follows. The only thing concerning the user is the
- * `|` type which should be fairly self explanatory. The rest are type classes
- * and provers to implement the type-level constraints for the union types.
- */
-package typed {
-
-  sealed trait Union
-  sealed trait |[+A, +B] extends Union
-
-  @implicitNotFound("Cannot prove that ${A} is a union type.")
-  sealed trait IsUnion[-A] {
-    type Out <: Union
-  }
-
-  object IsUnion {
-    type Aux[-A0, U0 <: Union] = IsUnion[A0] { type Out = U0 }
-    implicit def isUnion[A <: Union]: Aux[A, A] =
-      new IsUnion[A] {
-        type Out = A
-      }
-  }
-
-  @implicitNotFound("Cannot prove that message of type ${A} is a member of ${U}.")
-  sealed trait isPartOf[A, +U <: Union]
-  object isPartOf extends IsPartOf0 {
-    implicit def leftPart[A](implicit ev: A isNotA Union): isPartOf[A, A | Nothing] =
-      null
-
-    implicit def rightPart[A](implicit ev: A isNotA Union): isPartOf[A, Nothing | A] =
-      null
-  }
-  sealed trait IsPartOf0 {
-    implicit def tailPart1[A, U <: Union](implicit partOfTl: A isPartOf U): isPartOf[A, U | Nothing] =
-      null
-
-    implicit def tailPart2[A, U <: Union](implicit partOfTl: A isPartOf U): isPartOf[A, Nothing | U] =
-      null
-  }
-
-  @implicitNotFound("Cannot prove that ${U} contains some members of ${T}.")
-  sealed trait containsSomeOf[U <: Union, T <: Union]
-  object containsSomeOf extends ContainsSomeOf0 {
-    implicit def headPart[A, B, T <: Union](implicit evA: A isPartOf T, evB: B isPartOf T): containsSomeOf[A | B, T] =
-      null
-  }
-  sealed trait ContainsSomeOf0 {
-    implicit def tailPart0[A, U <: Union, T <: Union](implicit ev: A isPartOf T, tailAligns: U containsSomeOf T): containsSomeOf[U | A, T] =
-      null
-
-    implicit def tailPart1[A, U <: Union, T <: Union](implicit ev: A isPartOf T, tailAligns: U containsSomeOf T): containsSomeOf[A | U, T] =
-      null
-  }
-
-  @implicitNotFound("Cannot prove that ${U} contains the same members as ${T}.")
-  sealed trait containsAllOf[U <: Union, T <: Union]
-  object containsAllOf {
-    implicit def uContainsAllOfT[U <: Union, T <: Union](implicit evA: U containsSomeOf T, evB: T containsSomeOf U): containsAllOf[U, T] =
-      null
-  }
-
-  // @annotation.implicitAmbiguous("${A} must not be <: ${B}")
-  sealed trait isNotA[A, B]
-  object isNotA {
-    implicit def nsub[A, B]: A isNotA B = null
-    // $COVERAGE-OFF$Code only exists to prove non-equality and is expected to never execute
-    implicit def nsubAmbig1[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
-    implicit def nsubAmbig2[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
-    // $COVERAGE-ON$
-  }
 }

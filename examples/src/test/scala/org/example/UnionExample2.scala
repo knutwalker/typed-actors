@@ -16,6 +16,8 @@
 
 package org.example
 
+import de.knutwalker.union._
+
 import akka.actor.ActorSystem
 import de.knutwalker.akka.typed._
 
@@ -27,11 +29,11 @@ object UnionExample2 extends App {
   case class Baz()
 
   class UnionedActor extends TypedActor.Of[Foo | Bar | Baz] {
-    def typedReceive: TypedReceive = Union
-      .on[Foo] { case Foo() ⇒ println("foo") }
-      .on[Bar] { case Bar() ⇒ println("bar") }
-      .on[Baz] { case Baz() ⇒ println("baz") }
-      .apply
+    def typedReceive: TypedReceive = Union {
+      case Foo() ⇒ println("foo")
+      case Bar() ⇒ println("bar")
+      case Baz() ⇒ println("baz")
+    }
   }
 
   implicit val system = ActorSystem()

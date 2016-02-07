@@ -16,6 +16,8 @@
 
 package org.example
 
+import de.knutwalker.union._
+
 import akka.actor.{ Actor, ActorSystem }
 import de.knutwalker.akka.typed._
 

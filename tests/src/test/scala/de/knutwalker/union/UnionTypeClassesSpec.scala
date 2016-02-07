@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package de.knutwalker.akka.typed
+package de.knutwalker.union
 
-import org.specs2.execute._
-import org.specs2.execute.Typecheck._
-import org.specs2.matcher.TypecheckMatchers._
+import de.knutwalker.union._
+import de.knutwalker.TripleArrow
+
 import org.specs2.mutable.Specification
+import shapeless.test.illTyped
 
 
-object UnionTypeSpec extends Specification {
+object UnionTypeClassesSpec extends Specification with TripleArrow {
 
   type IS = Int | String
 
@@ -36,136 +37,91 @@ object UnionTypeSpec extends Specification {
 
   "is part of (positive)" should {
 
-    "infer IS" >> typecheck {
-      """
+    "infer IS" >>> {
       implicitly[Int isPartOf IS]
       implicitly[String isPartOf IS]
-      """
     }
 
-    "infer ISB" >> typecheck {
-      """
+    "infer ISB" >>> {
       implicitly[Int isPartOf ISB]
       implicitly[String isPartOf ISB]
       implicitly[Boolean isPartOf ISB]
-      """
     }
 
-    "infer BIS" >> typecheck {
-      """
+    "infer BIS" >>> {
       implicitly[Int isPartOf BIS]
       implicitly[String isPartOf BIS]
       implicitly[Boolean isPartOf BIS]
-      """
     }
 
-    "infer ISBL" >> typecheck {
-      """
+    "infer ISBL" >>> {
       implicitly[Int isPartOf ISBL]
       implicitly[String isPartOf ISBL]
       implicitly[Boolean isPartOf ISBL]
       implicitly[Long isPartOf ISBL]
-      """
     }
 
-    "infer LISB" >> typecheck {
-      """
+    "infer LISB" >>> {
       implicitly[Int isPartOf LISB]
       implicitly[String isPartOf LISB]
       implicitly[Boolean isPartOf LISB]
       implicitly[Long isPartOf LISB]
-      """
     }
 
-    "infer BISL" >> typecheck {
-      """
+    "infer BISL" >>> {
       implicitly[Int isPartOf BISL]
       implicitly[String isPartOf BISL]
       implicitly[Boolean isPartOf BISL]
       implicitly[Long isPartOf BISL]
-      """
     }
 
-    "infer LBIS" >> typecheck {
-      """
+    "infer LBIS" >>> {
       implicitly[Int isPartOf LBIS]
       implicitly[String isPartOf LBIS]
       implicitly[Boolean isPartOf LBIS]
       implicitly[Long isPartOf LBIS]
-      """
     }
   }
 
   "is part of (negative)" should {
 
-    "not infer IS" >> {
-      typecheck {
-        """
-        implicitly[Float isPartOf IS]
-        """
-      } must not succeed
+    "not infer IS" >>> {
+      illTyped("implicitly[Float isPartOf IS]", "Float is not a member of .Int \\| String..")
     }
 
-    "not infer ISB" >> {
-      typecheck {
-        """
-        implicitly[Float isPartOf ISB]
-        """
-      } must not succeed
+    "not infer ISB" >>> {
+      illTyped("implicitly[Float isPartOf ISB]", "Float is not a member of .Int \\| String \\| Boolean..")
     }
 
-    "not infer BIS" >> {
-      typecheck {
-        """
-        implicitly[Float isPartOf BIS]
-        """
-      } must not succeed
+    "not infer BIS" >>> {
+      illTyped("implicitly[Float isPartOf BIS]", "Float is not a member of .Boolean \\| Int \\| String..")
     }
 
-    "not infer ISBL" >> {
-      typecheck {
-        """
-        implicitly[Float isPartOf ISBL]
-        """
-      } must not succeed
+    "not infer ISBL" >>> {
+      illTyped("implicitly[Float isPartOf ISBL]", "Float is not a member of .Int \\| String \\| Boolean \\| Long..")
     }
 
-    "not infer LISB" >> {
-      typecheck {
-        """
-        implicitly[Float isPartOf LISB]
-        """
-      } must not succeed
+    "not infer LISB" >>> {
+      illTyped("implicitly[Float isPartOf LISB]", "Float is not a member of .Long \\| Int \\| String \\| Boolean..")
     }
 
-    "not infer BISL" >> {
-      typecheck {
-        """
-        implicitly[Float isPartOf BISL]
-        """
-      } must not succeed
+    "not infer BISL" >>> {
+      illTyped("implicitly[Float isPartOf BISL]", "Float is not a member of .Boolean \\| Int \\| String \\| Long..")
     }
 
-    "not infer LBIS" >> {
-      typecheck {
-        """
-        implicitly[Float isPartOf LBIS]
-        """
-      } must not succeed
+    "not infer LBIS" >>> {
+      illTyped("implicitly[Float isPartOf LBIS]", "Float is not a member of .Long \\| Boolean \\| Int \\| String..")
     }
   }
 
   "contains some of (positive)" should {
 
-    "infer IS" >> typecheck {
-      """
+    "infer IS" >>> {
       implicitly[(Int | String) containsSomeOf IS]
       implicitly[(String | Int) containsSomeOf IS]
-      """
     }
 
-    "infer ISB" >> typecheck {
-      """
+    "infer ISB" >>> {
       implicitly[(Int | String) containsSomeOf ISB]
       implicitly[(String | Int) containsSomeOf ISB]
       implicitly[(Int | Boolean) containsSomeOf ISB]
@@ -184,11 +140,9 @@ object UnionTypeSpec extends Specification {
       implicitly[(String | (Boolean | Int)) containsSomeOf ISB]
       implicitly[(Boolean | (Int | String)) containsSomeOf ISB]
       implicitly[(Boolean | (String | Int)) containsSomeOf ISB]
-      """
     }
 
-    "infer BIS" >> typecheck {
-      """
+    "infer BIS" >>> {
       implicitly[(Int | String) containsSomeOf BIS]
       implicitly[(String | Int) containsSomeOf BIS]
       implicitly[(Int | Boolean) containsSomeOf BIS]
@@ -207,67 +161,36 @@ object UnionTypeSpec extends Specification {
       implicitly[(String | (Boolean | Int)) containsSomeOf BIS]
       implicitly[(Boolean | (Int | String)) containsSomeOf BIS]
       implicitly[(Boolean | (String | Int)) containsSomeOf BIS]
-      """
     }
   }
 
   "contains some of (negative)" should {
 
-    "not infer unrelated type 1" >> {
-      typecheck {
-        """
-        implicitly[(Float | String) containsSomeOf IS]
-        """
-      } must not succeed
+    "not infer unrelated type 1" >>> {
+      illTyped("implicitly[(Float | String) containsSomeOf IS]", "\nFloat is not in .Int \\| String..\n")
     }
 
-    "not infer unrelated type 2" >> {
-      typecheck {
-        """
-        implicitly[(String | Float) containsSomeOf IS]
-        """
-      } must not succeed
+    "not infer unrelated type 2" >>> {
+      illTyped("implicitly[(String | Float) containsSomeOf IS]", "\nFloat is not in .Int \\| String..\n")
     }
 
-    "not infer unrelated type 3" >> {
-      typecheck {
-        """
-        implicitly[(Float | Int) containsSomeOf IS]
-        """
-      } must not succeed
+    "not infer unrelated type 3" >>> {
+      illTyped("implicitly[(Float | Int) containsSomeOf IS]", "\nFloat is not in .Int \\| String..\n")
     }
 
-    "not infer unrelated type 4" >> {
-      typecheck {
-        """
-        implicitly[(Int | Float) containsSomeOf IS]
-        """
-      } must not succeed
+    "not infer unrelated type 4" >>> {
+      illTyped("implicitly[(Int | Float) containsSomeOf IS]", "\nFloat is not in .Int \\| String..\n")
     }
 
-    "not infer non union 1" >> {
-      typecheck {
-        """
-        implicitly[Int containsSomeOf IS]
-        implicitly[String containsSomeOf IS]
-        """
-      } must not succeed
-    }
-
-    "not infer non union 2" >> {
-      typecheck {
-        """
-        implicitly[Int containsSomeOf IS]
-        implicitly[String containsSomeOf IS]
-        """
-      } must not succeed
+    "not infer non union" >>> {
+      illTyped("implicitly[Int containsSomeOf IS]", "Int does not contain some of de.knutwalker.union.UnionTypeClassesSpec.IS.")
+      illTyped("implicitly[String containsSomeOf IS]", "String does not contain some of de.knutwalker.union.UnionTypeClassesSpec.IS.")
     }
   }
 
   "contains all of (positive)" should {
 
-    "infer ISB" >> typecheck {
-      """
+    "infer ISB" >>> {
       implicitly[ISB containsAllOf ISB]
       implicitly[BIS containsAllOf ISB]
       implicitly[(Int | (String | Boolean)) containsAllOf ISB]
@@ -282,58 +205,33 @@ object UnionTypeSpec extends Specification {
       implicitly[((String | Boolean) | Int) containsAllOf ISB]
       implicitly[((Boolean | Int) | String) containsAllOf ISB]
       implicitly[((Boolean | String) | Int) containsAllOf ISB]
-      """
     }
   }
 
   "contains all of (negative)" should {
 
-    "not infer subunion 1" >> {
-      typecheck {
-        """
-        implicitly[(Int | String) containsAllOf ISB]
-        """
-      } must not succeed
+    "not infer subunion 1" >>> {
+      illTyped("implicitly[(Int | String) containsAllOf ISB]", "\nBoolean is not in .Int \\| String..\n")
     }
 
-    "not infer subunion 2" >> {
-      typecheck {
-        """
-        implicitly[(String | Int) containsAllOf ISB]
-        """
-      } must not succeed
+    "not infer subunion 2" >>> {
+      illTyped("implicitly[(String | Int) containsAllOf ISB]", "\nBoolean is not in .String \\| Int..\n")
     }
 
-    "not infer subunion 3" >> {
-      typecheck {
-        """
-        implicitly[(Int | Boolean) containsAllOf ISB]
-        """
-      } must not succeed
+    "not infer subunion 3" >>> {
+      illTyped("implicitly[(Int | Boolean) containsAllOf ISB]", "\nString is not in .Int \\| Boolean..\n")
     }
 
-    "not infer subunion 4" >> {
-      typecheck {
-        """
-        implicitly[(Boolean | Int) containsAllOf ISB]
-        """
-      } must not succeed
+    "not infer subunion 4" >>> {
+      illTyped("implicitly[(Boolean | Int) containsAllOf ISB]", "\nString is not in .Boolean \\| Int..\n")
     }
 
-    "not infer subunion 5" >> {
-      typecheck {
-        """
-        implicitly[(Boolean | String) containsAllOf ISB]
-        """
-      } must not succeed
+    "not infer subunion 5" >>> {
+      illTyped("implicitly[(Boolean | String) containsAllOf ISB]", "\nInt is not in .Boolean \\| String..\n")
     }
 
-    "not infer subunion 6" >> {
-      typecheck {
-        """
-        implicitly[(String | Boolean) containsAllOf ISB]
-        """
-      } must not succeed
+    "not infer subunion 6" >>> {
+      illTyped("implicitly[(String | Boolean) containsAllOf ISB]", "\nInt is not in .String \\| Boolean..\n")
     }
   }
 
