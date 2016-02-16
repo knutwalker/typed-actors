@@ -32,6 +32,6 @@ lazy val docs = project dependsOn (union, core, creator) settings (
     akkaActor(akkaActorVersion.value),
     akkaPersistence(akkaActorVersion.value)))
 
-lazy val parent = project in file(".") dependsOn (union, core, creator) aggregate (union, core, creator, tests, examples) settings parentSettings()
+lazy val parent = project in file(".") dependsOn (union, core, creator) aggregate (union, core, creator, tests, examples) settings parentSettings(dontRelease)
 
 addCommandAlias("travis", ";clean;coverage;testOnly -- timefactor 3;coverageReport;coverageAggregate;docs/makeSite")
