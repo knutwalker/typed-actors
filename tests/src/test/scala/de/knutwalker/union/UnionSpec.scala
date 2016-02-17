@@ -18,11 +18,7 @@ package de.knutwalker.union
 
 import de.knutwalker.TripleArrow
 
-import org.specs2.execute.Typecheck._
-import org.specs2.execute._
-import org.specs2.matcher.TypecheckMatchers._
 import org.specs2.mutable.Specification
-import org.specs2.specification.core.Fragment
 import shapeless.test.illTyped
 
 
@@ -330,16 +326,6 @@ object UnionSpec extends Specification with TripleArrow {
         illTyped("""Union[Option[Int] | Either[Boolean, String]].run { case Left(s: String) ⇒ true }""")
         illTyped("""Union[Option[Int] | Either[Boolean, String]].run { case Right(b: Boolean) ⇒ true }""")
       }
-    }
-  }
-
-  implicit final class TypecheckedOps(private val typechecked: Typechecked) extends AnyVal {
-    def failing: Result = (typechecked must not succeed: Result).mapMessage(_ + "\n")
-    def pending: Result = ResultExecution.execute(AsResult(typechecked)) match {
-      case s@Success(_, _)     ⇒ Failure("Fixed now, you should remove the 'pendingUntilFixed' marker\n")
-      case Error(m, _)         ⇒ Pending(s"Pending until fixed. ($m)\n")
-      case Failure(m, e, _, _) ⇒ Pending(s"Pending until fixed. ($m, $e)\n")
-      case other               ⇒ Pending("Pending until fixed\n")
     }
   }
 }

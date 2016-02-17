@@ -16,22 +16,22 @@
 
 package de.knutwalker.akka.typed
 
+import de.knutwalker.TripleArrow
+
 import akka.actor.{ Actor, Deploy, Terminated, PoisonPill, ActorSystem }
 import akka.pattern.AskTimeoutException
 import akka.routing.NoRouter
 import akka.util.Timeout
 import org.specs2.concurrent.ExecutionEnv
-import org.specs2.execute._
-import org.specs2.execute.Typecheck._
-import org.specs2.matcher.TypecheckMatchers._
 import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
+import shapeless.test.illTyped
 
 import scala.concurrent.duration._
 
 import java.util.regex.Pattern
 
-object TypedSpec extends Specification with AfterAll {
+object TypedSpec extends Specification with AfterAll with TripleArrow {
   sequential
 
   sealed trait TestMessage
@@ -72,10 +72,10 @@ object TypedSpec extends Specification with AfterAll {
       inbox.receive(1.second) === Foo("Bernd: foo")
     }
 
-    "fail to compile if the wrong message type is sent" >> {
-      typecheck {
-        """ ref ! "some other message" """
-      } must not succeed
+    "fail to compile if the wrong message type is sent" >>> {
+      illTyped(
+        "ref ! \"some other message\"",
+        """(?s).*type mismatch.*found.*String.*required.*TestMessage.*""")
     }
 
     "have the same runtime representation as regular actors" >> {

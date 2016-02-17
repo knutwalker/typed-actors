@@ -27,6 +27,7 @@ import org.specs2.execute.Typecheck._
 import org.specs2.matcher.TypecheckMatchers._
 import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
+import shapeless.test.illTyped
 
 import scala.concurrent.duration._
 import scala.reflect.ClassTag
@@ -77,10 +78,10 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
       inbox.receive(1.second) === SomeOtherMessage("baz")
     }
 
-    "fail to compile if the wrong message type is sent" >> {
-      typecheck {
-        """ ref ! SomeOtherMessage("some other message") """
-      } must not succeed
+    "fail to compile if the wrong message type is sent" >>> {
+      illTyped(
+        """ ref ! SomeOtherMessage("some other message") """,
+        "de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is not a member of \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}.")
     }
 
     "support ask" >> { implicit ee: ExecutionEnv ⇒
@@ -95,16 +96,16 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
         inbox.receive(1.second) === Foo("Bernd: foo")
       }
 
-      "which disables all other subcases" >> {
-        typecheck {
-          """ ref.only[Foo] ! Bar """
-        } must not succeed
+      "which disables all other subcases" >>> {
+        illTyped(
+          """ ref.only[Foo] ! Bar """,
+          "(?s).*type mismatch.*found.*Bar.type.*required.*Foo.*")
       }
 
-      "fails if the type is unrelated" >> {
-        typecheck {
-          """ ref.only[SomeOtherMessage] ! Bar """
-        } must not succeed
+      "fails if the type is unrelated" >>> {
+        illTyped(
+          """ ref.only[SomeOtherMessage] ! Bar """,
+          "de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is not a member of \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}.")
       }
     }
   }
@@ -148,16 +149,17 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
         }
       }
 
-      "only allow defined parts" >> {
-        typecheck {
+      "only allow defined parts" >>> {
+        illTyped(
           """
-            class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
-              def typedReceive: TypedReceive = Union {
-                case msg: String ⇒ inboxRef ! Foo(s"$name: $msg")
-              }
+          class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
+            def typedReceive: TypedReceive = Union {
+              case msg: String ⇒ inboxRef ! Foo(s"$name: $msg")
             }
-          """
-        } must failWith(Regex.quote("Pattern involving [String] is not covered by union {de.knutwalker.akka.typed.UnionSpec.Foo | de.knutwalker.akka.typed.UnionSpec.Bar.type | de.knutwalker.akka.typed.UnionSpec.Baz}."))
+          }
+          """,
+          "Pattern involving \\[String\\] is not covered by union \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}."
+        )
       }
 
       "not require apply" >> {
@@ -169,14 +171,15 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
         ActorOf(PropsFor(new MyActor("Bernd"))) must not beNull
       }
 
-      "not infer apply when not all requirement are met" >> {
-        typecheck {
+      "not infer apply when not all requirement are met" >>> {
+        illTyped(
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
               def typedReceive: TypedReceive = Union
             }
-          """
-        } must failWith("required: .*TypedReceive")
+          """,
+          "(?s).*required: .*TypedReceive.*"
+        )
       }
 
       "accept a foo message" >> {
@@ -194,10 +197,10 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
         inbox.receive(1.second) === SomeOtherMessage("baz")
       }
 
-      "fail to compile if the wrong message type is sent" >> {
-        typecheck {
-          """ ref ! SomeOtherMessage("some other message") """
-        } must not succeed
+      "fail to compile if the wrong message type is sent" >>> {
+        illTyped(
+          """ ref ! SomeOtherMessage("some other message") """,
+          "de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is not a member of \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}.")
       }
 
       "support ask" >> { implicit ee: ExecutionEnv ⇒
@@ -205,16 +208,17 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
         (ref ? Baz("foo")) must be_==(SomeOtherMessage("foo")).await
       }
 
-      "fail to compile when total handler is not exhaustive" >> {
-        typecheck {
+      "fail to compile when total handler is not exhaustive" >>> {
+        illTyped(
           """
           class MyActor extends TypedActor.Of[Option[Foo] | Bar.type] {
             def typedReceive: TypedReceive = Union.total[Option[Foo]] {
               case Some(Foo("foo")) => ()
             }
           }
-          """
-        } must failWith(Regex.quote("The patterns for Option[de.knutwalker.akka.typed.UnionSpec.Foo] are not exhaustive; It would fail on the following inputs: None, Some(_)."))
+          """,
+          "The patterns for Option\\[de.knutwalker.akka.typed.UnionSpec.Foo\\] are not exhaustive; It would fail on the following inputs: None, Some\\(_\\)..*"
+        )
       }
 
       "not fail when the total doesn't match everything" >> {implicit ee: ExecutionEnv ⇒
@@ -276,20 +280,21 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
         }
       }
 
-      "fail with just one part" >> {
-        typecheck {
+      "fail with just one part" >>> {
+        illTyped(
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
               def typedReceive: TypedReceive = TotalUnion {
                 case Foo(msg) ⇒ inboxRef ! Foo(s"$name: $msg")
               }
             }
-          """
-        } must failWith(Regex.quote("The partial function fails to match on these types: {de.knutwalker.akka.typed.UnionSpec.Bar.type | de.knutwalker.akka.typed.UnionSpec.Baz}."))
+          """,
+          "The partial function fails to match on these types: \\{de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}."
+        )
       }
 
-      "require all definitions" >> {
-        typecheck {
+      "require all definitions" >>> {
+        illTyped(
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
               def typedReceive: TypedReceive = TotalUnion {
@@ -297,20 +302,22 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
                 case Bar ⇒ inboxRef ! Bar
               }
             }
-          """
-        } must failWith(Regex.quote("The partial function fails to match on de.knutwalker.akka.typed.UnionSpec.Baz."))
+          """,
+          "The partial function fails to match on de.knutwalker.akka.typed.UnionSpec.Baz."
+        )
       }
 
-      "only allow defined parts" >> {
-        typecheck {
+      "only allow defined parts" >>> {
+        illTyped(
           """
             class MyActor(name: String) extends TypedActor.Of[Foo | Bar.type | Baz] {
               def typedReceive: TypedReceive = TotalUnion {
                 case msg: String ⇒ inboxRef ! Foo(s"$name: $msg")
               }
             }
-          """
-        } must failWith(Regex.quote("Pattern involving [String] is not covered by union {de.knutwalker.akka.typed.UnionSpec.Foo | de.knutwalker.akka.typed.UnionSpec.Bar.type | de.knutwalker.akka.typed.UnionSpec.Baz}."))
+          """,
+          "Pattern involving \\[String\\] is not covered by union \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}."
+        )
       }
 
       "not require apply" >> {
@@ -339,10 +346,10 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
         inbox.receive(1.second) === SomeOtherMessage("baz")
       }
 
-      "fail to compile if the wrong message type is sent" >> {
-        typecheck {
-          """ ref ! SomeOtherMessage("some other message") """
-        } must not succeed
+      "fail to compile if the wrong message type is sent" >>> {
+        illTyped(
+          """ ref ! SomeOtherMessage("some other message") """,
+          "de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is not a member of \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}.")
       }
 
       "support ask" >> { implicit ee: ExecutionEnv ⇒
@@ -403,8 +410,8 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
         expectMsg(SomeOtherMessage("baz"))
       }
 
-      "fail to compile when message is not part of the union" >> {
-        typecheck {
+      "fail to compile when message is not part of the union" >>> {
+        illTyped(
           """
             class MyActor extends TypedActor.Of[Foo | Bar.type | Baz] {
               def typedReceive: TypedReceive = Union {
@@ -413,12 +420,13 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
                 })
               }
              }
-          """
-        } must failWith(Regex.quote("Pattern involving [de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage] is not covered by union {de.knutwalker.akka.typed.UnionSpec.Foo | de.knutwalker.akka.typed.UnionSpec.Bar.type | de.knutwalker.akka.typed.UnionSpec.Baz}."))
+          """,
+          ".*Pattern involving \\[de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage\\] is not covered by union \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}..*"
+        )
       }
 
-      "fail to compile when total handler is not exhaustive" >> {
-        typecheck {
+      "fail to compile when total handler is not exhaustive" >>> {
+        illTyped(
           """
             class MyActor extends TypedActor.Of[Option[Foo] | Bar.type] {
               def typedReceive: TypedReceive = Union {
@@ -427,8 +435,9 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
                 })
               }
             }
-          """
-        } must failWith(Regex.quote("The patterns for Option[de.knutwalker.akka.typed.UnionSpec.Foo] are not exhaustive; It would fail on the following inputs: None, Some(_)."))
+          """,
+          ".*The patterns for Option\\[de.knutwalker.akka.typed.UnionSpec.Foo\\] are not exhaustive; It would fail on the following inputs: None, Some\\(_\\)..*"
+        )
       }
 
       "not fail when the unoinBecome.total doesnt match everything" >> {implicit ee: ExecutionEnv ⇒
