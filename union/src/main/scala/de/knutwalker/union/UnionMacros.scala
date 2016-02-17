@@ -32,30 +32,9 @@ class UnionMacros(val c: blackbox.Context) extends MacroDefs {
 
   def isPartOfImpl[A, U <: Union](implicit A: c.WeakTypeTag[A], U: c.WeakTypeTag[U]): c.Expr[isPartOf[A, U]] = {
     val unionTypes = expandUnion(U.tpe, TheUnion)
-    val tpe = A.tpe.dealias
-    if (!isTypePartOf(tpe, unionTypes)) {
-      fail(s"$tpe is not a member of ${typeMsg(unionTypes)}.")
-    }
-    ReturnNull
-  }
-
-  def containsSomeOfImpl[U <: Union, T <: Union](implicit U: c.WeakTypeTag[U], T: c.WeakTypeTag[T]): c.Expr[containsSomeOf[U, T]] = {
-    val smaller = expandUnion(U.tpe, TheUnion)
-    val bigger = expandUnion(T.tpe, TheUnion)
-    val msgs = containsOf(smaller, bigger)
-    if (msgs.nonEmpty) {
-      err(msgs.mkString("\n", "\n", "\n"))
-    }
-    ReturnNull
-  }
-
-  def containsAllOfImpl[U <: Union, T <: Union](implicit U: c.WeakTypeTag[U], T: c.WeakTypeTag[T]): c.Expr[containsAllOf[U, T]] = {
-    val smaller = expandUnion(U.tpe, TheUnion)
-    val bigger = expandUnion(T.tpe, TheUnion)
-    val msgs = containsOf(smaller, bigger) ++ containsOf(bigger, smaller)
-    if (msgs.nonEmpty) {
-      err(msgs.mkString("\n", "\n", "\n"))
-    }
+    val partTypes = expandUnion(A.tpe, TheUnion)
+    val msgs = containsOf(partTypes, unionTypes)
+    msgs.foreach(fail)
     ReturnNull
   }
 
@@ -102,15 +81,6 @@ class UnionMacros(val c: blackbox.Context) extends MacroDefs {
     msg.tree
   }
 
-  def isTypePartOf(tpe: Type, union: List[Type]): Boolean =
-    if (tpe =:= NothingTpe || tpe == NoType) true
-    else union.exists(ut ⇒ typeMatch(tpe, ut))
-
-  def containsOf(left: List[Type], right: List[Type]): List[String] = {
-    val notInRight = left.filterNot(e ⇒ isTypePartOf(e, right))
-    failMsgFor(right, notInRight)
-  }
-
   private val unknownMsg       =
     "Pattern is not recognized. If you think this is a bug, please file an " +
     "issue at Github."
@@ -120,6 +90,18 @@ class UnionMacros(val c: blackbox.Context) extends MacroDefs {
     "workaround by adding a catch-all pattern like `case _: %1$s` to your " +
     "cases and please file an issue on Github."
 
+  private def isTypePartOf(tpe: Type, union: List[Type]): Boolean =
+    if (tpe =:= NothingTpe || tpe == NoType) true
+    else union.exists(ut ⇒ typeMatch(tpe, ut))
+
+  private def containsOf(left: List[Type], right: List[Type]): Option[String] = {
+    val notInRight = left.filterNot(e ⇒ isTypePartOf(e, right))
+    if (notInRight.isEmpty) None else {
+      val tgts = typeMsg(right)
+      if (notInRight.tail.isEmpty) Some(s"${notInRight.head} is not in $tgts.")
+      else Some(notInRight.map(d ⇒ s"$d is not in $tgts.").mkString("\n", "\n", "\n"))
+    }
+  }
 
   private def checkTotalCoverage[Sub <: Completeness, All <: Completeness, T, U](unionTypes: List[c.universe.Type], patterns: List[MatchResult]): Unit = {
     val matched = patterns.map(_.ut)
@@ -190,12 +172,6 @@ class UnionMacros(val c: blackbox.Context) extends MacroDefs {
       }
     }
   }
-
-  private def failMsgFor(target: List[Type], diff: List[Type]): List[String] =
-    if (diff.isEmpty) Nil else {
-      val tgts = typeMsg(target)
-      diff.map(d ⇒ s"$d is not in $tgts.")
-    }
 
   /**
    * get a more precise representation than just simply `tpe.finalResultType`

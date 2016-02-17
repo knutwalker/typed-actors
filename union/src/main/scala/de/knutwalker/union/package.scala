@@ -57,44 +57,9 @@ package object union {
  */
 package union {
 
-  @implicitNotFound("Cannot prove that ${A} is a union type.")
-  sealed trait IsUnion[-A] {
-    type Out <: Union
-  }
-
-  object IsUnion {
-    type Aux[-A0, U0 <: Union] = IsUnion[A0] {type Out = U0}
-    implicit def isUnion[A <: Union]: Aux[A, A] =
-      new IsUnion[A] {
-        type Out = A
-      }
-  }
-
   @implicitNotFound("${A} is not part of ${U}.")
   sealed trait isPartOf[A, U <: Union]
   object isPartOf {
     implicit def materialize[A, U <: Union]: A isPartOf U = macro UnionMacros.isPartOfImpl[A, U]
-  }
-
-  @implicitNotFound("${U} does not contain some of ${T}.")
-  sealed trait containsSomeOf[U <: Union, T <: Union]
-  object containsSomeOf{
-    implicit def materialize[U <: Union, T <: Union]: U containsSomeOf T = macro UnionMacros.containsSomeOfImpl[U, T]
-  }
-
-  @implicitNotFound("${U} does not contain all of ${T}.")
-  sealed trait containsAllOf[U <: Union, T <: Union]
-  object containsAllOf {
-    implicit def materialize[U <: Union, T <: Union]: U containsAllOf T = macro UnionMacros.containsAllOfImpl[U, T]
-  }
-
-  // @annotation.implicitAmbiguous("${A} must not be <: ${B}")
-  sealed trait isNotA[A, B]
-  object isNotA {
-    implicit def nsub[A, B]: A isNotA B = null
-    // $COVERAGE-OFF$Code only exists to prove non-equality and is expected to never execute
-    implicit def nsubAmbig1[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
-    implicit def nsubAmbig2[A, B >: A]: A isNotA B = sys.error("Unexpected invocation")
-    // $COVERAGE-ON$
   }
 }

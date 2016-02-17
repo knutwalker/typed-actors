@@ -16,7 +16,6 @@
 
 package de.knutwalker.union
 
-import de.knutwalker.union._
 import de.knutwalker.TripleArrow
 
 import org.specs2.mutable.Specification
@@ -86,153 +85,117 @@ object UnionTypeClassesSpec extends Specification with TripleArrow {
   "is part of (negative)" should {
 
     "not infer IS" >>> {
-      illTyped("implicitly[Float isPartOf IS]", "Float is not a member of .Int \\| String..")
+      illTyped("implicitly[Float isPartOf IS]", "Float is not in .Int \\| String..")
     }
 
     "not infer ISB" >>> {
-      illTyped("implicitly[Float isPartOf ISB]", "Float is not a member of .Int \\| String \\| Boolean..")
+      illTyped("implicitly[Float isPartOf ISB]", "Float is not in .Int \\| String \\| Boolean..")
     }
 
     "not infer BIS" >>> {
-      illTyped("implicitly[Float isPartOf BIS]", "Float is not a member of .Boolean \\| Int \\| String..")
+      illTyped("implicitly[Float isPartOf BIS]", "Float is not in .Boolean \\| Int \\| String..")
     }
 
     "not infer ISBL" >>> {
-      illTyped("implicitly[Float isPartOf ISBL]", "Float is not a member of .Int \\| String \\| Boolean \\| Long..")
+      illTyped("implicitly[Float isPartOf ISBL]", "Float is not in .Int \\| String \\| Boolean \\| Long..")
     }
 
     "not infer LISB" >>> {
-      illTyped("implicitly[Float isPartOf LISB]", "Float is not a member of .Long \\| Int \\| String \\| Boolean..")
+      illTyped("implicitly[Float isPartOf LISB]", "Float is not in .Long \\| Int \\| String \\| Boolean..")
     }
 
     "not infer BISL" >>> {
-      illTyped("implicitly[Float isPartOf BISL]", "Float is not a member of .Boolean \\| Int \\| String \\| Long..")
+      illTyped("implicitly[Float isPartOf BISL]", "Float is not in .Boolean \\| Int \\| String \\| Long..")
     }
 
     "not infer LBIS" >>> {
-      illTyped("implicitly[Float isPartOf LBIS]", "Float is not a member of .Long \\| Boolean \\| Int \\| String..")
+      illTyped("implicitly[Float isPartOf LBIS]", "Float is not in .Long \\| Boolean \\| Int \\| String..")
     }
   }
 
   "contains some of (positive)" should {
 
     "infer IS" >>> {
-      implicitly[(Int | String) containsSomeOf IS]
-      implicitly[(String | Int) containsSomeOf IS]
+      implicitly[(Int | String) isPartOf IS]
+      implicitly[(String | Int) isPartOf IS]
     }
 
     "infer ISB" >>> {
-      implicitly[(Int | String) containsSomeOf ISB]
-      implicitly[(String | Int) containsSomeOf ISB]
-      implicitly[(Int | Boolean) containsSomeOf ISB]
-      implicitly[(Boolean | Int) containsSomeOf ISB]
-      implicitly[(String | Boolean) containsSomeOf ISB]
-      implicitly[(Boolean | String) containsSomeOf ISB]
-      implicitly[(Int | String | Boolean) containsSomeOf ISB]
-      implicitly[(Int | Boolean | String) containsSomeOf ISB]
-      implicitly[(String | Int | Boolean) containsSomeOf ISB]
-      implicitly[(String | Boolean | Int) containsSomeOf ISB]
-      implicitly[(Boolean | Int | String) containsSomeOf ISB]
-      implicitly[(Boolean | String | Int) containsSomeOf ISB]
-      implicitly[(Int | (String | Boolean)) containsSomeOf ISB]
-      implicitly[(Int | (Boolean | String)) containsSomeOf ISB]
-      implicitly[(String | (Int | Boolean)) containsSomeOf ISB]
-      implicitly[(String | (Boolean | Int)) containsSomeOf ISB]
-      implicitly[(Boolean | (Int | String)) containsSomeOf ISB]
-      implicitly[(Boolean | (String | Int)) containsSomeOf ISB]
+      implicitly[(Int | String) isPartOf ISB]
+      implicitly[(String | Int) isPartOf ISB]
+      implicitly[(Int | Boolean) isPartOf ISB]
+      implicitly[(Boolean | Int) isPartOf ISB]
+      implicitly[(String | Boolean) isPartOf ISB]
+      implicitly[(Boolean | String) isPartOf ISB]
+      implicitly[(Int | String | Boolean) isPartOf ISB]
+      implicitly[(Int | Boolean | String) isPartOf ISB]
+      implicitly[(String | Int | Boolean) isPartOf ISB]
+      implicitly[(String | Boolean | Int) isPartOf ISB]
+      implicitly[(Boolean | Int | String) isPartOf ISB]
+      implicitly[(Boolean | String | Int) isPartOf ISB]
+      implicitly[(Int | (String | Boolean)) isPartOf ISB]
+      implicitly[(Int | (Boolean | String)) isPartOf ISB]
+      implicitly[(String | (Int | Boolean)) isPartOf ISB]
+      implicitly[(String | (Boolean | Int)) isPartOf ISB]
+      implicitly[(Boolean | (Int | String)) isPartOf ISB]
+      implicitly[(Boolean | (String | Int)) isPartOf ISB]
     }
 
     "infer BIS" >>> {
-      implicitly[(Int | String) containsSomeOf BIS]
-      implicitly[(String | Int) containsSomeOf BIS]
-      implicitly[(Int | Boolean) containsSomeOf BIS]
-      implicitly[(Boolean | Int) containsSomeOf BIS]
-      implicitly[(String | Boolean) containsSomeOf BIS]
-      implicitly[(Boolean | String) containsSomeOf BIS]
-      implicitly[(Int | String | Boolean) containsSomeOf BIS]
-      implicitly[(Int | Boolean | String) containsSomeOf BIS]
-      implicitly[(String | Int | Boolean) containsSomeOf BIS]
-      implicitly[(String | Boolean | Int) containsSomeOf BIS]
-      implicitly[(Boolean | Int | String) containsSomeOf BIS]
-      implicitly[(Boolean | String | Int) containsSomeOf BIS]
-      implicitly[(Int | (String | Boolean)) containsSomeOf BIS]
-      implicitly[(Int | (Boolean | String)) containsSomeOf BIS]
-      implicitly[(String | (Int | Boolean)) containsSomeOf BIS]
-      implicitly[(String | (Boolean | Int)) containsSomeOf BIS]
-      implicitly[(Boolean | (Int | String)) containsSomeOf BIS]
-      implicitly[(Boolean | (String | Int)) containsSomeOf BIS]
+      implicitly[(Int | String) isPartOf BIS]
+      implicitly[(String | Int) isPartOf BIS]
+      implicitly[(Int | Boolean) isPartOf BIS]
+      implicitly[(Boolean | Int) isPartOf BIS]
+      implicitly[(String | Boolean) isPartOf BIS]
+      implicitly[(Boolean | String) isPartOf BIS]
+      implicitly[(Int | String | Boolean) isPartOf BIS]
+      implicitly[(Int | Boolean | String) isPartOf BIS]
+      implicitly[(String | Int | Boolean) isPartOf BIS]
+      implicitly[(String | Boolean | Int) isPartOf BIS]
+      implicitly[(Boolean | Int | String) isPartOf BIS]
+      implicitly[(Boolean | String | Int) isPartOf BIS]
+      implicitly[(Int | (String | Boolean)) isPartOf BIS]
+      implicitly[(Int | (Boolean | String)) isPartOf BIS]
+      implicitly[(String | (Int | Boolean)) isPartOf BIS]
+      implicitly[(String | (Boolean | Int)) isPartOf BIS]
+      implicitly[(Boolean | (Int | String)) isPartOf BIS]
+      implicitly[(Boolean | (String | Int)) isPartOf BIS]
+    }
+
+    "infer completely" >>> {
+      implicitly[ISB isPartOf ISB]
+      implicitly[BIS isPartOf ISB]
+      implicitly[ISBL isPartOf LISB]
+      implicitly[ISBL isPartOf BISL]
+      implicitly[ISBL isPartOf LBIS]
+      implicitly[LISB isPartOf ISBL]
+      implicitly[LISB isPartOf BISL]
+      implicitly[LISB isPartOf LBIS]
+      implicitly[BISL isPartOf ISBL]
+      implicitly[BISL isPartOf LISB]
+      implicitly[BISL isPartOf LBIS]
+      implicitly[LBIS isPartOf ISBL]
+      implicitly[LBIS isPartOf LISB]
+      implicitly[LBIS isPartOf BISL]
     }
   }
 
   "contains some of (negative)" should {
 
     "not infer unrelated type 1" >>> {
-      illTyped("implicitly[(Float | String) containsSomeOf IS]", "\nFloat is not in .Int \\| String..\n")
+      illTyped("implicitly[(Float | String) isPartOf IS]", "Float is not in .Int \\| String..")
     }
 
     "not infer unrelated type 2" >>> {
-      illTyped("implicitly[(String | Float) containsSomeOf IS]", "\nFloat is not in .Int \\| String..\n")
+      illTyped("implicitly[(String | Float) isPartOf IS]", "Float is not in .Int \\| String..")
     }
 
     "not infer unrelated type 3" >>> {
-      illTyped("implicitly[(Float | Int) containsSomeOf IS]", "\nFloat is not in .Int \\| String..\n")
+      illTyped("implicitly[(Float | Int) isPartOf IS]", "Float is not in .Int \\| String..")
     }
 
     "not infer unrelated type 4" >>> {
-      illTyped("implicitly[(Int | Float) containsSomeOf IS]", "\nFloat is not in .Int \\| String..\n")
-    }
-
-    "not infer non union" >>> {
-      illTyped("implicitly[Int containsSomeOf IS]", "Int does not contain some of de.knutwalker.union.UnionTypeClassesSpec.IS.")
-      illTyped("implicitly[String containsSomeOf IS]", "String does not contain some of de.knutwalker.union.UnionTypeClassesSpec.IS.")
+      illTyped("implicitly[(Int | Float) isPartOf IS]", "Float is not in .Int \\| String..")
     }
   }
-
-  "contains all of (positive)" should {
-
-    "infer ISB" >>> {
-      implicitly[ISB containsAllOf ISB]
-      implicitly[BIS containsAllOf ISB]
-      implicitly[(Int | (String | Boolean)) containsAllOf ISB]
-      implicitly[(Int | (Boolean | String)) containsAllOf ISB]
-      implicitly[(String | (Int | Boolean)) containsAllOf ISB]
-      implicitly[(String | (Boolean | Int)) containsAllOf ISB]
-      implicitly[(Boolean | (Int | String)) containsAllOf ISB]
-      implicitly[(Boolean | (String | Int)) containsAllOf ISB]
-      implicitly[((Int | String) | Boolean) containsAllOf ISB]
-      implicitly[((Int | Boolean) | String) containsAllOf ISB]
-      implicitly[((String | Int) | Boolean) containsAllOf ISB]
-      implicitly[((String | Boolean) | Int) containsAllOf ISB]
-      implicitly[((Boolean | Int) | String) containsAllOf ISB]
-      implicitly[((Boolean | String) | Int) containsAllOf ISB]
-    }
-  }
-
-  "contains all of (negative)" should {
-
-    "not infer subunion 1" >>> {
-      illTyped("implicitly[(Int | String) containsAllOf ISB]", "\nBoolean is not in .Int \\| String..\n")
-    }
-
-    "not infer subunion 2" >>> {
-      illTyped("implicitly[(String | Int) containsAllOf ISB]", "\nBoolean is not in .String \\| Int..\n")
-    }
-
-    "not infer subunion 3" >>> {
-      illTyped("implicitly[(Int | Boolean) containsAllOf ISB]", "\nString is not in .Int \\| Boolean..\n")
-    }
-
-    "not infer subunion 4" >>> {
-      illTyped("implicitly[(Boolean | Int) containsAllOf ISB]", "\nString is not in .Boolean \\| Int..\n")
-    }
-
-    "not infer subunion 5" >>> {
-      illTyped("implicitly[(Boolean | String) containsAllOf ISB]", "\nInt is not in .Boolean \\| String..\n")
-    }
-
-    "not infer subunion 6" >>> {
-      illTyped("implicitly[(String | Boolean) containsAllOf ISB]", "\nInt is not in .String \\| Boolean..\n")
-    }
-  }
-
 }

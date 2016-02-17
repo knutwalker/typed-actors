@@ -81,7 +81,7 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
     "fail to compile if the wrong message type is sent" >>> {
       illTyped(
         """ ref ! SomeOtherMessage("some other message") """,
-        "de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is not a member of \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}.")
+        "de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is not in \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}.")
     }
 
     "support ask" >> { implicit ee: ExecutionEnv ⇒
@@ -105,7 +105,7 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
       "fails if the type is unrelated" >>> {
         illTyped(
           """ ref.only[SomeOtherMessage] ! Bar """,
-          "de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is not a member of \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}.")
+          "de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is not in \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}.")
       }
     }
   }
@@ -200,7 +200,7 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
       "fail to compile if the wrong message type is sent" >>> {
         illTyped(
           """ ref ! SomeOtherMessage("some other message") """,
-          "de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is not a member of \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}.")
+          "de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is not in \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}.")
       }
 
       "support ask" >> { implicit ee: ExecutionEnv ⇒
@@ -349,7 +349,7 @@ object UnionSpec extends Specification with AfterAll with TripleArrow {
       "fail to compile if the wrong message type is sent" >>> {
         illTyped(
           """ ref ! SomeOtherMessage("some other message") """,
-          "de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is not a member of \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}.")
+          "de.knutwalker.akka.typed.UnionSpec.SomeOtherMessage is not in \\{de.knutwalker.akka.typed.UnionSpec.Foo \\| de.knutwalker.akka.typed.UnionSpec.Bar.type \\| de.knutwalker.akka.typed.UnionSpec.Baz\\}.")
       }
 
       "support ask" >> { implicit ee: ExecutionEnv ⇒
