@@ -42,7 +42,14 @@ Okay, enough theory – lets see union types in action.
 
 #### Union types
 
-First, let's define some unrelated messages. Note that these are not part of a sealed trait hierarchy.
+The union type lives in a separate package, `de.knutwalker.union`. All the following examples assume this
+additional import:
+
+```tut:silent
+import de.knutwalker.union._
+```
+
+First, let's define some unrelated messages. Note that these are **not** part of a sealed trait hierarchy.
 
 ```tut:silent
 case class Foo(foo: String)

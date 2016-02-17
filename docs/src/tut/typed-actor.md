@@ -8,6 +8,7 @@ We will reuse the definitions and actors from the [&laquo; Unsafe Usage](unsafe.
 
 ```tut:invisible
 import akka.actor._
+import de.knutwalker.union._
 import de.knutwalker.akka.typed._
 sealed trait MyMessage
 case class Foo(foo: String) extends MyMessage
@@ -153,27 +154,28 @@ class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
 We have to do this discrimination at type-level as well. Don't worry, it's less complicated as that sound. As a side note, sum types like `Either` are sometimes referred to as tagged union, the tag being the thing that would help us to discrimite at runtime – our union type is an untagged union instead.
 
 The basics stay the same, you still extends `TypedActor.Of` and implement `typedReceive` but this time using either `Union` or `TotalUnion`. Use `Union` if you only cover some of the union types cases and `TotalUnion` if you want to cover _all_ cases. The compiler can perform exhaustiveness checks on the latter.
-Both methods return a builder-style object that has an `on` method that must be used to enumerate the individual subcases of the union type and you close with a call to `apply`.
+Both methods accept a `PartialFunction[Any, Unit]` as `Any` is the only guaranteed LUB for _any_ possible union type combination.
 
 ```tut
 class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
-  def typedReceive: TypedReceive = Union
-    .on[Foo]{ case Foo(foo) => println(s"received a Foo: $foo") }
-    .on[Bar]{ case Bar(bar) => println(s"received a Bar: $bar") }
-    .on[Baz]{ case Baz(baz) => println(s"received a Baz: $baz") }
-    .apply
+  def typedReceive: TypedReceive = Union {
+    case Foo(foo) => println(s"received a Foo: $foo")
+    case Bar(bar) => println(s"received a Bar: $bar")
+    case Baz(baz) => println(s"received a Baz: $baz")
+  }
 }
 ```
 
-Or if you have a total function for the cases, there is a shortcut:
+If you have a total function for the cases, you can add `total` right before the partial function.
+Note that this "only" enables exhaustiveness checks and does *not* enable function literal syntax.
 
 ```tut
 class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
-  def typedReceive: TypedReceive = Union
-    .total[Foo]{ foo ⇒ println(s"received a Foo: $foo.foo") }
-    .total[Bar]{ bar ⇒ println(s"received a Bar: $bar.bar") }
-    .total[Baz]{ baz ⇒ println(s"received a Baz: $baz.baz") }
-    .apply
+  def typedReceive: TypedReceive = Union.total {
+    case foo: Foo => println(s"received a Foo: $foo.foo")
+    case bar: Bar => println(s"received a Bar: $bar.bar")
+    case baz: Baz => println(s"received a Baz: $baz.baz")
+  }
 }
 ```
 
@@ -182,7 +184,6 @@ You have to provide at least one case, you cannot define an empty behavior.
 ```tut:fail
 class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
   def typedReceive: TypedReceive = Union
-    .apply
 }
 ```
 
@@ -191,55 +192,26 @@ If you remove one of those cases it still compiles, since `Union` does not check
 
 ```tut
 class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
-  def typedReceive: TypedReceive = Union
-    .on[Foo]{ case Foo(foo) => println(s"received a Foo: $foo") }
-    .on[Baz]{ case Baz(baz) => println(s"received a Baz: $baz") }
-    .apply
+  def typedReceive: TypedReceive = Union {
+    case Foo(foo) => println(s"received a Foo: $foo")
+    case Baz(baz) => println(s"received a Baz: $baz")
+  }
 }
 ```
 
-If you switch to `TotalUnion` you can see the compiler message telling that something is missing. Unfortunately it doesn't tell you _which_ case is missing exactly, although that might change in the future.
+If you switch to `TotalUnion` you can see the compiler message telling that something is missing.
 
 ```tut:fail
 class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
-  def typedReceive: TypedReceive = TotalUnion
-    .on[Foo]{ case Foo(foo) => println(s"received a Foo: $foo") }
-    .on[Baz]{ case Baz(baz) => println(s"received a Baz: $baz") }
-    .apply
+  def typedReceive: TypedReceive = TotalUnion {
+    case Foo(foo) => println(s"received a Foo: $foo")
+    case Baz(baz) => println(s"received a Baz: $baz")
+  }
 }
 ```
 
-You can even leave out the call to `apply`.
 
-```tut
-class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
-  def typedReceive: TypedReceive = Union
-    .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-    .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
-}
-```
-
-Which is true for `TotalUnion` as well.
-
-```tut
-class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
-  def typedReceive: TypedReceive = TotalUnion
-    .on[Foo]{ case Foo(foo) ⇒ println(s"received a Foo: $foo") }
-    .on[Bar]{ case Bar(bar) ⇒ println(s"received a Bar: $bar") }
-    .on[Baz]{ case Baz(baz) ⇒ println(s"received a Baz: $baz") }
-}
-```
-
-As you can see, you basically provide a receive block for all relevant subtypes of the union. One such receive block is typed in its input, though you cannot use the `Total` helper as this one is fixed on the complete message type, the union type itself in this case.
-
-```tut:fail
-class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
-  def typedReceive: TypedReceive = Union
-    .on[Foo](Total { case Foo(foo) => println(s"received a Foo: $foo") })
-    .apply
-}
-```
-
+As you can see, you basically provide a receive block for all relevant subtypes of the union you can cover.
 At any rate, the `Props` and `ActorRef` from this `TypedActor` are union typed as well.
 
 ```tut
@@ -256,23 +228,16 @@ ref ! SomeOtherMessage
 ```
 
 
-If you want to `context.become` with a union type there are some options.
-
-1. You can use the `Union`/`TotalUnion` helper as described earlier.
-2. You can use `unionBecome` if you only want to cover _one_ particular case.
-   It is a shortcut for `typedBecome(Union.on[Msg]{ case ... }.apply)`
+If you want to `context.become` with a union type there are some options, just use the `Union`/`TotalUnion` helper as described earlier.
 
 
 ```tut
 class MyActor extends TypedActor.Of[Foo | Bar | Baz] {
-  def typedReceive: TypedReceive = Union
-    .on[Foo]{
-       case Foo(foo) =>
-       unionBecome.on[Bar] {
-         case Bar(bar) => println(s"received a Boo: $bar")
-       }
-    }
-    .apply
+  def typedReceive: TypedReceive = Union {
+    case Foo(foo) => typedBecome(Union {
+      case Bar(bar) => println(s"received a Boo: $bar")
+    })
+  }
 }
 ```
 

@@ -163,8 +163,6 @@ trait TypedActor extends Actor {
 object TypedActor {
   /**
    * Abstract class to extend from in order to get a [[TypedActor]].
-   * If you want to have the message type provided as a type parameter,
-   * you have to add a context bound for [[scala.reflect.ClassTag]].
    *
    * {{{
    *   class ExampleActor extends TypeActor.Of[ExampleProtocol] {
