@@ -104,7 +104,7 @@ class MyOtherActor extends TypedActor.Of[MyMessage] {
 
 You can event get exhaustiveness checks from the compiler by using the `Total` wrapper.
 
-```tut
+```tut:fail
 class MyOtherActor extends TypedActor.Of[MyMessage] {
   def typedReceive = Total {
     case Foo(foo) => println(s"received a Foo: $foo")
@@ -112,19 +112,20 @@ class MyOtherActor extends TypedActor.Of[MyMessage] {
 }
 ```
 
-Please be aware of a ~~bug~~ feature that wouldn't fail on non-exhaustive checks.
-If you use guards in your matchers, the complete pattern is optimistically treated as exhaustive; See [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232). Note the missing non-exhaustiveness warning in the next example.
+Please note that guards are largely ignored for this, meaning they are optimistically assumed
+to be exhaustive. This is related to [SI-5365](https://issues.scala-lang.org/browse/SI-5365), [SI-7631](https://issues.scala-lang.org/browse/SI-7631), and [SI-9232](https://issues.scala-lang.org/browse/SI-9232).
+Note the missing non-exhaustiveness warning in the next example.
 
 ```tut
 val False = false
 class MyOtherActor extends TypedActor.Of[MyMessage] {
   def typedReceive = Total {
     case Foo(foo) if False =>
+    case Bar(bar) =>
   }
 }
 ```
 
-Unfortunately, this cannot be worked around by library code. Even worse, this would not result in a unhandled message but in a runtime match error.
 
 #### Working with Union Types
 

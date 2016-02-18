@@ -26,13 +26,14 @@ import scala.concurrent.duration.Duration
 
 import java.util.concurrent.TimeUnit
 
+sealed trait MyFoo
+case object Foo extends MyFoo
+case object Bar extends MyFoo
+case object Qux
+
+
 object TypedActorSpec extends Specification with AfterAll {
   sequential
-
-  sealed trait MyFoo
-  case object Foo extends MyFoo
-  case object Bar extends MyFoo
-  case object Qux
 
   implicit val system = ActorSystem("foo")
   val inbox = CreateInbox()

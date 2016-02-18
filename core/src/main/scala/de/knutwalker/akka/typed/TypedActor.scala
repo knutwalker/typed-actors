@@ -21,7 +21,7 @@ import de.knutwalker.union.{Union ⇒ UnionT}
 import _root_.akka.actor.Actor
 import _root_.akka.event.LoggingReceive
 import akka.actor.Actor.Receive
-import de.knutwalker.akka.typed.TypedActor.{ Downcast, TypedReceiver }
+import de.knutwalker.akka.typed.TypedActor.TypedReceiver
 
 import scala.reflect.ClassTag
 
@@ -86,8 +86,7 @@ trait TypedActor extends Actor {
    *   }
    * }}}
    */
-  final def Total(f: Message ⇒ Unit)(implicit ct: ClassTag[Message]): TypedReceive =
-    new Downcast[Message](this, ct.runtimeClass.asInstanceOf[Class[Message]])(f)
+  final val Total = UnionT.total[Message].total
 
   /**
    * Wraps an untyped receiver and returns it as a [[TypedReceive]].
@@ -183,8 +182,11 @@ object TypedActor {
    * @param f the actors behavior
    * @tparam A the message type
    */
-  def apply[A: ClassTag](f: A ⇒ Unit): Props[A] =
-    PropsFor(new TypedActor.Of[A] {def typedReceive = Total(f)})
+  def apply[A](f: A ⇒ Unit)(implicit ct: ClassTag[A]): Props[A] =
+    PropsFor(new TypedActor.Of[A] {
+      val typedReceive: TypedReceive =
+        new Downcast[A](this, ct.runtimeClass.asInstanceOf[Class[A]])(f)
+    })
 
   private class Downcast[A](actor: Actor, cls: Class[A])(f: A ⇒ Unit) extends Receive {
     def isDefinedAt(x: Any): Boolean = cls.isInstance(x)

@@ -22,16 +22,11 @@ import de.knutwalker.union._
 import akka.actor.{ UnhandledMessage, ActorSystem }
 import akka.util.Timeout
 import org.specs2.concurrent.ExecutionEnv
-import org.specs2.execute._
-import org.specs2.execute.Typecheck._
-import org.specs2.matcher.TypecheckMatchers._
 import org.specs2.mutable.Specification
 import org.specs2.specification.AfterAll
 import shapeless.test.illTyped
 
 import scala.concurrent.duration._
-import scala.reflect.ClassTag
-import scala.util.matching.Regex
 import java.util.concurrent.TimeUnit
 
 

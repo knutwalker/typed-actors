@@ -101,7 +101,7 @@ class UnionMacros(val c: blackbox.Context) extends MacroDefs {
 
   private def isTypePartOf(tpe: Type, union: List[Type], variant: Boolean = true): Boolean =
     if (tpe =:= NothingTpe || tpe == NoType) true
-    else union.exists(ut ⇒ typeMatch(tpe, ut, variant))
+    else union.exists(ut ⇒ (ut == NoType) || typeMatch(tpe, ut, variant))
 
   private def containsOf(left: List[Type], right: List[Type]): Option[String] = {
     val notInRight = left.filterNot(e ⇒ isTypePartOf(e, right))
@@ -137,8 +137,8 @@ class UnionMacros(val c: blackbox.Context) extends MacroDefs {
           // Workaround for <https://issues.scala-lang.org/browse/SI-7755>
           baseSym.typeSignature
         }
-        val scrutSym = baseSym.asInstanceOf[global.Symbol]
         val tp = base.asInstanceOf[global.Type]
+        val scrutSym = translator.freshSym(baseSym.pos.asInstanceOf[global.Position], tp)
         val cases = patterns map {pat ⇒
 
           // Workaround for <https://issues.scala-lang.org/browse/SI-5464>

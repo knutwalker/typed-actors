@@ -54,7 +54,7 @@ object TypedSpec extends Specification with AfterAll with TripleArrow {
   }
 
   class TestActor extends TypedActor.Of[TestMessage] {
-    def typedReceive: TypedReceive = Total(_ ⇒ ())
+    def typedReceive: TypedReceive = Total{case _ ⇒ ()}
   }
 
   class AnotherActor extends Actor {
