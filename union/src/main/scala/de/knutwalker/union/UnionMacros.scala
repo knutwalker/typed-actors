@@ -64,18 +64,22 @@ class UnionMacros(val c: blackbox.Context) extends MacroDefs {
     }
 
     if (isEffectively[Completeness.Total](Sub.tpe)) {
-      val shouldCheck: (Type) ⇒ Boolean =
-        if (SU.tpe =:= NothingTpe) scala.Function.const(true)
-        else {
-          val subUnion = expandUnion(SU.tpe, TheUnion)
-          val diff = subUnion.diff(unionTypes)
-          if (diff.nonEmpty) {
-            c.abort(c.enclosingPosition,
-              s"Can't check exhaustiveness for ${typeMsg(diff)} as they do not belong to ${typeMsg(unionTypes)}")
-          }
-          membership(subUnion)
+      if (SU.tpe =:= NothingTpe) {
+        checkExhaustiveness(patterns, _ ⇒ true)
+      } else {
+        val subUnion = expandUnion(SU.tpe, TheUnion)
+        val diff = subUnion.diff(unionTypes)
+        if (diff.nonEmpty) {
+          c.abort(
+            c.enclosingPosition,
+            s"Can't check exhaustiveness for ${typeMsg(diff)} as they do not belong to ${typeMsg(unionTypes)}"
+          )
         }
-      checkExhaustiveness(patterns, shouldCheck)
+        val shouldCheck = membership(subUnion)
+        if (patterns.exists(p ⇒ shouldCheck(p.ut))) {
+          checkExhaustiveness(patterns, shouldCheck)
+        }
+      }
     }
 
     msg.tree
@@ -89,10 +93,15 @@ class UnionMacros(val c: blackbox.Context) extends MacroDefs {
     "%2$s. Note that this check may be a false negative. If that is the case, " +
     "workaround by adding a catch-all pattern like `case _: %1$s` to your " +
     "cases and please file an issue on Github."
+  private val si7046           =
+    "You are likely affected by SI-7046 <https://issues.scala-lang.org/browse/SI-7046> " +
+    "or a related bug. This means, that the exhautiveness checks could not be executed " +
+    "and as a result, the succeeding compilation can be a false positive. As a workaround, " +
+    "try to move the definition of %1$s to a separate compile unit."
 
-  private def isTypePartOf(tpe: Type, union: List[Type]): Boolean =
+  private def isTypePartOf(tpe: Type, union: List[Type], variant: Boolean = true): Boolean =
     if (tpe =:= NothingTpe || tpe == NoType) true
-    else union.exists(ut ⇒ typeMatch(tpe, ut))
+    else union.exists(ut ⇒ typeMatch(tpe, ut, variant))
 
   private def containsOf(left: List[Type], right: List[Type]): Option[String] = {
     val notInRight = left.filterNot(e ⇒ isTypePartOf(e, right))
@@ -115,7 +124,6 @@ class UnionMacros(val c: blackbox.Context) extends MacroDefs {
 
   private def checkExhaustiveness(allPatterns: List[MatchResult], shouldCheck: Type ⇒ Boolean): Unit = {
     val global = c.universe.asInstanceOf[tools.nsc.Global]
-    val gpos = c.enclosingPosition.asInstanceOf[global.Position]
     val typer = global.patmat.global.analyzer.newTyper(global.analyzer.rootContext(global.NoCompilationUnit, global.EmptyTree))
     val translator = new global.patmat.OptimizingMatchTranslator(typer)
     val copier = newStrictTreeCopier // https://youtu.be/gqSBM_kLJaI?t=21m35s
@@ -124,15 +132,20 @@ class UnionMacros(val c: blackbox.Context) extends MacroDefs {
     allPatterns.groupBy(_.ut).foreach {case (base, patterns) ⇒
       if (shouldCheck(base)) {
 
+        val baseSym = base.typeSymbol
+        if (baseSym != NoSymbol) {
+          // Workaround for <https://issues.scala-lang.org/browse/SI-7755>
+          baseSym.typeSignature
+        }
+        val scrutSym = baseSym.asInstanceOf[global.Symbol]
         val tp = base.asInstanceOf[global.Type]
-        val scrutSym = translator.freshSym(gpos, tp)
         val cases = patterns map {pat ⇒
 
-          // workaround https://issues.scala-lang.org/browse/SI-5464
+          // Workaround for <https://issues.scala-lang.org/browse/SI-5464>
           // And they said it can't be done. In their faces, ha!
           // Many thanks to @Chasmo90/@MartinSeeler for the hint
           val newT = c.internal.transform(pat.cse.pat)((t, tapi) ⇒ t match {
-            case Bind(name, body) ⇒ copier.Bind(t, c.freshName(name), body) // Bind(c.freshName(name), body)
+            case Bind(name, body) ⇒ copier.Bind(t, c.freshName(name), body)
             case otherwise        ⇒ tapi.default(t)
           })
 
@@ -141,7 +154,10 @@ class UnionMacros(val c: blackbox.Context) extends MacroDefs {
             c.error(pat.cse.pos, s"Failed to type ${pat.cse.pat} as $base. This a bug in typed-actors.")
             Nil
           } else {
+            // Workaround for <https://issues.scala-lang.org/browse/SI-5365>
             // deliberatly leave out guards as they disable exhaustiveness checks
+            // at least until https://github.com/scala/scala/pull/4929
+            // or something similar gets released.
             val gcse = global.CaseDef(newPat, asg(pat.cse.body))
             translator.translateCase(scrutSym, tp)(gcse)
           }
@@ -151,14 +167,36 @@ class UnionMacros(val c: blackbox.Context) extends MacroDefs {
         val improvedCounterExamples = if (counterExamples.isEmpty) {
           // Scalas checker reports exhaustivity, but we can improve on some cases.
           // mostly for literals where we dont have a match all case.
-          // note that flat mapping all of expr is mostly wrong for recursive
-          // types like ::, but we expect Scala to have covered these.
+
+          // Flatmapping all of expr is mostly wrong for recursive types
+          // like ::, but we expect Scala to have covered these.
           // If not, well, good luck then.
           val exprs = patterns.flatMap(_.pt.x.expr)
-          if (!exprs.exists(e ⇒ typeMatch(e, base, variant = false))) {
-            List(s"$base not ${typeMsg(exprs)}")
-          } else {
+
+          // Not sure how different this is from `knownDirectSubclasses` but at least
+          // it is used in the `exhaustive` method above, so we use the same notion
+          // of subtypes as the exhaustiveness checker.
+          val knownSubtypes = translator.enumerateSubtypes(tp, grouped = false).flatten
+
+          // Workaround for <https://issues.scala-lang.org/browse/SI-7046>, not fixingly
+          // but at least we can report that there might be an occurence of this bug.
+          if (knownSubtypes.isEmpty && baseSym.isClass && baseSym.asClass.isSealed) {
+            if (!exprs.contains(NoType)) {
+              c.echo(baseSym.pos, String.format(si7046, base))
+            }
             Nil
+          } else {
+            if (knownSubtypes.isEmpty) {
+              if (!exprs.exists(e ⇒ typeMatch(e, base, variant = false))) {
+                s"$base not ${typeMsg(exprs)}" :: Nil
+              } else {
+                Nil
+              }
+            } else {
+              knownSubtypes
+                .withFilter(st ⇒ !isTypePartOf(st.asInstanceOf[Type], exprs, variant = false))
+                .map(_.toString)
+            }
           }
         } else {
           counterExamples
