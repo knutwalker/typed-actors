@@ -26,7 +26,9 @@ abstract class MacroDefs {
   import c.universe._
 
 
-  case class AndPos[A](x: A, pos: Position)
+  case class AndPos[A](x: A, pos: Position) {
+    override def toString = x.toString
+  }
 
   /**
    * Represents a pattern match.
@@ -34,9 +36,12 @@ abstract class MacroDefs {
    * `expr` is the type of the pattern expression itself.
    */
   case class PatternType(pt: Type, expr: List[Type]) {
+    def at(pos: Position): AndPos[PatternType] = AndPos(this, pos)
     def matches(ut: Type): Boolean = typeMatch(pt, ut)
+    override def toString = s"($pt; ${typeMsg(expr)})"
   }
   object PatternType {
+    val No = apply(NoType, NoType :: Nil)
     def apply(pt: Type): PatternType =
       apply(pt, pt :: Nil)
     def apply(pt: Type, expr: Type): PatternType =
@@ -66,6 +71,8 @@ abstract class MacroDefs {
 
   final val NilType = List.empty[Type]
 
+  def typeMsg(types: List[Type]) =
+    types.mkString("{", " | ", "}")
 
   /**
    * Aborts macro execution with the given error messages
@@ -222,11 +229,11 @@ abstract class MacroDefs {
   }
 
   private def isCaseAccessorLike(sym: TermSymbol): Boolean =
-    sym.isPublic && (if(sym.owner.asClass.isCaseClass) sym.isCaseAccessor else sym.isAccessor)
+    sym.isPublic && (if (sym.owner.asClass.isCaseClass) sym.isCaseAccessor else sym.isAccessor)
 
   @tailrec
   private def distinct0(list: List[Type], has: Set[Type], result: ListBuffer[Type], eq: (Type, Type) ⇒ Boolean): List[Type] = list match {
-    case Nil ⇒ result.result()
+    case Nil         ⇒ result.result()
     case tpe :: rest ⇒
       if (has.exists(eq(tpe, _))) distinct0(rest, has, result, eq)
       else distinct0(rest, has + tpe, result += tpe, eq)

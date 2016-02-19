@@ -16,20 +16,20 @@
 
 package de.knutwalker
 
+import scala.Option.{ apply ⇒ some }
 import scala.annotation.implicitNotFound
 import scala.collection.TraversableLike
 import scala.collection.generic.CanBuildFrom
 
 package object union {
-  implicit final class ListFirstOps[A](private val list: List[A]) extends AnyVal {
-    def first: Either[List[A], Option[A]] =
-      first(x ⇒ x)
 
-    def first[B](conv: A ⇒ B): Either[List[B], Option[B]] = list match {
-      case x :: Nil  ⇒ Right(Some(conv(x)))
-      case Nil       ⇒ Right(None)
-      case otherwise ⇒ Left(otherwise.map(conv))
-    }
+  implicit final class OptionTypeTraverseOps(private val optionType: Option.type) extends AnyVal {
+
+    def flatTraverse[A, B, F[X] <: TraversableOnce[X], That](xs: F[A])(f: A ⇒ Option[F[B]])(implicit cbf: CanBuildFrom[F[A], B, That]) =
+      xs.foldLeft(some(cbf(xs)))((acc, x) ⇒ for (b ← f(x); r ← acc) yield r ++= b).map(_.result())
+
+    def sequence[A, F[X] <: TraversableOnce[X]](xs: F[Option[A]])(implicit cbf: CanBuildFrom[F[Option[A]], A, F[A]]) =
+      xs.foldLeft(some(cbf(xs)))((acc, x) ⇒ for (b ← x; r ← acc) yield r += b).map(_.result())
   }
 
   implicit final class Tuple2Ops[A, B](private val tuple: (A, B)) extends AnyVal {
