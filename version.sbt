@@ -1,1 +1,1 @@
-git.baseVersion in ThisBuild := "2.0.0"
+git.baseVersion in ThisBuild := "2.0.0-a24"

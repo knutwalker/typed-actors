@@ -30,7 +30,7 @@ object Build extends AutoPlugin {
        bintrayPackage := projectName.value,
           description := "Compile time wrapper for more type safe actors",
          scalaVersion := "2.11.7",
-     akkaActorVersion := "2.3.14",
+     akkaActorVersion := "2.4.2",
              isAkka24 := akkaActorVersion.value.startsWith("2.4"),
           javaVersion := JavaVersion.Java17,
          apiMappings ++= mapAkkaJar((externalDependencyClasspath in Compile).value, scalaBinaryVersion.value, akkaActorVersion.value),
