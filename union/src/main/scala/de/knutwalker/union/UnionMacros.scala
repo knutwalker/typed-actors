@@ -139,7 +139,7 @@ class UnionMacros(val c: blackbox.Context) extends PatternDefs {
       // And they said it can't be done. In their faces, ha!
       // Many thanks to @Chasmo90/@MartinSeeler for the hint
       c.internal.transform(pat.cse.pat)((t, tapi) ⇒ t match {
-        case Bind(name, body) ⇒ copier.Bind(t, c.freshName(name), body)
+        case Bind(name, body) ⇒ copier.Bind(t, c.freshName(name), tapi.default(body))
         case otherwise        ⇒ tapi.default(t)
       })
     }
