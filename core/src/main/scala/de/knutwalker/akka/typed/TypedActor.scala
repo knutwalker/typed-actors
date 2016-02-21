@@ -161,7 +161,7 @@ trait TypedActor extends Actor {
 }
 object TypedActor {
   /**
-   * Abstract class to extend from in order to get a [[TypedActor]].
+   * Trait to extend from in order to get a [[TypedActor]].
    *
    * {{{
    *   class ExampleActor extends TypeActor.Of[ExampleProtocol] {
@@ -171,7 +171,7 @@ object TypedActor {
    *
    * @tparam A the message type this actor is receiving
    */
-  abstract class Of[A] extends TypedActor {
+  trait Of[A] extends TypedActor {
     final type Message = A
   }
 
