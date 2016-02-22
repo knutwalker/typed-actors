@@ -17,8 +17,8 @@ lazy val tests = project dependsOn (union, core % "test->test", creator) setting
   dontRelease,
   libraryDependencies ++= List(
     akkaActor(akkaActorVersion.value),
-    "org.specs2" %% "specs2-core"          % "3.7" % "test",
-    "org.specs2" %% "specs2-matcher-extra" % "3.7" % "test"))
+    "org.specs2" %% "specs2-core"          % "3.7.1" % "test",
+    "org.specs2" %% "specs2-matcher-extra" % "3.7.1" % "test"))
 
 lazy val examples = project dependsOn (union, core % "test->test", creator) settings (
   dontRelease,
