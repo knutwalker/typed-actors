@@ -283,6 +283,14 @@ package object typed {
      */
     def or[B]: Props[A | B] =
       retag(props)
+
+    /**
+     * Typically, an ActorRef is contravariant but the chosen encoding uses the
+     * message type in an invariant position. Narrow restores the contravariance
+     * as an explicit method.
+     */
+    def narrow[B <: A]: Props[B] =
+      retag(props)
   }
 
   implicit final class PropsUnionedOps[U <: Union](private val props: Props[U]) extends AnyVal {
