@@ -21,8 +21,9 @@ import de.knutwalker.union._
 import _root_.akka.actor.{ Actor, ActorContext, ActorPath, ActorRefFactory, Deploy }
 import _root_.akka.routing.RouterConfig
 import _root_.akka.util.Timeout
-import akka.typedactors.AskSupport
+import akka.typedactors.{ AskSupport, ContramapRef }
 
+import scala.annotation.implicitNotFound
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 
@@ -64,6 +65,9 @@ package object typed {
   type UntypedActorRef = akka.actor.ActorRef
   type UntypedProps = akka.actor.Props
   val UntypedProps = akka.actor.Props
+
+  @implicitNotFound("contramap is only available from inside an Actor.")
+  type UntypedActorContext = akka.actor.ActorContext
 
   type ActorRef[A] = Tagged[UntypedActorRef, A]
   type Props[A] = Tagged[UntypedProps, A]
@@ -369,6 +373,10 @@ package object typed {
      */
     def narrow[B <: A]: ActorRef[B] =
       retag(ref)
+
+
+    def contramap[B](f: B ⇒ A)(implicit context: UntypedActorContext): ActorRef[B] =
+      ContramapRef(ref.untyped, context)(f)
   }
 
   implicit final class ActorRefUnionedOps[U <: Union](private val ref: ActorRef[U]) extends AnyVal {
@@ -431,6 +439,16 @@ package object typed {
      */
     def typed[A]: ActorRef[A] =
       tag(untyped)
+  }
+
+  implicit final class UntypedActorContextOps(private val wrappedActorContext: ActorContext) extends AnyVal {
+    def typedWatch[A](ref: ActorRef[A]): ActorRef[A] = {
+      wrappedActorContext.watch(ref.untyped)
+      ref
+    }
+
+    def stop[A](ref: ActorRef[A]) =
+      ContramapRef.stop(wrappedActorContext, ref.untyped)
   }
 
   private type Tagged[A, T] = {
