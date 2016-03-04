@@ -29,7 +29,7 @@ import scala.reflect.ClassTag
  *               Unit is not possible, since it is a AnyVal type itself.
  * @tparam A the message type this actor is receiving
  */
-final class PropsBuilder[A](val ignore: Option[Nothing]) extends AnyVal {
+final class PropsBuilder[A](private val ignore: Option[Nothing]) extends AnyVal {
 
   /**
    * Creates a new typed Props that uses the default constructor of the given
@@ -75,7 +75,7 @@ final class PropsBuilder[A](val ignore: Option[Nothing]) extends AnyVal {
    * Wrapper for `akka.actor.Props[T](Class[T], Any*)`.
    *
    * @param clazz the class of this actor
-   * @param args the constructor argumentes of this actor
+   * @param args  the constructor argumentes of this actor
    * @tparam T the actor type
    * @return a typed Props to create `ActorRef[A]`s for this actor
    */

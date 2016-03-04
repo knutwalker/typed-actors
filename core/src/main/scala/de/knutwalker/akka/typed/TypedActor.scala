@@ -16,12 +16,12 @@
 
 package de.knutwalker.akka.typed
 
-import de.knutwalker.union.{Union ⇒ UnionT}
+import de.knutwalker.akka.typed.TypedActor.TypedReceiver
+import de.knutwalker.union.{ Union ⇒ U }
 
 import _root_.akka.actor.Actor
+import _root_.akka.actor.Actor.Receive
 import _root_.akka.event.LoggingReceive
-import akka.actor.Actor.Receive
-import de.knutwalker.akka.typed.TypedActor.TypedReceiver
 
 import scala.reflect.ClassTag
 
@@ -86,11 +86,11 @@ trait TypedActor extends Actor {
    *   }
    * }}}
    */
-  final val Total = UnionT.total[Message].total
+  final val Total = U.total[Message].total
 
   /**
    * Wraps an untyped receiver and returns it as a [[TypedReceive]].
-   * Use this to match for messages that are outside of your protocol, e.g. [[akka.actor.Terminated]].
+   * Use this to match for messages that are outside of your protocol, e.g. `akka.actor.Terminated`.
    *
    * {{{
    *   class ExampleActor extends TypedActor.Of[ExampleMessage] {
@@ -101,45 +101,46 @@ trait TypedActor extends Actor {
    * }}}
    */
   final def Untyped(f: Receive): TypedReceive =
-    f // .asInstanceOf[TypedReceive]
+    f // Receive <: TypedReceive due to variance
 
   /**
-    * Builds final receive out of an untyped receive while checking that the
-    * matched parts belong to the provided message type, especially Unions.
+   * Builds final receive out of an untyped receive while checking that the
+   * matched parts belong to the provided message type, especially Unions.
    * This mirrors a [[TypedReceive]], i.e. you must not cover all cases.
-    *
-    * {{{
-    *   class ExampleActor extends TypedActor.Of[Foo | Bar | Baz] {
-    *     def typedReceive: TypedReceive = Union {
-    *       case Foo() => println("foo")
-    *       case Bar() => println("bar")
-    *     }
-    *   }
-    * }}}
-    */
-  final val Union = UnionT[Message]
+   *
+   * {{{
+   *   class ExampleActor extends TypedActor.Of[Foo | Bar | Baz] {
+   *     def typedReceive: TypedReceive = Union {
+   *       case Foo() => println("foo")
+   *       case Bar() => println("bar")
+   *     }
+   *   }
+   * }}}
+   */
+  final val Union = U[Message]
 
   /**
-    * Builds final receive out of an untyped receive while checking that the
-    * matched parts belong to the provided message type **and** that all possible
-    * subcases are covered. Note, that it doesn't check that for each case
-    * every possible case is covered.
-    * This mirrors a [[Total]] receive, i.e. you must provide all cases.
-    *
-    * {{{
-    *   class ExampleActor extends TypedActor.Of[Foo | Bar | Baz] {
-    *     def typedReceive: TypedReceive = TotalUnion {
-    *       case Foo() => println("foo")
-    *       case Bar() => println("bar")
-    *       case Bax() => println("bax")
-    *     }
-    *   }
-    * }}}
-    */
-  final val TotalUnion = UnionT.total[Message]
+   * Builds final receive out of an untyped receive while checking that the
+   * matched parts belong to the provided message type **and** that all possible
+   * subcases are covered. Note, that it doesn't check that for each case
+   * every possible case is covered.
+   * This mirrors a [[Total]] receive, i.e. you must provide all cases.
+   *
+   * {{{
+   *   class ExampleActor extends TypedActor.Of[Foo | Bar | Baz] {
+   *     def typedReceive: TypedReceive = TotalUnion {
+   *       case Foo() => println("foo")
+   *       case Bar() => println("bar")
+   *       case Bax() => println("bax")
+   *     }
+   *   }
+   * }}}
+   */
+  final val TotalUnion = U.total[Message]
 
   /**
    * `TypedActor`s delegate to [[typedReceive]].
+   *
    * @see [[akka.actor.Actor#receive]]
    */
   def receive: Receive =
@@ -177,7 +178,9 @@ object TypedActor {
 
   /**
    * Creates a new typed actor from a total function, forfeiting the
-   * functionality of changing behavior.
+   * functionality of changing behavior and access to the ActorContext.
+   * That means, there is no refence to `self` and messages send by this actor
+   * will have `deadLetters` as sender.
    *
    * @param f the actors behavior
    * @tparam A the message type

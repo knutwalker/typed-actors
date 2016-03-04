@@ -16,10 +16,11 @@
 
 package akka.typedactors
 
+import de.knutwalker.akka.typed._
+
 import akka.actor.InternalActorRef
 import akka.pattern.AskTimeoutException
 import akka.util.Timeout
-import de.knutwalker.akka.typed._
 
 import scala.concurrent.Future
 import scala.reflect.ClassTag
@@ -31,6 +32,7 @@ import scala.reflect.ClassTag
  * of `private[akka]` methods/classes.
  *
  * This is considered a PRIVATE API.
+ *
  * @see [[de.knutwalker.akka.typed.ActorRefOps.?]]
  */
 object AskSupport {
@@ -42,7 +44,7 @@ object AskSupport {
       val msg = f(r.provider.deadLetters)
       _ref.tell(msg, sender)
       Future.failed[B](new AskTimeoutException(s"Recipient[${_ref}] had already been terminated. Sender[$sender] sent the message of type '${msg.getClass.getName}'."))
-    case r: InternalActorRef ⇒
+    case r: InternalActorRef                   ⇒
       if (timeout.duration.length <= 0) {
         Future.failed[B](new IllegalArgumentException(s"Timeout length must not be negative, question not sent to [${_ref}]. Sender[$sender] sent the message of type '${ctA.runtimeClass.getName}'."))
       } else {

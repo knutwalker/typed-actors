@@ -20,8 +20,8 @@ import de.knutwalker.union._
 
 import _root_.akka.actor.{ Actor, ActorContext, ActorPath, ActorRefFactory, Deploy }
 import _root_.akka.routing.RouterConfig
+import _root_.akka.util.Timeout
 import akka.typedactors.AskSupport
-import akka.util.Timeout
 
 import scala.concurrent.Future
 import scala.reflect.ClassTag
@@ -117,7 +117,7 @@ package object typed {
    * Wrapper for `akka.actor.Props[T](Class[T], Any*)`.
    *
    * @param clazz the class of this actor
-   * @param args the constructor argumentes of this actor
+   * @param args  the constructor argumentes of this actor
    * @tparam A the message type this actor is receiving
    * @tparam T the actor type
    * @return a typed Props to create `ActorRef[A]`s for this actor
@@ -169,7 +169,7 @@ package object typed {
    * The message type is derived from the given actor.
    *
    * @param clazz the class of this typed actor
-   * @param args the constructor argumentes of this actor
+   * @param args  the constructor argumentes of this actor
    * @tparam T the typed actor
    * @return a typed Props to create `ActorRef[A]`s for this actor
    */
@@ -202,18 +202,18 @@ package object typed {
    * Creates a new typed actor with the given name as a child of the
    * implicit [[akka.actor.ActorRefFactory]].
    *
-   * @param p see [[Props]] for details on how to obtain a `Props` object
-   * @param name the name of the actor.
-   *             must not be null, empty or start with “$”.
-   *             If the given name is already in use, an
-   *             `InvalidActorNameException` is thrown.
+   * @param p       see [[Props]] for details on how to obtain a `Props` object
+   * @param name    the name of the actor.
+   *                must not be null, empty or start with “$”.
+   *                If the given name is already in use, an
+   *                `InvalidActorNameException` is thrown.
    * @param factory the factory to create the actor. Within an actor itself,
    *                this is its `context`. For a toplevel actor, you need to
    *                put the `ActorSystem` into the implicit scope.
    * @throws akka.actor.InvalidActorNameException if the given name is
    *                                              invalid or already in use
-   * @throws akka.ConfigurationException if deployment, dispatcher or
-   *                                     mailbox configuration is wrong
+   * @throws akka.ConfigurationException          if deployment, dispatcher or
+   *                                              mailbox configuration is wrong
    * @tparam A the message type this actor is receiving
    * @return the typed ActorRef[A] for this actor
    */
@@ -224,7 +224,7 @@ package object typed {
    * Creates a new typed actor as a child of the implicit
    * [[akka.actor.ActorRefFactory]] and give it an automatically generated name.
    *
-   * @param p see [[Props]] for details on how to obtain a `Props` object
+   * @param p       see [[Props]] for details on how to obtain a `Props` object
    * @param factory the factory to create the actor. Within an actor itself,
    *                this is its `context`. For a toplevel actor, you need to
    *                put the `ActorSystem` into the implicit scope.
@@ -278,9 +278,9 @@ package object typed {
       untag(props)
 
     /**
-      * Build a union typed Props out of this Props.
-      * The resulting props may accept either `A` or `B` as message.
-      */
+     * Build a union typed Props out of this Props.
+     * The resulting props may accept either `A` or `B` as message.
+     */
     def or[B]: Props[A | B] =
       retag(props)
   }
@@ -300,7 +300,7 @@ package object typed {
      * @see [[akka.actor.ActorRef#tell]]
      */
     def !(msg: A)(implicit sender: UntypedActorRef = Actor.noSender): Unit =
-      untyped ! msg
+      untyped.!(msg)(sender)
 
     /**
      * Ask a typed question asynchronously.
@@ -329,7 +329,7 @@ package object typed {
 
     /** @see [[akka.actor.ActorRef#forward]] */
     def forward(msg: A)(implicit context: ActorContext): Unit =
-      untyped.forward(msg)
+      untyped.forward(msg)(context)
 
     /**
      * Sends any message asynchronously, e.g. [[akka.actor.PoisonPill]].
@@ -338,7 +338,7 @@ package object typed {
      * @see [[akka.actor.ActorRef#tell]]
      */
     def unsafeTell(msg: Any)(implicit sender: UntypedActorRef = Actor.noSender): Unit =
-      untyped ! msg
+      untyped.!(msg)(sender)
 
     /**
      * Returns this typed ActorRef as an untyped [[akka.actor.ActorRef]].
@@ -348,9 +348,9 @@ package object typed {
       untag(ref)
 
     /**
-      * Build a union typed ActorRef out of this ActorRef.
-      * The resulting actor may accept either `A` or `B` as message.
-      */
+     * Build a union typed ActorRef out of this ActorRef.
+     * The resulting actor may accept either `A` or `B` as message.
+     */
     def or[B]: ActorRef[A | B] =
       retag(ref)
 
@@ -366,31 +366,31 @@ package object typed {
   implicit final class ActorRefUnionedOps[U <: Union](private val ref: ActorRef[U]) extends AnyVal {
 
     /**
-      * Sends a typed message asynchronously.
-      *
-      * @see [[akka.actor.ActorRef#tell]]
-      */
+     * Sends a typed message asynchronously.
+     *
+     * @see [[akka.actor.ActorRef#tell]]
+     */
     def ![A](msg: A)(implicit ev: A isPartOf U, sender: UntypedActorRef = Actor.noSender): Unit =
       untag(ref) ! msg
 
     /**
-      * Ask a typed question asynchronously.
-      * This signature enforces the `replyTo` pattern for keeping type safety.
-      *
-      * Instead of sending a message of `Any` and replying to an untyped `sender()`,
-      * you supply a function that, given a typed sender, will return the message.
-      * This is typically done with a second parameter list of a case class.
-      *
-      * {{{
-      * case class MyMessage(payload: String)(val replyTo: ActorRef[MyResponse])
-      *
-      * class MyActor extends Actor {
-      *   def receive = {
-      *     case m@MyMessage(payload) => m.replyTo ! MyResponse(payload)
-      *   }
-      * }
-      * }}}
-      */
+     * Ask a typed question asynchronously.
+     * This signature enforces the `replyTo` pattern for keeping type safety.
+     *
+     * Instead of sending a message of `Any` and replying to an untyped `sender()`,
+     * you supply a function that, given a typed sender, will return the message.
+     * This is typically done with a second parameter list of a case class.
+     *
+     * {{{
+     * case class MyMessage(payload: String)(val replyTo: ActorRef[MyResponse])
+     *
+     * class MyActor extends Actor {
+     *   def receive = {
+     *     case m@MyMessage(payload) => m.replyTo ! MyResponse(payload)
+     *   }
+     * }
+     * }}}
+     */
     def ?[A, B](f: ActorRef[B] ⇒ A)(implicit ev: A isPartOf U, timeout: Timeout, ctA: ClassTag[A], sender: UntypedActorRef = Actor.noSender): Future[B] =
       AskSupport.ask[A, B](retag(ref), f, timeout, ctA, sender)
 
@@ -404,6 +404,7 @@ package object typed {
     /**
      * Returns this Props as a typed [[Props]].
      * The returned instance is `eq` to `this`.
+     *
      * @tparam A the message type this actor will be receiving
      * @return the typed Props
      */
@@ -416,6 +417,7 @@ package object typed {
     /**
      * Returns this Props as a typed [[ActorRef]].
      * The returned instance is `eq` to `this`.
+     *
      * @tparam A the message type this actor is receiving
      * @return the typed ActorRef
      */
