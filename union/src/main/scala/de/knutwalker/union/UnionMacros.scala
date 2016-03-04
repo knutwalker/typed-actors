@@ -96,7 +96,7 @@ class UnionMacros(val c: blackbox.Context) extends PatternDefs {
     "workaround by adding a catch-all pattern like `case _: %1$s` to your " +
     "cases and please file an issue on Github."
   private val si7046           =
-    "You are likely affected by SI-7046 <https://issues.scala-lang.org/browse/SI-7046> " +
+    "You are possibly affected by SI-7046 <https://issues.scala-lang.org/browse/SI-7046> " +
     "or a related bug. This means, that the exhautiveness checks could not be executed " +
     "and as a result, the succeeding compilation can be a false positive. As a workaround, " +
     "try to move the definition of %1$s to a separate compile unit."
