@@ -44,43 +44,40 @@ object UnionSpec extends Specification with TripleArrow {
   title("Typer for partial functions")
   sequential
 
-  "a * type" should {
-    "postive/compilation tests" should {
-      "literal/constant/ident" >>> {
-        Union[Int].run {
+  "scalar type" should {
+    "positive" should {
+      "value" >>> {
+        Union[Int] {
           case 42  ⇒ true
           case X   ⇒ true
           case `y` ⇒ true
+          case i@21 ⇒ true
         }
       }
-      "type check" >>> {
-        Union[Int].run {
-          case i: Int ⇒ true
+      "wildcard" should {
+        "type" >>> {
+          Union[Int] {
+            case i: Int ⇒ true
+          }
         }
-      }
-      "binding" >>> {
-        Union[Int].run {
-          case i ⇒ true
+        "bind" >>> {
+          Union[Int] {
+            case i ⇒ true
+          }
         }
-      }
-      "named binding" >>> {
-        Union[Int].run {
-          case i@42 ⇒ true
-        }
-      }
-      "wildcard" >>> {
-        Union[Int].run {
-          case _ ⇒ true
+        "wildcard" >>> {
+          Union[Int] {
+            case _ ⇒ true
+          }
         }
       }
     }
-
-    "negative/non-compilation tests" >>> {
-      illTyped("""Union[Int].run { case "42" ⇒ true }""")
-      illTyped("""Union[Int].run { case XS ⇒ true }""")
-      illTyped("""Union[Int].run { case `ys` ⇒ true }""")
-      illTyped("""Union[Int].run { case s: String ⇒ true }""")
-      illTyped("""Union[Int].run { case s @ "42" ⇒ true }""")
+    "negative" >>> {
+      illTyped("""Union[Int] { case "42" ⇒ true }""")
+      illTyped("""Union[Int] { case XS ⇒ true }""")
+      illTyped("""Union[Int] { case `ys` ⇒ true }""")
+      illTyped("""Union[Int] { case s: String ⇒ true }""")
+      illTyped("""Union[Int] { case s @ "42" ⇒ true }""")
     }
   }
 
@@ -88,9 +85,9 @@ object UnionSpec extends Specification with TripleArrow {
     "direct relation" should {
       "postive/compilation tests" should {
         "work" >>> {
-          Union[List[Int]].run {
-            // TODO: case 42 :: rest => true
+          Union[List[Int]] {
             case 42 :: Nil       ⇒ true
+            case 42 :: rest      ⇒ true
             case X :: Nil        ⇒ true
             case `y` :: Nil      ⇒ true
             case (x@21) :: Nil   ⇒ true
@@ -100,25 +97,25 @@ object UnionSpec extends Specification with TripleArrow {
         }
 
         "work with bind" >>> {
-          Union[List[Int]].run {
+          Union[List[Int]] {
             case List(x) ⇒ true
           }
         }
 
         "work with wildcard" >>> {
-          Union[List[Int]].run {
+          Union[List[Int]] {
             case List(_) ⇒ true
           }
         }
 
         "work with star" >>> {
-          Union[List[Int]].run {
+          Union[List[Int]] {
             case List(xs@_*) ⇒ true
           }
         }
 
         "work with bind and star" >>> {
-          Union[List[Int]].run {
+          Union[List[Int]] {
             case List(x: Int, xs@_*) ⇒ true
           }
         }
@@ -128,7 +125,7 @@ object UnionSpec extends Specification with TripleArrow {
     "subtype relation" should {
       "postive/compilation tests" should {
         "work" >>> {
-          Union[Option[Int]].run {
+          Union[Option[Int]] {
             case Some(42)     ⇒ true
             case Some(X)      ⇒ true
             case Some(`y`)    ⇒ true
@@ -138,12 +135,12 @@ object UnionSpec extends Specification with TripleArrow {
           }
         }
         "work with wildcard bind" >>> {
-          Union[Option[Int]].run {
+          Union[Option[Int]] {
             case Some(x) ⇒ true
           }
         }
         "work with wildcard" >>> {
-          Union[Option[Int]].run {
+          Union[Option[Int]] {
             case Some(_) ⇒ true
           }
         }
@@ -155,7 +152,7 @@ object UnionSpec extends Specification with TripleArrow {
     "doubly nested types" should {
       "postive/compilation tests" should {
         "work" >>> {
-          Union[List[Option[Double]]].run {
+          Union[List[Option[Double]]] {
             case Some(13.37) :: Some(42.0) :: Nil ⇒ true
           }
         }
@@ -165,7 +162,7 @@ object UnionSpec extends Specification with TripleArrow {
     "subtypes with different shapes" should {
       "postive/compilation tests" should {
         "sum type shape" >>> {
-          Union[Either[String, Int]].run {
+          Union[Either[String, Int]] {
             case Left("42")      ⇒ true
             case Left(_: String) ⇒ true
             case Right(42)       ⇒ true
@@ -177,7 +174,7 @@ object UnionSpec extends Specification with TripleArrow {
         }
 
         "applied type constructor" >>> {
-          Union[Foo1[Option[Int]]].run {
+          Union[Foo1[Option[Int]]] {
             case Bar1(42)     ⇒ true
             case Bar1(X)      ⇒ true
             case Bar1(`y`)    ⇒ true
@@ -187,7 +184,7 @@ object UnionSpec extends Specification with TripleArrow {
         }
 
         "different order" >>> {
-          Union[Foo2[Int, String]].run {
+          Union[Foo2[Int, String]] {
             case Bar2(42)     ⇒ true
             case Bar2(X)      ⇒ true
             case Bar2(`y`)    ⇒ true
@@ -197,7 +194,7 @@ object UnionSpec extends Specification with TripleArrow {
         }
 
         "different order with applied type constructor" >>> {
-          Union[Foo2[Option[Int], String]].run {
+          Union[Foo2[Option[Int], String]] {
             case Baz2(42)     ⇒ true
             case Baz2(X)      ⇒ true
             case Baz2(`y`)    ⇒ true
@@ -207,7 +204,7 @@ object UnionSpec extends Specification with TripleArrow {
         }
 
         "type repetitions" >>> {
-          Union[Foo3[Int, String, Int]].run {
+          Union[Foo3[Int, String, Int]] {
             case Bar3(42)     ⇒ true
             case Bar3(X)      ⇒ true
             case Bar3(`y`)    ⇒ true
@@ -217,7 +214,7 @@ object UnionSpec extends Specification with TripleArrow {
         }
 
         "type repetitions with applied type constructor" >>> {
-          Union[Foo3[Int, String, Option[Int]]].run {
+          Union[Foo3[Int, String, Option[Int]]] {
             case Baz3(42)     ⇒ true
             case Baz3(X)      ⇒ true
             case Baz3(`y`)    ⇒ true
@@ -228,20 +225,20 @@ object UnionSpec extends Specification with TripleArrow {
       }
 
       "negative/non-compilation tests" >>> {
-        illTyped("""Union[Either[String, Boolean]].run { case Left(b: Boolean) ⇒ true }""")
-        illTyped("""Union[Either[String, Boolean]].run { case Right(s: String) ⇒ true }""")
-        illTyped("""Union[Foo1[Option[Int]]].run { case Bar1(s: String) ⇒ true }""")
-        illTyped("""Union[Foo2[Int, String]].run { case Bar2(s: String) ⇒ true }""")
-        illTyped("""Union[Foo2[Option[Int], String]].run { case Baz2(s: String) ⇒ true }""")
-        illTyped("""Union[Foo3[Int, String, Int]].run { case Bar3(s: String) ⇒ true }""")
-        illTyped("""Union[Foo3[Int, String, Option[Int]]].run { case Bar3(s: String) ⇒ true }""")
+        illTyped("""Union[Either[String, Boolean]] { case Left(b: Boolean) ⇒ true }""")
+        illTyped("""Union[Either[String, Boolean]] { case Right(s: String) ⇒ true }""")
+        illTyped("""Union[Foo1[Option[Int]]] { case Bar1(s: String) ⇒ true }""")
+        illTyped("""Union[Foo2[Int, String]] { case Bar2(s: String) ⇒ true }""")
+        illTyped("""Union[Foo2[Option[Int], String]] { case Baz2(s: String) ⇒ true }""")
+        illTyped("""Union[Foo3[Int, String, Int]] { case Bar3(s: String) ⇒ true }""")
+        illTyped("""Union[Foo3[Int, String, Option[Int]]] { case Bar3(s: String) ⇒ true }""")
       }
     }
 
     "unapply" should {
       "postive/compilation tests" should {
         "unapply" >>> {
-          Union[List[Int]].run {
+          Union[List[Int]] {
             case List(42)     ⇒ true
             case List(X)      ⇒ true
             case List(`y`)    ⇒ true
@@ -252,25 +249,25 @@ object UnionSpec extends Specification with TripleArrow {
         }
 
         "unapply with bind" >>> {
-          Union[List[Int]].run {
+          Union[List[Int]] {
             case List(x) ⇒ true
           }
         }
 
         "unapply with wildcard" >>> {
-          Union[List[Int]].run {
+          Union[List[Int]] {
             case List(_) ⇒ true
           }
         }
 
         "unapply with star" >>> {
-          Union[List[Int]].run {
+          Union[List[Int]] {
             case List(xs@_*) ⇒ true
           }
         }
 
         "unapply with bind and star" >>> {
-          Union[List[Int]].run {
+          Union[List[Int]] {
             case List(x: Int, xs@_*) ⇒ true
           }
         }
@@ -282,19 +279,19 @@ object UnionSpec extends Specification with TripleArrow {
     "multiple direct values" should {
       "postive/compilation tests" should {
         "plain match" >>> {
-          Union[Int | String | Boolean].run {
+          Union[Int | String | Boolean] {
             case s: String  ⇒ true
             case i: Int     ⇒ true
             case b: Boolean ⇒ true
           }
         }
         "alternative" >>> {
-          Union[Int | String | Boolean].run {
+          Union[Int | String | Boolean] {
             case 42 | "42" | true ⇒ true
           }
         }
         "by alias" >>> {
-          Union[ISB].run {
+          Union[ISB] {
             case s: String  ⇒ true
             case i: Int     ⇒ true
             case b: Boolean ⇒ true
@@ -303,16 +300,16 @@ object UnionSpec extends Specification with TripleArrow {
       }
 
       "negative/non-compilation tests" >>> {
-        illTyped("""Union[ISB].run { case 13.37 ⇒ true }""")
-        illTyped("""Union[ISB].run { case Some(s: String) ⇒ true }""")
-        illTyped("""Union[ISB].run { case None ⇒ true }""")
-        illTyped("""Union[ISB].run { case Some(_) ⇒ true }""")
+        illTyped("""Union[ISB] { case 13.37 ⇒ true }""")
+        illTyped("""Union[ISB] { case Some(s: String) ⇒ true }""")
+        illTyped("""Union[ISB] { case None ⇒ true }""")
+        illTyped("""Union[ISB] { case Some(_) ⇒ true }""")
       }
     }
     "multiple applied hk types" should {
       "postive/compilation tests" should {
         "plain match" >>> {
-          Union[Option[Int] | Either[Boolean, String]].run {
+          Union[Option[Int] | Either[Boolean, String]] {
             case Some(i: Int)     ⇒ true
             case None             ⇒ true
             case Left(b: Boolean) ⇒ true
@@ -322,9 +319,9 @@ object UnionSpec extends Specification with TripleArrow {
       }
 
       "negative/non-compilation tests" >>> {
-        illTyped("""Union[Option[Int] | Either[Boolean, String]].run { case Some(s: String) ⇒ true }""")
-        illTyped("""Union[Option[Int] | Either[Boolean, String]].run { case Left(s: String) ⇒ true }""")
-        illTyped("""Union[Option[Int] | Either[Boolean, String]].run { case Right(b: Boolean) ⇒ true }""")
+        illTyped("""Union[Option[Int] | Either[Boolean, String]] { case Some(s: String) ⇒ true }""")
+        illTyped("""Union[Option[Int] | Either[Boolean, String]] { case Left(s: String) ⇒ true }""")
+        illTyped("""Union[Option[Int] | Either[Boolean, String]] { case Right(b: Boolean) ⇒ true }""")
       }
     }
   }
